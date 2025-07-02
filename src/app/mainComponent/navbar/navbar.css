@@ -1,0 +1,42 @@
+/* Navbar custom styles */
+.navbar {
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #2d3748;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+.nav-link {
+  font-weight: 500;
+}
+
+.btn-outline-secondary {
+  border-color: #495057;
+  color: white;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #00CDB5 !important;
+  border-color: #00CDB5 !important;
+  color: white !important;
+}
+
+/* Animazioni smooth */
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .navbar-nav {
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  .navbar-nav .nav-link {
+    margin: 0.5rem 0;
+  }
+}

@@ -1,1 +1,229 @@
-/* You can add global styles to this file, and also import other style files */
+/* TheSpoon Global Styles */
+
+/* 🎯 VARIABILI CSS GLOBALI - Funzionano per TUTTE le pagine */
+:root {
+  /* Bootstrap Override */
+  --bs-primary: #00CDB5;
+  --bs-primary-rgb: 0, 205, 181;
+
+  /* Brand Colors - SEMPRE UGUALI */
+  --primary-color: #00CDB5;
+  --primary-light: #4de0c1;
+  --primary-dark: #00a688;
+  --primary-gradient: linear-gradient(135deg, #00CDB5 0%, #00a688 100%);
+}
+
+/* 🌙 TEMA DARK - DEFAULT */
+:root,
+[data-bs-theme="dark"],
+[data-theme="dark"] {
+  --bg-color: #0f1419;
+  --bg-secondary: #1a2332;
+  --text-color: #ffffff;
+  --text-light: #b8c5d1;
+  --text-muted: #8a9ba8;
+  --card-bg: #1e2936;
+  --border-color: #2d3748;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+
+  /* 🔥 SEARCH CARD CONTENT - Opposto al tema (chiaro quando dark) */
+  --search-card-bg: #ffffff;
+  --search-form-bg: #f8f9fa;
+  --search-text: #333333;
+  --search-label: #495057;
+  --search-border: #dee2e6;
+  --search-input-bg: #ffffff;
+  --navbar-bg:#0F1419;
+  --nav-link:#ffffff;
+}
+
+/* ☀️ TEMA LIGHT */
+[data-bs-theme="light"],
+[data-theme="light"] {
+  --bg-color: #ffffff;
+  --bg-secondary: #f8fffe;
+  --text-color: #333333;
+  --text-light: #666666;
+  --text-muted: #999999;
+  --card-bg: #ffffff;
+  --border-color: #e1f5f1;
+  --shadow: 0 4px 20px rgba(0, 205, 181, 0.1);
+  --shadow-hover: 0 8px 30px rgba(0, 205, 181, 0.2);
+
+  /* 🔥 SEARCH CARD CONTENT - Opposto al tema (scuro quando light) */
+  --search-card-bg: #1a2332;
+  --search-form-bg: #2d3748;
+  --search-text: #ffffff;
+  --search-label: #b8c5d1;
+  --search-border: #4a5568;
+  --search-input-bg: #374151;
+  --navbar-bg :#ffffff;
+  --nav-link:#1A2332;
+}
+
+/* Global Font */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  /* 🔥 USA LE VARIABILI CSS */
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 🔍 SEARCH CARD STYLES - Solo la card cambia, non la sezione */
+.search-card {
+  background: var(--search-card-bg) !important;
+  border: 1px solid var(--search-border) !important;
+  box-shadow: var(--shadow-hover) !important;
+  transition: all 0.3s ease;
+}
+
+.search-card .card-body {
+  background: var(--search-card-bg) !important;
+}
+
+.search-label {
+  color: var(--search-label) !important;
+}
+
+.search-select {
+  background-color: var(--search-input-bg) !important;
+  color: var(--search-text) !important;
+  border-color: var(--search-border) !important;
+  transition: all 0.3s ease;
+}
+
+.search-select:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 205, 181, 0.25) !important;
+  background-color: var(--search-input-bg) !important;
+  color: var(--search-text) !important;
+}
+
+.search-select option {
+  background-color: var(--search-input-bg) !important;
+  color: var(--search-text) !important;
+}
+
+.search-button {
+  background: var(--primary-gradient) !important;
+  border: none !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* 🧭 NAVBAR STYLES */
+.navbar {
+  background: var(--navbar-bg) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.navbar-brand {
+  color: var(--navbar-text) !important;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link {
+  color: var(--navbar-text) !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: rgba(0, 205, 181, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+
+.navbar-toggler {
+  border-color: var(--border-color) !important;
+}
+
+.btn-outline-secondary {
+  border-color: var(--border-color) !important;
+  color: var(--navbar-text) !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Logo dinamico */
+.logo-dynamic {
+  content: var(--navbar-logo);
+  width: 120px;
+  height: 40px;
+  background: var(--navbar-logo) no-repeat center center;
+  background-size: contain;
+}
+
+/* Override Bootstrap Colors */
+.btn-primary {
+  --bs-btn-bg: var(--primary-color);
+  --bs-btn-border-color: var(--primary-color);
+  --bs-btn-hover-bg: var(--primary-dark);
+  --bs-btn-hover-border-color: var(--primary-dark);
+}
+
+.text-primary {
+  --bs-text-opacity: 1;
+  color: rgba(0, 205, 181, var(--bs-text-opacity)) !important;
+}
+
+/* Form Controls Global */
+.form-select,
+.form-control {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+.form-select:focus,
+.form-control:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 205, 181, 0.25) !important;
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.form-select option {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Cards Global */
+.card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Badges Global */
+.badge {
+  font-size: 0.85rem !important;
+}
+
+/* Text Colors Global */
+.text-light {
+  color: var(--text-light) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Smooth transitions for ALL elements */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

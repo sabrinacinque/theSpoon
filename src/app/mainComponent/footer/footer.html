@@ -1,0 +1,119 @@
+<!-- Footer -->
+<footer class="footer mt-5">
+  <div class="container-xl">
+    <!-- Main Footer Content -->
+    <div class="row g-4 py-5">
+
+      <!-- Logo e Descrizione -->
+      <div class="col-lg-4 col-md-6">
+        <div class="footer-brand mb-4">
+          <div class="footer-brand mb-4">
+            <img
+              src="/images/logoNavbarLightnobg.png"
+              alt="TheSpoon Logo" [ngStyle]="{'height': themeService.isDarkTheme() ? '50px' : '45px'}">
+            <p class="footer-description">
+              Scopri l'autentica cucina italiana e prenota il tuo tavolo nei migliori ristoranti d'Italia.
+              Dalla pizza napoletana alla bistecca fiorentina, trova l'esperienza culinaria perfetta per te.
+            </p>
+          </div>
+
+          <!-- Social Links -->
+          <div class="social-links">
+            <h6 class="footer-title mb-3">Seguici</h6>
+            <div class="d-flex gap-3">
+              <a *ngFor="let social of socialLinks" [href]="social.url" class="social-link" [title]="social.name">
+                <i [class]="social.icon"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Azienda -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h6 class="footer-title mb-3">Azienda</h6>
+        <ul class="footer-links">
+          <li *ngFor="let link of footerLinks.company">
+            <a [href]="link.url">{{ link.name }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Ristoranti -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h6 class="footer-title mb-3">Ristoranti</h6>
+        <ul class="footer-links">
+          <li *ngFor="let link of footerLinks.restaurants">
+            <a [href]="link.url">{{ link.name }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Supporto -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h6 class="footer-title mb-3">Supporto</h6>
+        <ul class="footer-links">
+          <li *ngFor="let link of footerLinks.support">
+            <a [href]="link.url">{{ link.name }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Legale -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h6 class="footer-title mb-3">Legale</h6>
+        <ul class="footer-links">
+          <li *ngFor="let link of footerLinks.legal">
+            <a [href]="link.url">{{ link.name }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="row py-4 border-top footer-border">
+        <div class="col-lg-6">
+          <h6 class="footer-title mb-3">Newsletter</h6>
+          <p class="newsletter-text mb-3">Ricevi le migliori offerte e novità direttamente nella tua email</p>
+          <div class="newsletter-form d-flex gap-2">
+            <input type="email" class="form-control newsletter-input" placeholder="La tua email...">
+            <button class="btn btn-primary newsletter-btn px-4">
+              Iscriviti
+            </button>
+          </div>
+        </div>
+
+        <!-- App Download -->
+        <div class="col-lg-6">
+          <h6 class="footer-title mb-3">Scarica l'App</h6>
+          <p class="newsletter-text mb-3">Prenota ovunque tu sia con la nostra app mobile</p>
+          <div class="app-download d-flex gap-3">
+            <a href="#" class="app-store-btn">
+              <img
+                src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg"
+                alt="Download su App Store" style="height: 40px;">
+            </a>
+            <a href="#" class="play-store-btn">
+              <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                alt="Scarica su Google Play" style="height: 40px;">
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="row py-4 border-top footer-border">
+        <div class="col-md-6">
+          <p class="copyright mb-0">
+            &copy; {{ currentYear }} TheSpoon. Tutti i diritti riservati.
+          </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="made-with mb-0">
+            Fatto con ❤️ by Sabrina Cinque
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+

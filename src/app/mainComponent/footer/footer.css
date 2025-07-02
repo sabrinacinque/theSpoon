@@ -1,0 +1,226 @@
+/* Footer Styles */
+.footer {
+  background: var(--bg-secondary);
+  color: var(--text-light);
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+/* Logo */
+.footer-logo {
+  height: 50px;
+  width: auto;
+  filter: brightness(0.9);
+}
+
+/* Titles */
+.footer-title {
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 1rem !important;
+}
+
+/* Description */
+.footer-description {
+  color: var(--text-light);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+/* Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 0.75rem;
+}
+
+.footer-links a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--primary-color);
+  transform: translateX(5px);
+}
+
+/* Social Links */
+.social-links {
+  margin-top: 2rem;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-color);
+  color: var(--text-light);
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.social-link:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 205, 181, 0.3);
+}
+
+/* Newsletter */
+.newsletter-text {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.newsletter-input {
+  background: var(--bg-color) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
+  border-radius: 8px;
+}
+
+.newsletter-input:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 205, 181, 0.25) !important;
+  background: var(--bg-color) !important;
+}
+
+.newsletter-input::placeholder {
+  color: var(--text-muted);
+}
+
+.newsletter-btn {
+  background: var(--primary-gradient) !important;
+  border: none !important;
+  border-radius: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.newsletter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 205, 181, 0.3);
+}
+
+/* App Download */
+.app-download a {
+  transition: all 0.3s ease;
+}
+
+.app-download a:hover {
+  transform: translateY(-3px);
+  opacity: 0.8;
+}
+
+/* Borders */
+.footer-border {
+  border-color: var(--border-color) !important;
+}
+
+/* Copyright */
+.copyright, .made-with {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer-brand {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .social-links {
+    text-align: center;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+  }
+
+  .newsletter-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .app-download {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .footer-links {
+    text-align: center;
+  }
+
+  .copyright, .made-with {
+    text-align: center !important;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer {
+    padding: 0 1rem;
+  }
+
+  .col-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .social-link {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Light Theme Adjustments */
+:host-context([data-bs-theme="light"]) .footer {
+  background: var(--bg-secondary);
+  color: var(--text-light);
+}
+
+:host-context([data-bs-theme="light"]) .footer-logo {
+  filter: brightness(1);
+}
+
+/* Dark Theme Specific */
+:host-context([data-bs-theme="dark"]) .footer {
+  background: var(--bg-secondary);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer-links a,
+.social-link {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.footer-links li:nth-child(1) a { animation-delay: 0.1s; }
+.footer-links li:nth-child(2) a { animation-delay: 0.2s; }
+.footer-links li:nth-child(3) a { animation-delay: 0.3s; }
+.footer-links li:nth-child(4) a { animation-delay: 0.4s; }
