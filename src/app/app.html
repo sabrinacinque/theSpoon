@@ -1,3 +1,8 @@
-<app-navbar></app-navbar>
+<app-navbar
+  (goHome)="navigateToHome()"
+  (goLogin)="navigateToLogin()">
+</app-navbar>
+
 <router-outlet></router-outlet>
+
 <app-footer></app-footer>

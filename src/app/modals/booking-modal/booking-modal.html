@@ -1,0 +1,233 @@
+<!-- Booking Modal -->
+<div class="modal-overlay" [class.show]="isOpen" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <button class="btn-back" (click)="goToPreviousStep()" *ngIf="currentStep !== 'date'">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h2 class="modal-title">{{ restaurant?.name }}</h2>
+      <button class="btn-close" (click)="close()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Step Title -->
+    <div class="step-title">
+      <h3>{{ getStepTitle() }}</h3>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar row d-flex flex-row">
+      <div class="progress-step" [class.active]="currentStep === 'date'">
+        <i class="fas fa-calendar-alt"></i>
+      </div>
+      <div class="progress-step" [class.active]="currentStep === 'time'">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="progress-step" [class.active]="currentStep === 'people'">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="progress-step" [class.active]="currentStep === 'confirm'">
+        <i class="fas fa-check"></i>
+      </div>
+    </div>
+
+    <!-- Step Content -->
+    <div class="step-content">
+
+      <!-- STEP 1: Date Selection -->
+      <div *ngIf="currentStep === 'date'" class="date-step">
+        <!-- Calendar Header -->
+        <div class="calendar-header">
+          <button class="btn-month" (click)="previousMonth()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <h4>{{ getMonthName() }}</h4>
+          <button class="btn-month" (click)="nextMonth()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Days of Week -->
+        <div class="days-header">
+          <div class="day-header">Lun</div>
+          <div class="day-header">Mar</div>
+          <div class="day-header">Mer</div>
+          <div class="day-header">Gio</div>
+          <div class="day-header">Ven</div>
+          <div class="day-header">Sab</div>
+          <div class="day-header">Dom</div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-grid">
+          <div
+            *ngFor="let day of getDaysInMonth()"
+            class="calendar-day"
+            [class.available]="day && isDateAvailable(day)"
+            [class.unavailable]="day && !isDateAvailable(day)"
+            [class.selected]="day && bookingData.date && day.getTime() === bookingData.date.getTime()"
+            (click)="day && selectDate(day)">
+
+            <div *ngIf="day" class="day-content">
+              <span class="day-number">{{ day.getDate() }}</span>
+              <span
+                *ngIf="isDateAvailable(day)"
+                class="day-discount">{{ getDateDiscount(day) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Time Selection -->
+      <div *ngIf="currentStep === 'time'" class="time-step">
+        <!-- Selected Date Display -->
+        <div class="selected-info">
+          <i class="fas fa-calendar-check"></i>
+          <span class="flex-fill">{{ formatFullDate(bookingData.date!) }}</span>
+        </div>
+
+        <!-- Lunch Times -->
+        <div class="time-section">
+          <h4>PRANZO</h4>
+          <div class="time-grid">
+            <button
+              *ngFor="let time of lunchTimes"
+              class="time-button"
+              [class.selected]="bookingData.time === time"
+              (click)="selectTime(time)">
+              <span>{{ time }}</span>
+              <small>{{ bookingData.discount }}</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dinner Times -->
+        <div class="time-section">
+          <h4>CENA</h4>
+          <div class="time-grid">
+            <button
+              *ngFor="let time of dinnerTimes"
+              class="time-button"
+              [class.selected]="bookingData.time === time"
+              (click)="selectTime(time)">
+              <span>{{ time }}</span>
+              <small>{{ bookingData.discount }}</small>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: People Selection -->
+      <div *ngIf="currentStep === 'people'" class="people-step">
+        <!-- Selected Info -->
+        <div class="selected-info">
+          <i class="fas fa-calendar-check"></i>
+          <span>{{ formatDate(bookingData.date!) }}</span>
+          <i class="fas fa-clock"></i>
+          <span>{{ bookingData.time }}</span>
+        </div>
+
+        <!-- People Grid -->
+        <div class="people-grid">
+          <button
+            *ngFor="let num of [1,2,3,4,5,6,7,8]"
+            class="people-button"
+            [class.selected]="bookingData.people === num"
+            (click)="selectPeople(num)">
+            <span class="people-number">{{ num }}</span>
+            <small>{{ bookingData.discount }}</small>
+          </button>
+        </div>
+
+        <!-- More People Option -->
+        <div class="text-center mt-3">
+          <button class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-plus me-1"></i> Più di 8 persone
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Confirmation -->
+      <div *ngIf="currentStep === 'confirm'" class="confirm-step">
+        <!-- Booking Summary -->
+        <div class="booking-summary">
+          <div class="summary-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ formatFullDate(bookingData.date!) }}</span>
+          </div>
+          <div class="summary-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ bookingData.time }}</span>
+          </div>
+          <div class="summary-item">
+            <i class="fas fa-users"></i>
+            <span>{{ bookingData.people }} persone</span>
+          </div>
+          <div class="summary-item">
+            <i class="fas fa-percentage"></i>
+            <span>{{ bookingData.discount }}</span>
+          </div>
+        </div>
+
+        <!-- Promotion Card -->
+        <div class="promotion-card">
+          <h4>COMPLETA LA PRENOTAZIONE</h4>
+          <div class="promotion-content">
+            <h5>20% di sconto sulle voci del menù à la carte</h5>
+            <p>Esclusi menù fissi e bevande. Promozione soggetta all'arrivo all'orario prenotato.</p>
+            <span class="promotion-badge">20% di sconto</span>
+          </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="d-flex align-items-center p-3 bg-secondary rounded mb-3">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="flex-fill">
+            <h6 class="mb-0 text-white">nome e cognome utente</h6>
+            <small class="text-muted">email e telefono utente</small>
+          </div>
+        </div>
+
+        <!-- Special Request -->
+        <div class="mb-3">
+          <div class="input-group">
+            <span class="input-group-text bg-secondary border-secondary">
+              <i class="fas fa-comment text-primary"></i>
+            </span>
+            <input type="text" class="form-control bg-secondary border-secondary text-white" placeholder="Richiesta speciale">
+          </div>
+          <small class="text-muted">Messaggio per il ristorante</small>
+        </div>
+
+        <!-- Terms -->
+        <div class="mb-3">
+          <h6 class="text-white">Programma fedeltà e vantaggi</h6>
+          <div class="d-flex flex-wrap gap-2">
+            <small class="badge bg-success">Conferma immediata</small>
+            <small class="badge bg-success">Senza spese</small>
+            <small class="badge bg-success">Cancellazione gratuita</small>
+          </div>
+        </div>
+
+        <!-- Confirm Button -->
+        <button class="btn-confirm" (click)="confirmBooking()">
+          CONFERMA LA PRENOTAZIONE
+        </button>
+
+        <!-- Legal -->
+        <div class="legal-text">
+          <small>
+            Facendo clic su "Conferma la prenotazione", accetto i
+            <a href="#" class="legal-link">Termini di Utilizzo di TheSpoon</a>.
+          </small>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

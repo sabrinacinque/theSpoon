@@ -118,6 +118,7 @@
     </div>
   </section>
 
+  
   <!-- Booking Section -->
   <section class="booking-section bg-dark text-white py-4">
     <div class="container-xl">
@@ -126,12 +127,12 @@
         <h3 class="h5 mb-0">Prenota per</h3>
       </div>
 
-      <!-- Date Selection -->
+      <!-- Date Selection - MODIFICATO per aprire modal -->
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3" *ngFor="let date of availableDates">
           <button
             class="btn btn-outline-success w-100 position-relative"
-            (click)="selectDate(date)">
+            (click)="openBookingModal(date)">
             <div>{{ date.label }}</div>
             <small class="badge bg-success position-absolute top-0 end-0 translate-middle">
               {{ date.discount }}
@@ -141,9 +142,11 @@
       </div>
 
       <div class="text-end">
-        <a href="#" class="text-success text-decoration-none">
+        <button
+          class="btn btn-link text-success text-decoration-none p-0"
+          (click)="openBookingModal()">
           VEDI ALTRE DATE <i class="fas fa-chevron-right"></i>
-        </a>
+        </button>
       </div>
     </div>
   </section>
@@ -220,7 +223,7 @@
   </section>
 
   <!-- Fixed Bottom CTA -->
-  <div class="fixed-bottom p-3 bg-dark border-top border-secondary">
+  <div class="fixed-bottom p-3 bg-dark border-top border-secondary" *ngIf="!isBookingModalOpen">
     <div class="container-xl">
       <button
         class="btn btn-success btn-lg w-100 fw-bold"
@@ -229,5 +232,13 @@
       </button>
     </div>
   </div>
+
+  <!-- Booking Modal -->
+<app-booking-modal
+  [restaurant]="restaurant"
+  [isOpen]="isBookingModalOpen"
+  (closeModal)="closeBookingModal()"
+  (bookingConfirmed)="onBookingConfirmed($event)">
+</app-booking-modal>
 
 </div>
