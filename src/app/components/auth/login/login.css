@@ -1,0 +1,328 @@
+/* Login Component Styles - Mobile First + Theme Support */
+
+/* 📱 MOBILE FIRST - Base Styles */
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+/* 🎨 HEADER STYLING */
+.login-container h2 {
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.login-container p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+/* 🚨 ERROR ALERT */
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.alert-danger i {
+  color: #dc3545;
+}
+
+/* 🏷️ FORM LABELS */
+.form-label {
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* 📝 INPUT GROUPS */
+.input-group {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.input-group-text {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-right: none;
+  color: var(--text-muted);
+  width: 45px;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* 📝 FORM CONTROLS */
+.form-control {
+  background-color: var(--bg-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-left: none;
+  color: var(--text-color) !important;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background-color: var(--bg-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 205, 181, 0.25) !important;
+  color: var(--text-color) !important;
+}
+
+.form-control:focus + .input-group-text,
+.form-control:focus ~ .input-group-text {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* ❌ VALIDATION STYLES */
+.form-control.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.form-control.is-invalid:focus {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* 👁️ PASSWORD TOGGLE BUTTON */
+.btn-outline-secondary {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  color: var(--text-muted);
+  width: 45px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+/* 🚀 SUBMIT BUTTON */
+.btn-primary {
+  background: var(--primary-gradient);
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  background: var(--primary-gradient);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ⏳ LOADING SPINNER */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}
+
+/* 🔗 LINK BUTTONS */
+.btn-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0;
+  border: none;
+  background: none;
+  transition: all 0.3s ease;
+}
+
+.btn-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* 🌓 DIVIDER */
+.text-muted {
+  color: var(--text-muted) !important;
+  font-size: 0.85rem;
+  position: relative;
+}
+
+.text-muted::before,
+.text-muted::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.text-muted::before {
+  left: 0;
+}
+
+.text-muted::after {
+  right: 0;
+}
+
+/* 🔗 FORGOT PASSWORD */
+.btn-sm {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.btn-sm:hover {
+  color: var(--primary-color);
+}
+
+/* 📱 TABLET - 768px and up */
+@media (min-width: 768px) {
+  .login-container {
+    max-width: 450px;
+    padding: 2rem;
+    margin: 2rem auto;
+  }
+
+  .login-container h2 {
+    font-size: 1.75rem;
+  }
+
+  .login-container p {
+    font-size: 1rem;
+  }
+
+  .form-control {
+    font-size: 1rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .btn-primary {
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+}
+
+/* 💻 DESKTOP - 992px and up */
+@media (min-width: 992px) {
+  .login-container {
+    max-width: 480px;
+    padding: 2.5rem;
+    margin: 3rem auto;
+  }
+
+  .login-container h2 {
+    font-size: 2rem;
+  }
+
+  /* 🎯 HOVER EFFECTS - Solo desktop */
+  .login-container:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .input-group:hover .input-group-text {
+    background-color: var(--bg-color);
+    color: var(--primary-color);
+  }
+
+  .input-group:hover .form-control:not(:focus) {
+    border-color: var(--primary-color);
+  }
+}
+
+/* 🌙 THEME-SPECIFIC ENHANCEMENTS */
+[data-theme="dark"] .login-container {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .login-container {
+  box-shadow: 0 4px 20px rgba(0, 205, 181, 0.1);
+}
+
+/* 🎨 FOCUS STATES */
+.form-control:focus {
+  outline: none;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 205, 181, 0.25);
+}
+
+/* 🔄 SMOOTH TRANSITIONS */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* 📱 ACCESSIBILITY */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* 🎯 UTILITY CLASSES */
+.text-center {
+  text-align: center;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mt-3 {
+  margin-top: 1rem !important;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+
+.d-block {
+  display: block !important;
+}

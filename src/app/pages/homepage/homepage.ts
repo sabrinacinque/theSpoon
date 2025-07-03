@@ -1,5 +1,5 @@
-import { Component, OnInit, HostBinding, Renderer2, Inject } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RestaurantService } from '../../services/restaurant';
@@ -16,14 +16,6 @@ import { IRestaurant } from '../../models/i-restaurant';
   styleUrls: ['./homepage.css']
 })
 export class HomepageComponent implements OnInit {
-
-  // Theme Management
-  @HostBinding('class.light-theme')
-  get isLightTheme() {
-    return !this.isDarkTheme;
-  }
-
-  isDarkTheme = true;
 
   // Data
   restaurants: IRestaurant[] = [];
@@ -48,7 +40,7 @@ export class HomepageComponent implements OnInit {
     { name: 'Siciliana', icon: '🍋' }
   ];
 
-  // Quick Filters - AGGIORNATI
+  // Quick Filters
   quickFilters = [
     { name: 'Tutti', active: true },
     { name: 'Aperti', active: false },
@@ -60,38 +52,24 @@ export class HomepageComponent implements OnInit {
   constructor(
     private restaurantService: RestaurantService,
     private router: Router,
-    private renderer: Renderer2,
-    @Inject(DOCUMENT) private document: Document
+    private cdr: ChangeDetectorRef  // ← AGGIUNGI QUESTO
   ) {
-    // Leggi tema salvato
-    const savedTheme = localStorage.getItem('theme');
-    this.isDarkTheme = savedTheme ? savedTheme === 'dark' : true;
-    this.applyTheme();
+    // ✅ RIMOSSO: Tutta la gestione tema - usa solo ThemeService!
   }
 
   ngOnInit() {
+    console.log('🏠 Homepage inizializzata');
     this.loadRestaurants();
     this.initAnimations();
   }
 
-  // Theme Management
-  toggleTheme() {
-    this.isDarkTheme = !this.isDarkTheme;
-    this.applyTheme();
-    localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
-  }
-
-  private applyTheme() {
-    const theme = this.isDarkTheme ? 'dark' : 'light';
-    this.renderer.setAttribute(this.document.documentElement, 'data-bs-theme', theme);
-    this.renderer.setAttribute(this.document.body, 'data-theme', theme);
-  }
+  // ✅ RIMOSSO: toggleTheme() e applyTheme() - usa navbar!
 
   // Animations
   private initAnimations() {
     // Trigger animations on load
     setTimeout(() => {
-      const elements = this.document.querySelectorAll('.animate-on-load');
+      const elements = document.querySelectorAll('.animate-on-load');
       elements.forEach((el, index) => {
         setTimeout(() => {
           el.classList.add('animate__animated', 'animate__fadeInUp');
@@ -102,6 +80,7 @@ export class HomepageComponent implements OnInit {
 
   // Data Loading
   loadRestaurants() {
+    console.log('📊 Caricamento ristoranti...');
     this.loading = true;
     this.error = null;
 
@@ -111,11 +90,19 @@ export class HomepageComponent implements OnInit {
         this.restaurants = data;
         this.filteredRestaurants = [...data];
         this.loading = false;
+
+        // 🔥 FORZA CHANGE DETECTION
+        this.cdr.detectChanges();
+
+        console.log('🔄 Loading terminato + Change Detection forzato');
       },
       error: (err) => {
         console.error('❌ Errore caricamento ristoranti:', err);
         this.error = 'Errore nel caricamento dei ristoranti. Riprova più tardi.';
         this.loading = false;
+
+        // 🔥 FORZA CHANGE DETECTION ANCHE IN CASO DI ERRORE
+        this.cdr.detectChanges();
       }
     });
   }
@@ -152,7 +139,6 @@ export class HomepageComponent implements OnInit {
     this.searchRestaurants();
   }
 
-  // METODO AGGIORNATO - toggleFilter
   toggleFilter(filter: any) {
     console.log('🔧 Toggle filtro:', filter.name);
 
@@ -167,7 +153,7 @@ export class HomepageComponent implements OnInit {
         this.resetSearchFilters();
         break;
 
-      case 'Aperti':  // ← CAMBIATO DA "Disponibili Ora"
+      case 'Aperti':
         this.filteredRestaurants = this.restaurants.filter(r => r.available === true);
         break;
 
@@ -221,30 +207,24 @@ export class HomepageComponent implements OnInit {
       stars += '⭐';
     }
 
-    return stars || '⭐'; // Fallback
+    return stars || '⭐';
   }
 
   viewRestaurant(restaurantId: number) {
     console.log('👁️ Visualizza ristorante:', restaurantId);
-
-    // Naviga alla pagina dettaglio
     this.router.navigate(['/restaurant', restaurantId]);
   }
 
-  // Metodi di utilità per debug e sviluppo
   onRestaurantCardClick(event: Event, restaurant: IRestaurant) {
     event.preventDefault();
     console.log('🎯 Card cliccata:', restaurant);
     this.viewRestaurant(restaurant.id);
   }
 
-  // Metodo per gestire errori di caricamento immagini
   onImageError(event: any) {
     console.log('❌ Errore caricamento immagine:', event);
-    // Potremo sostituire con immagine placeholder
   }
 
-  // Metodo per refresh completo
   refreshRestaurants() {
     console.log('🔄 Refresh ristoranti...');
     this.resetSearchFilters();
@@ -254,23 +234,18 @@ export class HomepageComponent implements OnInit {
 
   private resetFilters() {
     this.quickFilters.forEach(f => f.active = false);
-    this.quickFilters[0].active = true; // "Tutti" attivo
+    this.quickFilters[0].active = true;
   }
 
-  // Metodi per gestione responsive e UX
   onSearchFocus() {
     console.log('🔍 Focus su ricerca');
-    // Potremo aggiungere effetti o analytics
   }
 
   onCategoryHover(category: any) {
     console.log('👆 Hover su categoria:', category.name);
-    // Potremo aggiungere preview o effetti
   }
 
-  // Gestione scroll e lazy loading (per futuro)
   onScroll(event: any) {
     // console.log('📜 Scroll event:', event);
-    // TODO: Implementare lazy loading quando avremo più ristoranti
   }
 }

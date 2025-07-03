@@ -1,0 +1,35 @@
+<!-- Auth Modal Overlay -->
+<div class="modal-overlay" [class.show]="isOpen" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <h3 class="modal-title">
+        {{ isLoginMode ? 'Accedi' : 'Registrati' }}
+      </h3>
+      <button class="btn-close" (click)="close()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+
+      <!-- LOGIN COMPONENT -->
+      <app-login
+        *ngIf="isLoginMode"
+        (switchToRegister)="switchToRegister()"
+        (loginSuccess)="onAuthSuccess()">
+      </app-login>
+
+      <!-- REGISTER COMPONENT -->
+      <app-register
+        *ngIf="isRegisterMode"
+        (switchToLogin)="switchToLogin()"
+        (registerSuccess)="onAuthSuccess()">
+      </app-register>
+
+    </div>
+
+  </div>
+</div>

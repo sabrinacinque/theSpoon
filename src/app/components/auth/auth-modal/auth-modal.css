@@ -1,0 +1,184 @@
+/* Auth Modal Styles - Mobile First + Theme Support */
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow-hover);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+
+  /* DIMENSIONI RESPONSIVE */
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+.modal-overlay.show .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-close {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-close:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+/* Modal Body */
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* Important for flex scrolling */
+}
+
+/* Remove padding from inner components since modal-body provides it */
+.modal-body :deep(.login-container),
+.modal-body :deep(.register-container) {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 1.5rem;
+  margin: 0;
+  max-width: none;
+}
+
+/* 📱 TABLET - 768px and up */
+@media (min-width: 768px) {
+  .modal-content {
+    max-width: 550px;
+  }
+
+  .modal-header {
+    padding: 2rem;
+  }
+
+  .modal-title {
+    font-size: 1.75rem;
+  }
+
+  .modal-body :deep(.login-container),
+  .modal-body :deep(.register-container) {
+    padding: 0 2rem 2rem;
+  }
+}
+
+/* 💻 DESKTOP - 992px and up */
+@media (min-width: 992px) {
+  .modal-content {
+    max-width: 600px;
+  }
+
+  .modal-title {
+    font-size: 2rem;
+  }
+
+  /* 🎯 HOVER EFFECTS - Solo desktop */
+  .modal-content:hover {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* 🌙 THEME-SPECIFIC ENHANCEMENTS */
+[data-theme="dark"] .modal-content {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .modal-content {
+  box-shadow: 0 20px 40px rgba(0, 205, 181, 0.15);
+}
+
+/* 🔄 SMOOTH TRANSITIONS */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* 📱 ACCESSIBILITY */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* 🎯 SCROLL CUSTOMIZATION */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+/* 🔧 RESET MARGINS */
+.modal-body :deep(h2) {
+  margin-top: 0;
+}
+
+.modal-body :deep(.mb-4:last-child) {
+  margin-bottom: 0;
+}

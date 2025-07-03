@@ -16,12 +16,31 @@
     <!-- Nav Links -->
     <div class="collapse navbar-collapse" id="navbarNav">
       <div class="navbar-nav ms-auto d-flex align-items-center gap-3">
-        <!-- Login Button -->
-        <a class="nav-link px-3 py-2 rounded-pill"
-           (click)="onGoLogin()"
-           style="cursor: pointer;">
-          Accedi
-        </a>
+
+        <!-- 🔐 SE NON LOGGATO -->
+        <ng-container *ngIf="!isLoggedIn">
+          <!-- Login Button -->
+          <a class="nav-link px-3 py-2 rounded-pill"
+             (click)="openAuthModal()"
+             style="cursor: pointer;">
+            Accedi
+          </a>
+        </ng-container>
+
+        <!-- ✅ SE LOGGATO -->
+        <ng-container *ngIf="isLoggedIn">
+          <!-- User Info -->
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small d-none d-md-inline">
+              Ciao, {{ userFullName }}!
+            </span>
+            <button class="btn btn-outline-danger btn-sm" (click)="logout()">
+              <i class="fas fa-sign-out-alt me-1 d-none d-md-inline"></i>
+              <span class="d-none d-md-inline">Logout</span>
+              <i class="fas fa-sign-out-alt d-md-none"></i>
+            </button>
+          </div>
+        </ng-container>
 
         <!-- Theme Toggle -->
         <button class="btn btn-outline-secondary rounded-circle p-2 d-flex align-items-center justify-content-center"
@@ -33,3 +52,10 @@
     </div>
   </div>
 </nav>
+
+<!-- 🔐 AUTH MODAL -->
+<app-auth-modal
+  [isOpen]="isAuthModalOpen"
+  (closeModal)="closeAuthModal()"
+  (authSuccess)="onAuthSuccess()">
+</app-auth-modal>

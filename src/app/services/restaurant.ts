@@ -1,3 +1,4 @@
+import { environment } from './../../enviroments/enviroment.development';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
@@ -10,7 +11,7 @@ import { IRatingResponse } from '../models/i-common';
   providedIn: 'root'
 })
 export class RestaurantService {
-  private readonly API_URL = 'http://localhost:8080/api/restaurants';
+  private readonly API_URL = `${environment.apiUrl}/restaurants`;
 
   constructor(private http: HttpClient) { }
 
