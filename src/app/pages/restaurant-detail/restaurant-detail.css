@@ -1,6 +1,8 @@
-/* Restaurant Detail Styles */
+/* Restaurant Detail Styles - CON VARIABILI TEMA */
 .restaurant-detail {
-  padding-bottom: 100px; /* Spazio per CTA fisso */
+  padding-bottom: 100px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .hero-section {
@@ -10,9 +12,7 @@
 
 .hero-image {
   height: 100%;
-  background: linear-gradient(135deg,
-    var(--bs-primary) 0%,
-    var(--bs-success) 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   background-size: cover;
   background-position: center;
   position: relative;
@@ -33,44 +33,181 @@
   z-index: 2;
 }
 
-/* Dark theme matching The Fork */
+/* 🔥 SEZIONI CON VARIABILI TEMA */
+.restaurant-info {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.strengths-section {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.discount-banner {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-color) !important;
+}
+
+.booking-section {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.menu-section {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.reviews-section {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* 🔥 OVERRIDE BOOTSTRAP CLASSES */
 .bg-dark {
-  background-color: #1a1a1a !important;
+  background-color: var(--bg-color) !important;
 }
 
 .bg-secondary {
-  background-color: #2d2d2d !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+.text-white {
+  color: var(--text-color) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
 }
 
 .border-secondary {
-  border-color: #404040 !important;
+  border-color: var(--border-color) !important;
 }
 
-/* Buttons */
+/* 🔥 BUTTONS CON TEMA */
 .btn-outline-success {
-  border-color: #20c997;
-  color: #20c997;
+  border-color: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+  background-color: transparent !important;
 }
 
 .btn-outline-success:hover {
-  background-color: #20c997;
-  border-color: #20c997;
-  color: white;
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
 }
 
-/* Menu items */
+.btn-success {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.btn-success:hover {
+  background-color: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+}
+
+/* 🔥 NAVIGATION BUTTONS */
+.btn-dark {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(0, 0, 0, 0.5) !important;
+  color: white !important;
+}
+
+.btn-dark:hover {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  border-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* 🔥 BADGES CON TEMA */
+.badge.bg-light {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-color) !important;
+}
+
+.badge.bg-success {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* 🔥 ALERT CON TEMA */
+.alert-dark {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+.alert-dark .border-success {
+  border-color: var(--primary-color) !important;
+}
+
+/* 🔥 REVIEW CARD CON TEMA */
+.review-card {
+  background-color: var(--bg-secondary) !important;
+  border-left: 4px solid var(--primary-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* 🔥 FIXED BOTTOM CTA */
+.fixed-bottom {
+  background-color: var(--bg-color) !important;
+  border-top: 1px solid var(--border-color) !important;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔥 MENU ITEMS */
+.menu-items .border-bottom {
+  border-bottom-color: var(--border-color) !important;
+}
+
 .menu-items .border-bottom:last-child {
   border-bottom: none !important;
 }
 
-/* Review card */
-.review-card {
-  border-left: 4px solid var(--bs-success);
+/* 🔥 ICONS */
+.text-success {
+  color: var(--primary-color) !important;
 }
 
-/* Fixed bottom CTA */
-.fixed-bottom {
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+.fas.fa-check {
+  color: var(--primary-color) !important;
+}
+
+.fas.fa-utensils {
+  color: var(--primary-color) !important;
+}
+
+.fas.fa-map-marker-alt {
+  color: var(--primary-color) !important;
+}
+
+.fas.fa-euro-sign {
+  color: var(--primary-color) !important;
+}
+
+.fas.fa-chef-hat {
+  color: var(--primary-color) !important;
+}
+
+.fas.fa-check-circle {
+  color: var(--primary-color) !important;
+}
+
+/* 🔥 LINKS */
+.text-success.text-decoration-none {
+  color: var(--primary-color) !important;
+}
+
+.text-success.text-decoration-none:hover {
+  color: var(--primary-dark) !important;
 }
 
 /* Responsive */
@@ -100,21 +237,21 @@
   }
 }
 
-/* Icon improvements */
-.fas, .fab {
-  font-family: "Font Awesome 6 Free";
+/* Smooth transitions */
+.restaurant-detail * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Custom scrollbar per mobile feel */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--bg-color);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #20c997;
+  background: var(--primary-color);
   border-radius: 2px;
 }

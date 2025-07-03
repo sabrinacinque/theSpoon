@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RestaurantService } from '../../services/restaurant';
@@ -43,7 +43,8 @@ export class RestaurantDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private restaurantService: RestaurantService
+    private restaurantService: RestaurantService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -66,6 +67,8 @@ export class RestaurantDetailComponent implements OnInit {
         console.log('✅ Dettaglio ristorante caricato:', data);
         this.restaurant = data;
         this.loading = false;
+        console.log('🔧 DEBUG - loading:', this.loading, 'restaurant:', this.restaurant);
+        this.cdr.detectChanges(); // ← FORZA IL REFRESH!
       },
       error: (err) => {
         console.error('❌ Errore caricamento dettaglio:', err);
@@ -127,6 +130,5 @@ export class RestaurantDetailComponent implements OnInit {
     // Mock per ora, poi dal backend
     return '35 €';
   }
-
 
 }
