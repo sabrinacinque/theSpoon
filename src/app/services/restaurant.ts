@@ -14,32 +14,29 @@ export class RestaurantService {
 
   constructor(private http: HttpClient) { }
 
-  // GET - Tutti i ristoranti
+  // GET - Tutti i ristoranti (con DTO - available calcolato)
   getAllRestaurants(): Observable<IRestaurant[]> {
-    return this.http.get<IRestaurant[]>(this.API_URL).pipe(
-      map(restaurants => this.processRestaurants(restaurants))
-    );
+    return this.http.get<IRestaurant[]>(this.API_URL);
   }
 
-  // GET - Ristorante per ID
+  // GET - Ristorante per ID (con DTO)
   getRestaurantById(id: number): Observable<IRestaurant> {
-    return this.http.get<IRestaurant>(`${this.API_URL}/${id}`).pipe(
-      map(restaurant => this.processRestaurant(restaurant))
-    );
+    return this.http.get<IRestaurant>(`${this.API_URL}/${id}`);
+  }
+
+  // GET - Ristoranti RAW (senza DTO, per uso interno)
+  getAllRestaurantsRaw(): Observable<IRestaurant[]> {
+    return this.http.get<IRestaurant[]>(`${this.API_URL}/raw`);
   }
 
   // GET - Ristoranti per città
   getRestaurantsByCity(city: string): Observable<IRestaurant[]> {
-    return this.http.get<IRestaurant[]>(`${this.API_URL}/city/${city}`).pipe(
-      map(restaurants => this.processRestaurants(restaurants))
-    );
+    return this.http.get<IRestaurant[]>(`${this.API_URL}/city/${city}`);
   }
 
   // GET - Ristoranti per tipo cucina
   getRestaurantsByCuisine(cuisineType: string): Observable<IRestaurant[]> {
-    return this.http.get<IRestaurant[]>(`${this.API_URL}/cuisine/${cuisineType}`).pipe(
-      map(restaurants => this.processRestaurants(restaurants))
-    );
+    return this.http.get<IRestaurant[]>(`${this.API_URL}/cuisine/${cuisineType}`);
   }
 
   // GET - Ricerca ristoranti (città + cucina)
@@ -48,9 +45,7 @@ export class RestaurantService {
     if (city) params = params.set('city', city);
     if (cuisineType) params = params.set('cuisineType', cuisineType);
 
-    return this.http.get<IRestaurant[]>(`${this.API_URL}/search`, { params }).pipe(
-      map(restaurants => this.processRestaurants(restaurants))
-    );
+    return this.http.get<IRestaurant[]>(`${this.API_URL}/search`, { params });
   }
 
   // GET - Rating medio ristorante
@@ -63,20 +58,11 @@ export class RestaurantService {
     return this.http.get<IRatingResponse>(`${this.API_URL}/${id}/rating`).pipe(
       map(rating => ({
         averageRating: rating.averageRating || 0,
-        atmosfera: 0, // Chiamate separate
+        atmosfera: 0, // Chiamate separate se necessario
         cibo: 0,
         servizio: 0
       }))
     );
-  }
-
-  // GET - Verifica disponibilità
-  checkAvailability(id: number, mealType: string, numeroPersone: number): Observable<boolean> {
-    const params = new HttpParams()
-      .set('mealType', mealType)
-      .set('numeroPersone', numeroPersone.toString());
-
-    return this.http.get<boolean>(`${this.API_URL}/${id}/availability`, { params });
   }
 
   // GET - Foto ristorante
@@ -99,28 +85,6 @@ export class RestaurantService {
     return this.http.get<IReview[]>(`${this.API_URL}/${id}/reviews/latest`);
   }
 
-  // Utility methods per processare i dati
-  private processRestaurants(restaurants: IRestaurant[]): IRestaurant[] {
-    return restaurants.map(restaurant => this.processRestaurant(restaurant));
-  }
-
-  private processRestaurant(restaurant: IRestaurant): IRestaurant {
-    // Calcola rating medio dalle recensioni
-    if (restaurant.reviews && restaurant.reviews.length > 0) {
-      const totalRating = restaurant.reviews.reduce((sum, review) => sum + review.overallRating, 0);
-      restaurant.rating = Number((totalRating / restaurant.reviews.length).toFixed(1));
-      restaurant.reviewCount = restaurant.reviews.length;
-    } else {
-      restaurant.rating = 0;
-      restaurant.reviewCount = 0;
-    }
-
-    // Simula disponibilità (in una vera app potresti fare una chiamata separata)
-    restaurant.available = Math.random() > 0.3; // 70% disponibili
-
-    return restaurant;
-  }
-
   // Utility per generare stelle
   generateStars(rating: number): string {
     const fullStars = Math.floor(rating);
@@ -137,9 +101,13 @@ export class RestaurantService {
     return stars;
   }
 
-  // Metodi per i filtri
-  filterAvailable(restaurants: IRestaurant[]): IRestaurant[] {
-    return restaurants.filter(r => r.available);
+  // Metodi per i filtri - AGGIORNATI
+  filterOpen(restaurants: IRestaurant[]): IRestaurant[] {
+    return restaurants.filter(r => r.available === true);
+  }
+
+  filterClosed(restaurants: IRestaurant[]): IRestaurant[] {
+    return restaurants.filter(r => r.available === false);
   }
 
   filterByRating(restaurants: IRestaurant[]): IRestaurant[] {

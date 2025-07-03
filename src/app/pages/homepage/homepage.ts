@@ -48,10 +48,10 @@ export class HomepageComponent implements OnInit {
     { name: 'Siciliana', icon: '🍋' }
   ];
 
-  // Quick Filters
+  // Quick Filters - AGGIORNATI
   quickFilters = [
     { name: 'Tutti', active: true },
-    { name: 'Disponibili Ora', active: false },
+    { name: 'Aperti', active: false },
     { name: 'Migliori Recensioni', active: false },
     { name: 'Nuovi', active: false },
     { name: 'Premium', active: false }
@@ -152,13 +152,12 @@ export class HomepageComponent implements OnInit {
     this.searchRestaurants();
   }
 
+  // METODO AGGIORNATO - toggleFilter
   toggleFilter(filter: any) {
     console.log('🔧 Toggle filtro:', filter.name);
 
     // Reset tutti i filtri
     this.quickFilters.forEach(f => f.active = false);
-
-    // Attiva il filtro selezionato
     filter.active = true;
 
     // Applica filtro
@@ -168,8 +167,8 @@ export class HomepageComponent implements OnInit {
         this.resetSearchFilters();
         break;
 
-      case 'Disponibili Ora':
-        this.filteredRestaurants = this.restaurants.filter(r => r.available);
+      case 'Aperti':  // ← CAMBIATO DA "Disponibili Ora"
+        this.filteredRestaurants = this.restaurants.filter(r => r.available === true);
         break;
 
       case 'Migliori Recensioni':
@@ -179,14 +178,12 @@ export class HomepageComponent implements OnInit {
         break;
 
       case 'Nuovi':
-        // Simula "nuovi" - ordinamento casuale per demo
         this.filteredRestaurants = [...this.restaurants]
           .sort(() => Math.random() - 0.5)
           .slice(0, Math.min(6, this.restaurants.length));
         break;
 
       case 'Premium':
-        // Simula "premium" - rating alto
         this.filteredRestaurants = this.restaurants
           .filter(r => (r.rating || 0) >= 4.2)
           .sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -230,17 +227,8 @@ export class HomepageComponent implements OnInit {
   viewRestaurant(restaurantId: number) {
     console.log('👁️ Visualizza ristorante:', restaurantId);
 
-    // TODO: Implementare navigazione quando avremo la pagina dettaglio
-    // this.router.navigate(['/restaurant', restaurantId]);
-
-    // Per ora aggiungi feedback visivo
-    const restaurantName = this.restaurants.find(r => r.id === restaurantId)?.name;
-    if (restaurantName) {
-      console.log(`🎯 Cliccato su: ${restaurantName}`);
-
-      // Feedback temporaneo - potremmo mostrare un toast
-      // this.showToast(`Apertura dettagli di ${restaurantName}...`);
-    }
+    // Naviga alla pagina dettaglio
+    this.router.navigate(['/restaurant', restaurantId]);
   }
 
   // Metodi di utilità per debug e sviluppo

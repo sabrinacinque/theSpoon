@@ -1,5 +1,4 @@
 <!-- Hero Section -->
-<!-- Hero Section -->
 <section class="hero-section text-white text-center py-5">
   <!-- Bollicine Individuali -->
   <div class="bubble bubble-1"></div>
@@ -28,6 +27,7 @@
     </div>
   </div>
 </section>
+
 <!-- Search Section -->
 <section class="search-section py-4">
   <div class="container-xl">
@@ -104,7 +104,7 @@
       </div>
     </div>
 
-    <!-- Quick Filters -->
+    <!-- Quick Filters - AGGIORNATI -->
     <div class="row">
       <div class="col-12">
         <div class="d-flex flex-wrap justify-content-center gap-3">
@@ -116,7 +116,7 @@
           <div class="filter-chip badge rounded-pill px-4 py-2 fs-6 fw-medium"
                [class.active]="quickFilters[1].active"
                (click)="toggleFilter(quickFilters[1])">
-            Disponibili Ora
+            Aperti
           </div>
           <div class="filter-chip badge rounded-pill px-4 py-2 fs-6 fw-medium"
                [class.active]="quickFilters[2].active"
@@ -226,7 +226,7 @@
               {{ restaurant.description }}
             </p>
 
-            <!-- Footer -->
+            <!-- Footer - AGGIORNATO -->
             <div class="d-flex justify-content-between align-items-center pt-3 border-top restaurant-footer">
               <!-- Rating -->
               <div class="d-flex flex-column">
@@ -234,11 +234,11 @@
                 <small class="text-muted">{{ restaurant.reviewCount || 0 }} recensioni</small>
               </div>
 
-              <!-- Availability -->
-              <div class="badge rounded-pill px-3 py-2 availability-badge"
+              <!-- Status - AGGIORNATO -->
+              <div class="badge rounded-pill px-3 py-2 fw-semibold"
                    [class.bg-success]="restaurant.available"
                    [class.bg-danger]="!restaurant.available">
-                {{ restaurant.available ? '✅ Disponibile' : '❌ Al completo' }}
+                {{ restaurant.available ? '🟢 Aperto' : '🔴 Giorno di chiusura' }}
               </div>
             </div>
           </div>

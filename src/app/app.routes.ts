@@ -4,25 +4,13 @@ import { HomepageComponent } from './pages/homepage/homepage';
 export const routes: Routes = [
   {
     path: '',
-    component: HomepageComponent,
-    title: 'TheSpoon - Prenota i migliori ristoranti d\'Italia'
+    component: HomepageComponent
   },
   {
-    path: 'home',
-    redirectTo: '',
-    pathMatch: 'full'
+    path: 'restaurant/:id',
+    loadComponent: () => import('./pages/restaurant-detail/restaurant-detail')
+      .then(m => m.RestaurantDetailComponent)
   },
-  // Rotte future che aggiungeremo
-  // {
-  //   path: 'login',
-  //   component: LoginComponent,
-  //   title: 'TheSpoon - Accedi'
-  // },
-  // {
-  //   path: 'restaurant/:id',
-  //   component: RestaurantDetailComponent,
-  //   title: 'TheSpoon - Dettagli Ristorante'
-  // },
   {
     path: '**',
     redirectTo: ''
