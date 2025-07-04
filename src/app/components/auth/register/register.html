@@ -8,350 +8,382 @@
 
   <!-- 🔄 TYPE TOGGLE -->
   <div class="type-toggle mb-4">
-    <div class="toggle-container">
+    <div class="toggle-buttons">
       <button
         type="button"
-        class="toggle-option"
-        [class.active]="isCustomer"
-        (click)="switchRegistrationType('CUSTOMER')">
-        <i class="fas fa-user me-2"></i>
-        <div>
-          <div class="toggle-title">Cliente</div>
-          <small class="toggle-subtitle">Prenota tavoli</small>
-        </div>
+        class="toggle-btn"
+        [class.active]="registrationType === 'CUSTOMER'"
+        (click)="setRegistrationType('CUSTOMER')">
+        👤 Customer
       </button>
-
       <button
         type="button"
-        class="toggle-option"
-        [class.active]="isBusiness"
-        (click)="switchRegistrationType('BUSINESS')">
-        <i class="fas fa-utensils me-2"></i>
-        <div>
-          <div class="toggle-title">Ristoratore</div>
-          <small class="toggle-subtitle">Gestisci ristorante</small>
-        </div>
+        class="toggle-btn"
+        [class.active]="registrationType === 'BUSINESS'"
+        (click)="setRegistrationType('BUSINESS')">
+        🏢 Business
       </button>
     </div>
   </div>
 
   <!-- 📊 PROGRESS BAR (solo per business) -->
-  <div *ngIf="isBusiness" class="progress-container mb-4">
-    <div class="progress-bar-custom">
-      <div class="progress-step" [class.active]="isStep1" [class.completed]="currentStep > 1">
-        <span class="step-number">1</span>
-        <span class="step-label">Dati personali</span>
+  <div *ngIf="registrationType === 'BUSINESS'" class="progress-container mb-4">
+    <div class="progress-bar">
+      <div class="progress-step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+        <span>1</span>
+        <small>Dati Personali</small>
       </div>
-      <div class="progress-line" [class.completed]="currentStep > 1"></div>
-      <div class="progress-step" [class.active]="isStep2">
-        <span class="step-number">2</span>
-        <span class="step-label">Dati business</span>
+      <div class="progress-step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+        <span>2</span>
+        <small>Dati Business</small>
+      </div>
+      <div class="progress-step" [class.active]="currentStep >= 3">
+        <span>3</span>
+        <small>Piano</small>
       </div>
     </div>
   </div>
 
   <!-- Error Alert -->
-  <div *ngIf="error" class="alert alert-danger" role="alert">
-    <i class="fas fa-exclamation-triangle me-2"></i>
+  <div *ngIf="error" class="alert alert-danger">
     {{ error }}
   </div>
 
-  <!-- REGISTRATION FORM -->
+  <!-- FORM -->
   <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
 
-    <!-- =================================================================
-         STEP 1: DATI PERSONALI (sempre visibile per customer, step 1 per business)
-    ================================================================= -->
-    <div *ngIf="isCustomer || isStep1">
-
-      <!-- Nome e Cognome -->
-      <div class="row mb-3">
-        <div class="col-md-6 mb-3 mb-md-0">
-          <label for="firstName" class="form-label">Nome</label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-user"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              id="firstName"
-              name="firstName"
-              [(ngModel)]="registerData.firstName"
-              placeholder="Il tuo nome"
-              required>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <label for="lastName" class="form-label">Cognome</label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-user"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              id="lastName"
-              name="lastName"
-              [(ngModel)]="registerData.lastName"
-              placeholder="Il tuo cognome"
-              required>
-          </div>
-        </div>
-      </div>
-
-      <!-- Email -->
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-envelope"></i>
-          </span>
-          <input
-            type="email"
-            class="form-control"
-            [class.is-invalid]="!isEmailValid(registerData.email)"
-            id="email"
-            name="email"
-            [(ngModel)]="registerData.email"
-            placeholder="La tua email"
-            required>
-        </div>
-        <div *ngIf="!isEmailValid(registerData.email)" class="invalid-feedback d-block">
-          Inserisci un indirizzo email valido
-        </div>
-      </div>
-
-      <!-- Password -->
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-lock"></i>
-          </span>
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            class="form-control"
-            [class.is-invalid]="registerData.password && registerData.password.length < 6"
-            id="password"
-            name="password"
-            [(ngModel)]="registerData.password"
-            placeholder="Minimo 6 caratteri"
-            required>
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            (click)="togglePassword()">
-            <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
-          </button>
-        </div>
-        <div *ngIf="registerData.password && registerData.password.length < 6" class="invalid-feedback d-block">
-          La password deve essere di almeno 6 caratteri
-        </div>
-      </div>
-
-    </div>
-
-    <!-- =================================================================
-         STEP 2: DATI BUSINESS (solo per business, step 2)
-    ================================================================= -->
-    <div *ngIf="isBusiness && isStep2">
-
-      <!-- Nome Business -->
-      <div class="mb-3">
-        <label for="businessName" class="form-label">Nome del ristorante</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-utensils"></i>
-          </span>
+    <!-- ===== STEP 1: DATI PERSONALI ===== -->
+    <div *ngIf="registrationType === 'CUSTOMER' || currentStep === 1">
+      <div class="form-group-row">
+        <div class="form-group">
+          <label>Nome *</label>
           <input
             type="text"
             class="form-control"
-            id="businessName"
-            name="businessName"
+            [(ngModel)]="registerData.firstName"
+            name="firstName"
+            placeholder="Inserisci il tuo nome"
+            required>
+        </div>
+        <div class="form-group">
+          <label>Cognome *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="registerData.lastName"
+            name="lastName"
+            placeholder="Inserisci il tuo cognome"
+            required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email *</label>
+        <input
+          type="email"
+          class="form-control"
+          [(ngModel)]="registerData.email"
+          name="email"
+          placeholder="la-tua-email@esempio.com"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label>Password *</label>
+        <input
+          type="password"
+          class="form-control"
+          [(ngModel)]="registerData.password"
+          name="password"
+          placeholder="Minimo 6 caratteri"
+          required>
+      </div>
+    </div>
+
+    <!-- ===== STEP 2: DATI BUSINESS ===== -->
+    <div *ngIf="registrationType === 'BUSINESS' && currentStep === 2">
+
+      <!-- Dati Business Owner -->
+      <h5 class="section-title">👤 Dati Business</h5>
+
+      <div class="form-group-row">
+        <div class="form-group">
+          <label>Nome Business *</label>
+          <input
+            type="text"
+            class="form-control"
             [(ngModel)]="registerData.businessName"
-            placeholder="Nome del tuo ristorante"
+            name="businessName"
+            placeholder="Nome della tua azienda"
             required>
         </div>
-      </div>
-
-      <!-- Telefono e P.IVA -->
-      <div class="row mb-3">
-        <div class="col-md-6 mb-3 mb-md-0">
-          <label for="phone" class="form-label">Telefono</label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-phone"></i>
-            </span>
-            <input
-              type="tel"
-              class="form-control"
-              id="phone"
-              name="phone"
-              [(ngModel)]="registerData.phone"
-              placeholder="Numero di telefono"
-              required>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <label for="partitaIva" class="form-label">Partita IVA</label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-file-invoice"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              id="partitaIva"
-              name="partitaIva"
-              [(ngModel)]="registerData.partitaIva"
-              placeholder="P.IVA del ristorante"
-              required>
-          </div>
+        <div class="form-group">
+          <label>Telefono Business</label>
+          <input
+            type="tel"
+            class="form-control"
+            [(ngModel)]="registerData.phone"
+            name="phone"
+            placeholder="+39 123 456 7890">
         </div>
       </div>
 
-      <!-- Indirizzo -->
-      <div class="mb-3">
-        <label for="address" class="form-label">Indirizzo</label>
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-map-marker-alt"></i>
-          </span>
+      <div class="form-group-row">
+        <div class="form-group">
+          <label>Partita IVA *</label>
           <input
             type="text"
             class="form-control"
-            id="address"
-            name="address"
-            [(ngModel)]="registerData.address"
-            placeholder="Via/Piazza del ristorante"
+            [(ngModel)]="registerData.partitaIva"
+            name="partitaIva"
+            placeholder="12345678901"
             required>
         </div>
-      </div>
-
-      <!-- Città, Provincia, CAP -->
-      <div class="row mb-3">
-        <div class="col-md-4 mb-3 mb-md-0">
-          <label for="city" class="form-label">Città</label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-city"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              id="city"
-              name="city"
-              [(ngModel)]="registerData.city"
-              placeholder="Città"
-              required>
-          </div>
-        </div>
-
-        <div class="col-md-4 mb-3 mb-md-0">
-          <label for="province" class="form-label">Provincia</label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-map"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              id="province"
-              name="province"
-              [(ngModel)]="registerData.province"
-              placeholder="Prov."
-              maxlength="2"
-              required>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <label for="zipCode" class="form-label">CAP</label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-mail-bulk"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              id="zipCode"
-              name="zipCode"
-              [(ngModel)]="registerData.zipCode"
-              placeholder="CAP"
-              maxlength="5"
-              required>
-          </div>
+        <div class="form-group">
+          <label>Provincia</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="registerData.province"
+            name="province"
+            placeholder="MI">
         </div>
       </div>
 
+      <div class="form-group">
+        <label>Indirizzo *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="registerData.address"
+          name="address"
+          placeholder="Via Roma, 123"
+          required>
+      </div>
+
+      <div class="form-group-row">
+        <div class="form-group">
+          <label>Città *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="registerData.city"
+            name="city"
+            placeholder="Milano"
+            required>
+        </div>
+        <div class="form-group">
+          <label>CAP</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="registerData.zipCode"
+            name="zipCode"
+            placeholder="20100">
+        </div>
+      </div>
+
+      <!-- Dati Restaurant -->
+      <h5 class="section-title">🍽️ Dati Ristorante</h5>
+
+      <div class="form-group">
+        <label>Nome Ristorante *</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="restaurantData.restaurantName"
+          name="restaurantName"
+          placeholder="Il nome del tuo ristorante"
+          required>
+      </div>
+
+      <div class="form-group-row">
+        <div class="form-group">
+          <label>Telefono Ristorante</label>
+          <input
+            type="tel"
+            class="form-control"
+            [(ngModel)]="restaurantData.phoneNumber"
+            name="phoneNumber"
+            placeholder="+39 02 123 4567">
+        </div>
+        <div class="form-group">
+          <label>Tipo Cucina</label>
+          <select
+            class="form-control"
+            [(ngModel)]="restaurantData.cuisineType"
+            name="cuisineType">
+            <option value="">Seleziona...</option>
+            <option value="Italiana">Italiana</option>
+            <option value="Cinese">Cinese</option>
+            <option value="Giapponese">Giapponese</option>
+            <option value="Messicana">Messicana</option>
+            <option value="Indiana">Indiana</option>
+            <option value="Pizza">Pizza</option>
+            <option value="Seafood">Pesce</option>
+            <option value="Vegetariana">Vegetariana</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descrizione</label>
+        <textarea
+          class="form-control"
+          [(ngModel)]="restaurantData.description"
+          name="description"
+          rows="3"
+          placeholder="Descrivi il tuo ristorante..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Giorno di Chiusura</label>
+        <select
+          class="form-control"
+          [(ngModel)]="restaurantData.giornoChiusura"
+          name="giornoChiusura">
+          <option value="NESSUNO">Sempre aperto</option>
+          <option value="LUN">Lunedì</option>
+          <option value="MAR">Martedì</option>
+          <option value="MER">Mercoledì</option>
+          <option value="GIO">Giovedì</option>
+          <option value="VEN">Venerdì</option>
+          <option value="SAB">Sabato</option>
+          <option value="DOM">Domenica</option>
+        </select>
+      </div>
     </div>
 
-    <!-- =================================================================
-         FORM BUTTONS
-    ================================================================= -->
+    <!-- ===== STEP 3: SELEZIONE PIANO ===== -->
+    <div *ngIf="registrationType === 'BUSINESS' && currentStep === 3" class="plans-container">
+      <h4 class="text-center mb-4">Scegli il tuo piano</h4>
+      <p class="text-center text-muted mb-4">🎉 <strong>Primo mese GRATUITO</strong> per tutti i piani!</p>
 
-    <!-- Customer OR Business Step 1 -->
-    <div *ngIf="isCustomer || isStep1">
-      <button
-        type="submit"
-        class="btn btn-primary w-100 mb-3"
-        [disabled]="loading || !registerForm.valid">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-        {{
-          loading ? 'Registrazione...' :
-          isCustomer ? 'Registrati' : 'Continua'
-        }}
-      </button>
+      <div class="plans-grid">
+        <!-- BASIC PLAN -->
+        <div class="plan-card" [class.selected]="restaurantData.subscriptionType === 'BASIC'">
+          <div class="plan-radio">
+            <input
+              type="radio"
+              id="basic"
+              name="subscription"
+              value="BASIC"
+              [(ngModel)]="restaurantData.subscriptionType"
+              (change)="selectPlan('BASIC')">
+            <label for="basic" class="radio-label">
+              <div class="plan-header">
+                <h5 class="plan-title">📦 BASIC</h5>
+                <div class="plan-price">
+                  <span class="price">€30</span>
+                  <small>/mese</small>
+                </div>
+              </div>
+              <div class="plan-features">
+                <p>✅ Max 50 prenotazioni/mese</p>
+                <p>✅ €1 per prenotazione</p>
+                <p>✅ Gestione menu e foto</p>
+                <p>✅ Statistiche base</p>
+                <p class="free-month">🎁 <strong>1° mese GRATIS</strong></p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- GOLD PLAN -->
+        <div class="plan-card gold" [class.selected]="restaurantData.subscriptionType === 'GOLD'">
+          <div class="plan-badge">🌟 CONSIGLIATO</div>
+          <div class="plan-radio">
+            <input
+              type="radio"
+              id="gold"
+              name="subscription"
+              value="GOLD"
+              [(ngModel)]="restaurantData.subscriptionType"
+              (change)="selectPlan('GOLD')">
+            <label for="gold" class="radio-label">
+              <div class="plan-header">
+                <h5 class="plan-title">👑 GOLD</h5>
+                <div class="plan-price">
+                  <span class="price">€50</span>
+                  <small>/mese</small>
+                </div>
+              </div>
+              <div class="plan-features">
+                <p>✅ Prenotazioni <strong>ILLIMITATE</strong></p>
+                <p>✅ €1 per prenotazione</p>
+                <p>✅ <strong>Visibilità premium</strong></p>
+                <p>✅ Sezione "Consigliati"</p>
+                <p>✅ Statistiche avanzate</p>
+                <p class="free-month">🎁 <strong>1° mese GRATIS</strong></p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Business Step 2 -->
-    <div *ngIf="isBusiness && isStep2" class="d-flex gap-2">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="previousStep()">
-        <i class="fas fa-arrow-left me-2"></i>
-        Indietro
-      </button>
+    <!-- NAVIGATION BUTTONS -->
+    <div class="form-actions">
+      <!-- Customer or Business Step 1 -->
+      <div *ngIf="registrationType === 'CUSTOMER' || currentStep === 1">
+        <button
+          type="button"
+          class="btn btn-link text-decoration-none p-0 mb-3"
+          (click)="goToLogin()">
+          Hai già un account? <strong>Accedi</strong>
+        </button>
 
-      <button
-        type="submit"
-        class="btn btn-primary flex-fill"
-        [disabled]="loading || !registerForm.valid">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-        {{ loading ? 'Registrazione...' : 'Completa registrazione' }}
-      </button>
+        <button
+          *ngIf="registrationType === 'CUSTOMER'"
+          type="submit"
+          class="btn btn-primary w-100"
+          [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Registrazione...' : 'Registrati' }}
+        </button>
+
+        <button
+          *ngIf="registrationType === 'BUSINESS'"
+          type="button"
+          class="btn btn-primary w-100"
+          (click)="nextStep()">
+          Avanti →
+        </button>
+      </div>
+
+      <!-- Business Step 2 -->
+      <div *ngIf="registrationType === 'BUSINESS' && currentStep === 2" class="nav-buttons">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="prevStep()">
+          ← Indietro
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="nextStep()">
+          Avanti →
+        </button>
+      </div>
+
+      <!-- Business Step 3 -->
+      <div *ngIf="registrationType === 'BUSINESS' && currentStep === 3" class="nav-buttons">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="prevStep()">
+          ← Indietro
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading || !restaurantData.subscriptionType">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Registrazione...' : 'Completa Registrazione' }}
+        </button>
+      </div>
     </div>
 
   </form>
-
-  <!-- Divider -->
-  <div class="text-center my-4">
-    <small class="text-muted">oppure</small>
-  </div>
-
-  <!-- Switch to Login -->
-  <div class="text-center">
-    <p class="mb-0">
-      Hai già un account?
-      <button
-        type="button"
-        class="btn btn-link p-0 text-decoration-none"
-        (click)="goToLogin()">
-        Accedi
-      </button>
-    </p>
-  </div>
-
-  <!-- Terms (solo per business) -->
-  <div *ngIf="isBusiness" class="text-center mt-3">
-    <small class="text-muted">
-      Registrandoti come ristoratore accetti i nostri
-      <a href="#" class="text-decoration-none">Termini di Servizio Business</a>
-    </small>
-  </div>
-
 </div>

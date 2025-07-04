@@ -1,0 +1,133 @@
+<!-- Business Dashboard -->
+<div class="dashboard-container">
+
+  <!-- Header Dashboard -->
+  <div class="dashboard-header">
+    <div class="container-xl">
+      <div class="row align-items-center py-3">
+
+        <!-- Welcome Message -->
+        <div class="col-md-8">
+          <div class="welcome-section">
+            <h1 class="welcome-title mb-1">
+              Ciao, {{ userFullName }}! 👋
+            </h1>
+            <p class="welcome-subtitle mb-0">
+              Gestisci il tuo business da qui
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="col-md-4 text-end">
+          <div class="header-actions">
+            <button
+              class="btn btn-outline-secondary"
+              (click)="goToHomepage()"
+              title="Torna alla homepage">
+              🏠 Homepage
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <div class="container-xl">
+      <div class="row">
+        <div class="col-12">
+          <div class="tab-list">
+
+            <!-- Tab Item -->
+            <div
+              *ngFor="let tab of tabs"
+              class="tab-item"
+              [class.active]="isTabActive(tab.id)"
+              (click)="setActiveTab(tab.id)"
+              [title]="tab.description">
+
+              <div class="tab-content">
+                <span class="tab-icon">{{ tab.icon }}</span>
+                <span class="tab-label">{{ tab.label }}</span>
+              </div>
+
+              <!-- Active Indicator -->
+              <div class="tab-indicator" *ngIf="isTabActive(tab.id)"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="dashboard-content">
+    <div class="container-xl">
+      <div class="row">
+        <div class="col-12">
+
+          <!-- Dashboard Overview -->
+          <div class="content-section" *ngIf="activeTab === 'dashboard'">
+            <div class="section-header mb-4">
+              <h2 class="section-title">📊 Dashboard Overview</h2>
+              <p class="section-description">Panoramica del tuo business</p>
+            </div>
+            <app-dashboard-overview></app-dashboard-overview>
+          </div>
+
+          <!-- Profilo Section -->
+          <div class="content-section" *ngIf="activeTab === 'profilo'">
+            <div class="section-header mb-4">
+              <h2 class="section-title">👤 Gestione Profilo</h2>
+              <p class="section-description">Aggiorna i dati del tuo business e ristorante</p>
+            </div>
+
+            <!-- Profilo Business -->
+            <div class="mb-5">
+              <h3 class="subsection-title">🏢 Dati Business</h3>
+              <app-profile-section></app-profile-section>
+            </div>
+
+            <!-- Dati Ristorante -->
+            <div class="mb-5">
+              <h3 class="subsection-title">🍽️ Dati Ristorante</h3>
+              <app-restaurant-section></app-restaurant-section>
+            </div>
+          </div>
+
+          <!-- Abbonamento Section -->
+          <div class="content-section" *ngIf="activeTab === 'abbonamento'">
+            <div class="section-header mb-4">
+              <h2 class="section-title">💎 Gestione Abbonamento</h2>
+              <p class="section-description">Piano attuale e opzioni di upgrade</p>
+            </div>
+            <app-subscription-section></app-subscription-section>
+          </div>
+
+          <!-- Impostazioni Section -->
+          <div class="content-section" *ngIf="activeTab === 'impostazioni'">
+            <div class="section-header mb-4">
+              <h2 class="section-title">⚙️ Impostazioni Account</h2>
+              <p class="section-description">Preferenze e configurazioni</p>
+            </div>
+            <app-settings-section></app-settings-section>
+          </div>
+
+          <!-- Elimina Account Section -->
+          <div class="content-section" *ngIf="activeTab === 'elimina'">
+            <div class="section-header mb-4">
+              <h2 class="section-title text-danger">🗑️ Elimina Account</h2>
+              <p class="section-description">Cancellazione definitiva dell'account</p>
+            </div>
+            <app-delete-account-section></app-delete-account-section>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

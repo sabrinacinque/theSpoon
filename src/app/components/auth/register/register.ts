@@ -17,43 +17,63 @@ export class RegisterComponent {
 
   // 🔄 TOGGLE TIPO REGISTRAZIONE
   registrationType: 'CUSTOMER' | 'BUSINESS' = 'CUSTOMER';
+  currentStep = 1; // Per business: 1 = dati personali, 2 = dati business, 3 = piano
 
-  // 📝 FORM DATA UNIFICATO
+  // 📝 FORM DATA con la TUA interfaccia ESATTA
   registerData: IRegisterRequest = {
-    // Dati base
+    // Dati base (sempre inizializzati)
     email: '',
     password: '',
     firstName: '',
     lastName: '',
-    role: 'CUSTOMER',
+    role: 'CUSTOMER'
+    // I campi business sono opzionali e vengono aggiunti solo per BUSINESS
+  };
 
-    // Dati business (opzionali)
-    businessName: '',
-    phone: '',
-    partitaIva: '',
-    address: '',
-    city: '',
-    province: '',
-    zipCode: ''
+  // Extra campi per Restaurant e Subscription (non nell'interfaccia base)
+  restaurantData = {
+    restaurantName: '',
+    phoneNumber: '',
+    description: '',
+    cuisineType: '',
+    giornoChiusura: '',
+    subscriptionType: 'BASIC' as 'BASIC' | 'GOLD'
   };
 
   // State
   loading = false;
   error: string | null = null;
-  showPassword = false;
-  currentStep = 1; // Per business: step 1 = dati personali, step 2 = dati business
 
   constructor(private authService: AuthService) {}
 
   // 🔄 SWITCH TIPO REGISTRAZIONE
-  switchRegistrationType(type: 'CUSTOMER' | 'BUSINESS') {
+  setRegistrationType(type: 'CUSTOMER' | 'BUSINESS') {
     this.registrationType = type;
     this.registerData.role = type;
     this.currentStep = 1;
     this.error = null;
 
-    // Reset campi business se switch a customer
     if (type === 'CUSTOMER') {
+      // CUSTOMER: rimuovi tutti i campi business
+      delete this.registerData.businessName;
+      delete this.registerData.phone;
+      delete this.registerData.partitaIva;
+      delete this.registerData.address;
+      delete this.registerData.city;
+      delete this.registerData.province;
+      delete this.registerData.zipCode;
+
+      // Reset restaurant data
+      this.restaurantData = {
+        restaurantName: '',
+        phoneNumber: '',
+        description: '',
+        cuisineType: '',
+        giornoChiusura: '',
+        subscriptionType: 'BASIC'
+      };
+    } else {
+      // BUSINESS: aggiungi campi business con default
       this.registerData.businessName = '';
       this.registerData.phone = '';
       this.registerData.partitaIva = '';
@@ -64,23 +84,28 @@ export class RegisterComponent {
     }
   }
 
-  // 📝 SUBMIT FORM
-  onSubmit() {
-    if (this.registrationType === 'CUSTOMER') {
-      this.submitRegistration();
-    } else {
-      if (this.currentStep === 1) {
-        this.nextStep();
-      } else {
-        this.submitRegistration();
-      }
+  // ➡️ PROSSIMO STEP (solo business)
+  nextStep() {
+    if (this.currentStep === 1 && this.validatePersonalData()) {
+      this.currentStep = 2;
+      this.error = null;
+    } else if (this.currentStep === 2 && this.validateBusinessData()) {
+      this.currentStep = 3;
+      this.error = null;
     }
   }
 
-  // 🚀 REGISTRAZIONE (UNICO ENDPOINT)
-  private submitRegistration() {
+  // ⬅️ STEP PRECEDENTE
+  prevStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      this.error = null;
+    }
+  }
+
+  // 📝 SUBMIT REGISTRAZIONE
+  onSubmit() {
     if (!this.isFormValid()) {
-      this.error = 'Compila tutti i campi richiesti';
       return;
     }
 
@@ -88,23 +113,19 @@ export class RegisterComponent {
     this.error = null;
 
     // Prepara dati per backend
-    const dataToSend: IRegisterRequest = {
-      email: this.registerData.email,
-      password: this.registerData.password,
-      firstName: this.registerData.firstName,
-      lastName: this.registerData.lastName,
-      role: this.registerData.role
-    };
+    let dataToSend: any = { ...this.registerData };
 
-    // Aggiungi dati business solo se necessario
+    // Se BUSINESS, aggiungi dati restaurant
     if (this.registrationType === 'BUSINESS') {
-      dataToSend.businessName = this.registerData.businessName;
-      dataToSend.phone = this.registerData.phone;
-      dataToSend.partitaIva = this.registerData.partitaIva;
-      dataToSend.address = this.registerData.address;
-      dataToSend.city = this.registerData.city;
-      dataToSend.province = this.registerData.province;
-      dataToSend.zipCode = this.registerData.zipCode;
+      dataToSend = {
+        ...dataToSend,
+        restaurantName: this.restaurantData.restaurantName,
+        // phoneNumber: this.restaurantData.phoneNumber, // ← COMMENTA QUESTA RIGA
+        description: this.restaurantData.description,
+        cuisineType: this.restaurantData.cuisineType,
+        giornoChiusura: this.restaurantData.giornoChiusura,
+        subscriptionType: this.restaurantData.subscriptionType
+      };
     }
 
     this.authService.register(dataToSend).subscribe({
@@ -126,69 +147,79 @@ export class RegisterComponent {
     });
   }
 
-  // ➡️ PROSSIMO STEP (solo business)
-  nextStep() {
-    if (!this.isPersonalDataValid()) {
-      this.error = 'Compila tutti i dati personali';
-      return;
+  // ✅ VALIDAZIONI
+  validatePersonalData(): boolean {
+    if (!this.registerData.firstName.trim()) {
+      this.error = 'Nome è richiesto';
+      return false;
     }
-
-    this.currentStep = 2;
-    this.error = null;
+    if (!this.registerData.lastName.trim()) {
+      this.error = 'Cognome è richiesto';
+      return false;
+    }
+    if (!this.registerData.email.trim()) {
+      this.error = 'Email è richiesta';
+      return false;
+    }
+    if (!this.isEmailValid(this.registerData.email)) {
+      this.error = 'Email non valida';
+      return false;
+    }
+    if (!this.registerData.password || this.registerData.password.length < 6) {
+      this.error = 'Password deve essere almeno 6 caratteri';
+      return false;
+    }
+    return true;
   }
 
-  // ⬅️ STEP PRECEDENTE
-  previousStep() {
-    this.currentStep = 1;
-    this.error = null;
+  validateBusinessData(): boolean {
+    if (!this.registerData.businessName?.trim()) {
+      this.error = 'Nome business è richiesto';
+      return false;
+    }
+    if (!this.registerData.partitaIva?.trim()) {
+      this.error = 'Partita IVA è richiesta';
+      return false;
+    }
+    if (!this.registerData.address?.trim()) {
+      this.error = 'Indirizzo è richiesto';
+      return false;
+    }
+    if (!this.registerData.city?.trim()) {
+      this.error = 'Città è richiesta';
+      return false;
+    }
+    if (!this.restaurantData.restaurantName?.trim()) {
+      this.error = 'Nome ristorante è richiesto';
+      return false;
+    }
+    return true;
   }
 
-  // 👁️ TOGGLE PASSWORD
-  togglePassword() {
-    this.showPassword = !this.showPassword;
+  private isFormValid(): boolean {
+    if (this.registrationType === 'CUSTOMER') {
+      return this.validatePersonalData();
+    } else {
+      return this.validatePersonalData() &&
+             this.validateBusinessData() &&
+             !!this.restaurantData.subscriptionType;
+    }
+  }
+
+  isEmailValid(email: string): boolean {
+    if (!email) return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // 🎯 SUBSCRIPTION PLAN
+  selectPlan(plan: 'BASIC' | 'GOLD') {
+    this.restaurantData.subscriptionType = plan;
   }
 
   // 🔗 VAI A LOGIN
   goToLogin() {
     this.switchToLogin.emit();
-  }
-
-  // ✅ VALIDAZIONI
-  private isFormValid(): boolean {
-    if (this.registrationType === 'CUSTOMER') {
-      return this.isPersonalDataValid();
-    } else {
-      return this.isPersonalDataValid() && this.isBusinessDataValid();
-    }
-  }
-
-  private isPersonalDataValid(): boolean {
-    return !!(
-      this.registerData.email &&
-      this.registerData.password &&
-      this.registerData.firstName &&
-      this.registerData.lastName &&
-      this.isEmailValid(this.registerData.email) &&
-      this.registerData.password.length >= 6
-    );
-  }
-
-  private isBusinessDataValid(): boolean {
-    return !!(
-      this.registerData.businessName &&
-      this.registerData.phone &&
-      this.registerData.partitaIva &&
-      this.registerData.address &&
-      this.registerData.city &&
-      this.registerData.province &&
-      this.registerData.zipCode
-    );
-  }
-
-  isEmailValid(email: string): boolean {
-    if (!email) return true;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   }
 
   // 🎯 GETTER CONVENIENCE
@@ -198,6 +229,10 @@ export class RegisterComponent {
 
   get isStep2() {
     return this.currentStep === 2;
+  }
+
+  get isStep3() {
+    return this.currentStep === 3;
   }
 
   get isCustomer() {

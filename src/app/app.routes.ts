@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomepageComponent } from './pages/homepage/homepage';
+import { BusinessDashboardComponent } from './pages/business-dashboard/business-dashboard';
 
 export const routes: Routes = [
   {
@@ -11,6 +12,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/restaurant-detail/restaurant-detail')
       .then(m => m.RestaurantDetailComponent)
   },
+  {
+  path: 'business-dashboard',
+  component: BusinessDashboardComponent
+},
   {
     path: '**',
     redirectTo: ''

@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../enviroments/enviroment';
+import { environment } from '../../enviroments/enviroment.development';
 
 // Import delle interfacce
 import { ILoginRequest } from '../models/ilogin-request';
@@ -136,17 +136,30 @@ export class AuthService {
   }
 
   // ✅ SUCCESSO AUTENTICAZIONE
-  private handleAuthSuccess(authData: IUserAuthData): void {
-    // Salva token
-    this.setToken(authData.token);
+private handleAuthSuccess(authData: IUserAuthData): void {
+  // Salva token
+  this.setToken(authData.token);
 
-    // Aggiorna stato
-    this.updateUserData(authData);
-    this.isAuthenticated.set(true);
-    this.authStatus.next(true);
+  // Aggiorna stato
+  this.updateUserData(authData);
+  this.isAuthenticated.set(true);
+  this.authStatus.next(true);
 
-    console.log('✅ Autenticazione completata:', authData.email);
+  console.log('✅ Autenticazione completata:', authData.email);
+
+  // 🚀 REDIRECT AUTOMATICO POST-LOGIN/REGISTRAZIONE
+  if (authData.role === 'BUSINESS') {
+    console.log('🏢 Redirect a Business Dashboard per:', authData.email);
+    this.router.navigate(['/business-dashboard']);
+  } else if (authData.role === 'CUSTOMER') {
+    console.log('👤 Redirect a Homepage per Customer:', authData.email);
+    this.router.navigate(['/']);
+  } else {
+    // Fallback per ruoli non riconosciuti
+    console.log('🏠 Redirect a Homepage (ruolo non riconosciuto):', authData.role);
+    this.router.navigate(['/']);
   }
+}
 
   // 🔄 AGGIORNA DATI UTENTE
   private updateUserData(userData: IUserAuthData): void {
