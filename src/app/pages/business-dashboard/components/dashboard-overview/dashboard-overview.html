@@ -1,1 +1,198 @@
-<p>dashboard-overview works!</p>
+<!-- Dashboard Overview -->
+<div class="dashboard-overview">
+
+  <!-- 🔥 METRICHE PRINCIPALI -->
+  <div class="metrics-section mb-5">
+    <div class="row g-4">
+
+      <!-- Card Prenotazioni Oggi -->
+      <div class="col-lg-4 col-md-6">
+        <div class="metric-card today-card">
+          <div class="card-icon">📅</div>
+          <div class="card-content">
+            <div class="metric-value">{{ todayReservations }}</div>
+            <div class="metric-label">Prenotazioni Oggi</div>
+            <div class="metric-detail">
+              <span class="confirmed">{{ todayReservations }} prenotazioni oggi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Rating Medio -->
+      <div class="col-lg-4 col-md-6">
+        <div class="metric-card rating-card">
+          <div class="card-icon">⭐</div>
+          <div class="card-content">
+            <div class="metric-value">{{ averageRating }}</div>
+            <div class="metric-label">Rating Medio</div>
+            <div class="metric-detail">
+              <span class="stars">{{ getStars(averageRating) }}</span>
+              <span class="reviews">
+                <span *ngIf="totalReviews > 0">{{ totalReviews }} recensioni</span>
+                <span *ngIf="totalReviews === 0">Nessuna recensione</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Prenotazioni Mese -->
+      <div class="col-lg-4 col-md-6">
+        <div class="metric-card month-card">
+          <div class="card-icon">📈</div>
+          <div class="card-content">
+            <div class="metric-value">{{ monthReservations }}</div>
+            <div class="metric-label">Questo Mese</div>
+            <div class="metric-detail">
+              <span class="trend" [ngClass]="monthTrend > 0 ? 'positive' : monthTrend < 0 ? 'negative' : 'neutral'">
+                <span *ngIf="monthTrend > 0">+{{ monthTrend }}% vs scorso mese</span>
+                <span *ngIf="monthTrend < 0">{{ monthTrend }}% vs scorso mese</span>
+                <span *ngIf="monthTrend === 0">Primo mese di attività</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 📅 CALENDARIO 7 GIORNI + PRENOTAZIONI OGGI -->
+  <div class="calendar-section mb-5">
+    <div class="row g-4">
+
+      <!-- Calendario Prossimi 7 Giorni -->
+      <div class="col-lg-8">
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">📅 Prossimi 7 Giorni</h3>
+            <p class="section-subtitle">Panoramica delle prenotazioni</p>
+          </div>
+
+          <div class="calendar-grid">
+            <div
+              *ngFor="let day of next7Days"
+              class="calendar-day"
+              [class.today]="day.isToday"
+              [class.tomorrow]="day.isTomorrow">
+
+              <div class="day-header">
+                <div class="day-name">{{ day.dayName }}</div>
+                <div class="day-date">{{ day.date | date:'dd/MM' }}</div>
+              </div>
+
+              <div class="day-content">
+                <div class="reservations-count" [ngClass]="getOccupancyClass(day.reservations)">
+                  {{ day.reservations }}
+                </div>
+                <div class="reservations-label">prenotazioni</div>
+              </div>
+
+              <!-- Indicatore giorno speciale -->
+              <div class="day-indicator" *ngIf="day.isToday || day.isTomorrow">
+                {{ day.isToday ? '🔥' : '⏰' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prenotazioni di Oggi -->
+      <div class="col-lg-4">
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">🍽️ Prenotazioni Oggi</h3>
+            <p class="section-subtitle">{{ todayReservationsList.length }} prenotazioni totali</p>
+          </div>
+
+          <!-- Loading Spinner -->
+          <div *ngIf="loading" class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Caricamento...</span>
+            </div>
+            <p class="mt-2 text-muted">Caricamento prenotazioni...</p>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="error && !loading" class="alert alert-warning" role="alert">
+            {{ error }}
+            <button class="btn btn-sm btn-outline-primary ms-2" (click)="refreshData()">
+              🔄 Riprova
+            </button>
+          </div>
+
+          <!-- Prenotazioni List -->
+          <div class="reservations-list" *ngIf="!loading && !error">
+            <div
+              *ngFor="let reservation of todayReservationsList"
+              class="reservation-item">
+
+              <div class="reservation-time">{{ formatTime(reservation.reservationTime) }}</div>
+
+              <div class="reservation-details">
+                <div class="customer-name">{{ reservation.customerName }}</div>
+                <div class="reservation-info">
+                  <span class="guests">👥 {{ reservation.numberOfPeople }} persone</span>
+                  <span class="notes" *ngIf="reservation.notes">📝 {{ reservation.notes }}</span>
+                </div>
+              </div>
+
+              <div class="reservation-actions">
+                <button
+                  *ngIf="reservation.customerPhone"
+                  class="btn-call"
+                  (click)="callCustomer(reservation.customerPhone)"
+                  title="Chiama cliente">
+                  📞
+                </button>
+              </div>
+            </div>
+
+            <!-- Nessuna prenotazione -->
+            <div *ngIf="todayReservationsList.length === 0" class="text-center py-4 text-muted">
+              📅 Nessuna prenotazione per oggi
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🚀 QUICK ACTIONS -->
+  <div class="quick-actions-section">
+    <div class="row">
+      <div class="col-12">
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">⚡ Azioni Rapide</h3>
+          </div>
+
+          <div class="quick-actions-grid">
+            <button class="quick-action-btn primary">
+              <span class="action-icon">➕</span>
+              <span class="action-text">Nuova Prenotazione</span>
+            </button>
+
+            <button class="quick-action-btn secondary">
+              <span class="action-icon">📋</span>
+              <span class="action-text">Gestisci Menu</span>
+            </button>
+
+            <button class="quick-action-btn tertiary">
+              <span class="action-icon">📊</span>
+              <span class="action-text">Report Mensile</span>
+            </button>
+
+            <button class="quick-action-btn quaternary">
+              <span class="action-icon">⚙️</span>
+              <span class="action-text">Configurazioni</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
