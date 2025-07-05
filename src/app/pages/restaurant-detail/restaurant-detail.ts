@@ -35,6 +35,11 @@ export class RestaurantDetailComponent implements OnInit {
   heroImageUrl: string = '';
   currentPhotoIndex: number = 0;
 
+  // Menu Modal
+isMenuModalOpen = false;
+menuByCategory: { category: string; items: IMenuItem[] }[] = [];
+menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
+
   // Loading states
   loading = true;
   photosLoading = true;
@@ -142,45 +147,7 @@ export class RestaurantDetailComponent implements OnInit {
     });
   }
 
-  // Carica menu items del ristorante
-  private loadMenuItems() {
-    if (!this.restaurantId) return;
 
-    this.menuLoading = true;
-    this.menuError = null;
-
-    this.menuItemService.getMenuItemsByRestaurant(this.restaurantId).subscribe({
-      next: (menuItems) => {
-        console.log('🍽️ Menu items caricati:', menuItems);
-        this.menuItems = menuItems;
-
-        // Crea highlights (prendi i primi 4 item)
-        this.menuHighlights = menuItems.slice(0, 4).map(item => ({
-          name: item.name,
-          price: item.price,
-          category: item.category
-        }));
-
-        this.menuLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ Errore caricamento menu:', err);
-        this.menuError = 'Errore nel caricamento del menu.';
-        this.menuLoading = false;
-
-        // Fallback con menu mock se non ci sono dati reali
-        this.menuHighlights = [
-          { name: 'Specialità della casa', price: 25 },
-          { name: 'Primo piatto', price: 18 },
-          { name: 'Secondo piatto', price: 22 },
-          { name: 'Dolce', price: 8 }
-        ];
-
-        this.cdr.detectChanges();
-      }
-    });
-  }
 
   // Gestione gallery foto
   nextPhoto() {
@@ -229,10 +196,6 @@ export class RestaurantDetailComponent implements OnInit {
     // TODO: Implementare condivisione
   }
 
-  viewFullMenu() {
-    console.log('📋 Visualizza menù completo');
-    // TODO: Implementare visualizzazione menù completo
-  }
 
   viewAllReviews() {
     console.log('⭐ Visualizza tutte le recensioni');
@@ -256,7 +219,7 @@ export class RestaurantDetailComponent implements OnInit {
   getPriceRange(): string {
     if (this.menuItems.length > 0) {
       const prices = this.menuItems.map(item => item.price);
-      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      const avgPrice = prices.reduce((a, b) => a + b, 0) * 3 / prices.length;
       return `${Math.round(avgPrice)} €`;
     }
     return '25 €'; // fallback
@@ -327,7 +290,87 @@ onPhotoError() {
   console.error('❌ Errore caricamento foto nel modal');
 }
 
-// Aggiungi listener per tasti (opzionale)
+
+
+// Aggiorna il metodo loadMenuItems()
+private loadMenuItems() {
+  if (!this.restaurantId) return;
+
+  this.menuLoading = true;
+  this.menuError = null;
+
+  this.menuItemService.getMenuItemsByRestaurant(this.restaurantId).subscribe({
+    next: (menuItems) => {
+      console.log('🍽️ Menu items caricati:', menuItems);
+      this.menuItems = menuItems;
+
+      // Organizza per categoria
+      this.organizeMenuByCategory();
+
+      // Crea highlights (2 per categoria)
+      this.createMenuHighlights();
+
+      this.menuLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('❌ Errore caricamento menu:', err);
+      this.menuError = 'Errore nel caricamento del menu.';
+      this.menuLoading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+// Organizza menu per categoria
+private organizeMenuByCategory() {
+  const categoriesMap = new Map<string, IMenuItem[]>();
+
+  this.menuItems.forEach(item => {
+    const category = item.category || 'Altri piatti';
+    if (!categoriesMap.has(category)) {
+      categoriesMap.set(category, []);
+    }
+    categoriesMap.get(category)!.push(item);
+  });
+
+  // Converti in array e ordina
+  this.menuByCategory = Array.from(categoriesMap.entries())
+    .map(([category, items]) => ({
+      category,
+      items: items.sort((a, b) => a.name.localeCompare(b.name))
+    }))
+    .sort((a, b) => a.category.localeCompare(b.category));
+}
+
+// Crea highlights (2 per categoria)
+private createMenuHighlights() {
+  this.menuHighlightsByCategory = this.menuByCategory.map(categoryGroup => ({
+    category: categoryGroup.category,
+    items: categoryGroup.items.slice(0, 2) // Prendi solo i primi 2
+  })).filter(group => group.items.length > 0);
+}
+
+// Metodi per Menu Modal
+openMenuModal() {
+  console.log('📋 Apri modal menu');
+  this.isMenuModalOpen = true;
+  document.body.classList.add('menu-modal-open');
+}
+
+closeMenuModal() {
+  console.log('❌ Chiudi modal menu');
+  this.isMenuModalOpen = false;
+  document.body.classList.remove('menu-modal-open');
+}
+
+// Aggiorna il metodo viewFullMenu()
+viewFullMenu() {
+  console.log('📋 Visualizza menù completo');
+  this.openMenuModal();
+}
+
+// Aggiorna il listener keyboard per includere il menu modal
 @HostListener('document:keydown', ['$event'])
 onKeyDown(event: KeyboardEvent) {
   if (this.isPhotoModalOpen) {
@@ -347,5 +390,20 @@ onKeyDown(event: KeyboardEvent) {
         break;
     }
   }
+
+  if (this.isMenuModalOpen) {
+    switch (event.key) {
+      case 'Escape':
+        this.closeMenuModal();
+        break;
+    }
+  }
 }
+
+// Getter per verificare se ci sono highlights
+get hasMenuHighlights(): boolean {
+  return this.menuHighlightsByCategory.length > 0;
+}
+
+
 }
