@@ -1,3 +1,4 @@
+import { DashboardCustomer } from './pages/dashboard-customer/dashboard-customer';
 import { Routes } from '@angular/router';
 import { HomepageComponent } from './pages/homepage/homepage';
 import { BusinessDashboardComponent } from './pages/business-dashboard/business-dashboard';
@@ -22,6 +23,11 @@ export const routes: Routes = [
     path: 'business-dashboard',
     component: BusinessDashboardComponent,
     canActivate: [businessGuardGuard]  // 🛡️ Solo Business può accedere
+  },
+  {
+    path: 'dashboard-customer',
+    component: DashboardCustomer,
+    canActivate: [customerGuardGuard]  // 🛡️ Solo Business può accedere
   },
   {
     path: '**',

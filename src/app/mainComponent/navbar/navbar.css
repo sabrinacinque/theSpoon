@@ -24,6 +24,43 @@
   color: white !important;
 }
 
+/* 👤 CUSTOMER DASHBOARD BUTTON */
+.btn-outline-primary {
+  border-color: #00CDB5;
+  color: #00CDB5;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: #00CDB5 !important;
+  border-color: #00CDB5 !important;
+  color: white !important;
+  transform: scale(1.1);
+}
+
+.btn-outline-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 205, 181, 0.25);
+}
+
+/* 🔓 LOGOUT BUTTON */
+.btn-outline-danger {
+  transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+  transform: scale(1.05);
+}
+
+/* 🌙 THEME TOGGLE */
+.btn-outline-secondary {
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  transform: scale(1.1);
+}
+
 /* Animazioni smooth */
 .transition-all {
   transition: all 0.3s ease;
@@ -39,4 +76,66 @@
   .navbar-nav .nav-link {
     margin: 0.5rem 0;
   }
+
+  /* 📱 MOBILE: Stack buttons vertically */
+  .navbar-nav .d-flex {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .navbar-nav .gap-3 {
+    gap: 0.5rem !important;
+  }
+
+  /* 📱 MOBILE: Adjust button sizes */
+  .navbar-nav .btn {
+    min-width: 120px;
+    justify-content: center;
+  }
+
+  .navbar-nav .rounded-circle {
+    min-width: 40px;
+  }
+}
+
+/* 🎯 HOVER EFFECTS (Desktop only) */
+@media (hover: hover) {
+  .navbar-brand:hover {
+    transform: scale(1.05);
+  }
+
+  .btn:hover {
+    transform: scale(1.05);
+  }
+
+  .btn-outline-primary:hover {
+    transform: scale(1.1);
+  }
+
+  .btn-outline-secondary:hover {
+    transform: scale(1.1);
+  }
+}
+
+/* 🔧 PREVENT LAYOUT SHIFT */
+.navbar-nav .d-flex {
+  min-height: 40px;
+  align-items: center;
+}
+
+/* 📱 MOBILE NAVBAR IMPROVEMENTS */
+@media (max-width: 767.98px) {
+  .navbar-nav {
+    padding: 1rem 0;
+  }
+
+  .navbar-nav > * {
+    margin: 0.25rem 0;
+  }
+}
+
+/* 🎨 SMOOTH TRANSITIONS */
+* {
+  transition: all 0.3s ease;
 }
