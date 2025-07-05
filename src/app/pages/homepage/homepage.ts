@@ -3,7 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RestaurantService } from '../../services/restaurant';
+import { PhotoService } from '../../services/photo.service';
+import { UploadService } from '../../services/upload-service';
 import { IRestaurant } from '../../models/i-restaurant';
+import { IPhoto } from '../../models/i-photo';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-homepage',
@@ -20,6 +25,8 @@ export class HomepageComponent implements OnInit {
   // Data
   restaurants: IRestaurant[] = [];
   filteredRestaurants: IRestaurant[] = [];
+  restaurantPhotos: { [key: number]: string } = {}; // Cache foto principale per ogni ristorante
+  photoLoadingStates: { [key: number]: boolean } = {}; // Stato loading per ogni foto
 
   // States
   loading = false;
@@ -51,11 +58,11 @@ export class HomepageComponent implements OnInit {
 
   constructor(
     private restaurantService: RestaurantService,
+    private photoService: PhotoService,
+    private uploadService: UploadService,
     private router: Router,
-    private cdr: ChangeDetectorRef  // ← AGGIUNGI QUESTO
-  ) {
-    // ✅ RIMOSSO: Tutta la gestione tema - usa solo ThemeService!
-  }
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     console.log('🏠 Homepage inizializzata');
@@ -63,11 +70,8 @@ export class HomepageComponent implements OnInit {
     this.initAnimations();
   }
 
-  // ✅ RIMOSSO: toggleTheme() e applyTheme() - usa navbar!
-
   // Animations
   private initAnimations() {
-    // Trigger animations on load
     setTimeout(() => {
       const elements = document.querySelectorAll('.animate-on-load');
       elements.forEach((el, index) => {
@@ -91,20 +95,66 @@ export class HomepageComponent implements OnInit {
         this.filteredRestaurants = [...data];
         this.loading = false;
 
-        // 🔥 FORZA CHANGE DETECTION
-        this.cdr.detectChanges();
+        // Carica le foto principali per ogni ristorante
+        this.loadRestaurantPhotos();
 
+        this.cdr.detectChanges();
         console.log('🔄 Loading terminato + Change Detection forzato');
       },
       error: (err) => {
         console.error('❌ Errore caricamento ristoranti:', err);
         this.error = 'Errore nel caricamento dei ristoranti. Riprova più tardi.';
         this.loading = false;
-
-        // 🔥 FORZA CHANGE DETECTION ANCHE IN CASO DI ERRORE
         this.cdr.detectChanges();
       }
     });
+  }
+
+  // Carica foto principali per tutti i ristoranti
+  private loadRestaurantPhotos() {
+    console.log('📸 Caricamento foto ristoranti...');
+
+    // Crea array di observable per le foto
+    const photoObservables = this.restaurants.map(restaurant =>
+      this.photoService.getPhotosByRestaurant(restaurant.id).pipe(
+        map(photos => ({ restaurantId: restaurant.id, photos })),
+        catchError(err => {
+          console.warn(`⚠️ Errore caricamento foto per ristorante ${restaurant.id}:`, err);
+          return of({ restaurantId: restaurant.id, photos: [] });
+        })
+      )
+    );
+
+    // Esegui tutte le chiamate in parallelo
+    forkJoin(photoObservables).subscribe({
+      next: (results) => {
+        console.log('✅ Foto caricate:', results);
+
+        results.forEach(result => {
+          if (result.photos && result.photos.length > 0) {
+            // Prendi la prima foto come principale
+            const mainPhoto = result.photos[0];
+            this.restaurantPhotos[result.restaurantId] = this.uploadService.getImageUrl(mainPhoto.fileName);
+          }
+        });
+
+        this.cdr.detectChanges();
+        console.log('📸 Foto integrate nelle card');
+      },
+      error: (err) => {
+        console.error('❌ Errore caricamento foto:', err);
+      }
+    });
+  }
+
+  // Metodo per ottenere l'URL della foto principale
+  getRestaurantMainPhoto(restaurantId: number): string | null {
+    return this.restaurantPhotos[restaurantId] || null;
+  }
+
+  // Metodo per verificare se la foto è in caricamento
+  isPhotoLoading(restaurantId: number): boolean {
+    return this.photoLoadingStates[restaurantId] || false;
   }
 
   // Search & Filters
@@ -221,8 +271,12 @@ export class HomepageComponent implements OnInit {
     this.viewRestaurant(restaurant.id);
   }
 
-  onImageError(event: any) {
-    console.log('❌ Errore caricamento immagine:', event);
+  // Gestione errori immagini
+  onImageError(event: any, restaurantId: number) {
+    console.log('❌ Errore caricamento immagine per ristorante:', restaurantId);
+    // Rimuovi l'immagine dalla cache per mostrare il placeholder
+    delete this.restaurantPhotos[restaurantId];
+    this.cdr.detectChanges();
   }
 
   refreshRestaurants() {

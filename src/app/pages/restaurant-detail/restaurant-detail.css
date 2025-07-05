@@ -255,3 +255,626 @@
   background: var(--primary-color);
   border-radius: 2px;
 }
+/* Hero Photo Container */
+.hero-photo-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hero Photo */
+.hero-photo {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.hero-photo:hover {
+  transform: scale(1.02);
+}
+
+/* Gallery Controls */
+.hero-photo-container .btn {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: none !important;
+  color: white !important;
+  width: 40px;
+  height: 40px;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.hero-photo-container .btn:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  transform: scale(1.1);
+}
+
+/* Photo Counter Badge */
+.hero-photo-container .badge {
+  backdrop-filter: blur(10px);
+  font-size: 0.8rem;
+}
+
+/* Loading states per foto */
+.hero-image.loading {
+  background: linear-gradient(90deg,
+    var(--bg-secondary) 25%,
+    var(--border-color) 50%,
+    var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Menu Items migliorati */
+.menu-items .border-bottom:last-child {
+  border-bottom: none !important;
+}
+
+.menu-items .fw-medium {
+  color: var(--text-color) !important;
+}
+
+.menu-items .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Responsive per gallery */
+@media (max-width: 768px) {
+  .hero-photo-container .btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.8rem;
+  }
+
+  .hero-photo-container .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Animazioni per gallery */
+.hero-photo {
+  animation: fadeInPhoto 0.5s ease-out;
+}
+
+@keyframes fadeInPhoto {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Miglioramenti per description */
+.restaurant-info p {
+  line-height: 1.6;
+  color: var(--text-light) !important;
+}
+
+/* Loading spinner per menu */
+.menu-section .spinner-border {
+  color: var(--primary-color) !important;
+}
+
+/* Menu highlights styling */
+.menu-items {
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.menu-items .border-bottom {
+  border-bottom-color: var(--border-color) !important;
+  padding: 0.75rem 0;
+}
+
+.menu-items .border-bottom:hover {
+  background-color: var(--bg-color);
+  margin: 0 -1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+/* Alert per menu error */
+.alert-warning {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+  border-color: rgba(255, 193, 7, 0.2) !important;
+  color: #ffc107 !important;
+}
+
+/* Placeholder per menu vuoto */
+.menu-section .text-center .fs-1 {
+  opacity: 0.6;
+}
+
+/* Miglioramenti rating section */
+.reviews-section .display-6 {
+  color: var(--primary-color) !important;
+}
+
+.reviews-section .text-warning {
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+/* Badges nel restaurant info */
+.restaurant-info .badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.restaurant-info .badge.bg-secondary {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-light) !important;
+  border: 1px solid var(--border-color);
+}
+
+/* Hover effects per bottoni gallery */
+.hero-photo-container .btn-sm {
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.hero-photo-container:hover .btn-sm {
+  opacity: 1;
+}
+
+/* Smooth transitions per tutti gli elementi */
+.restaurant-detail * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+/* Fix per z-index dei controlli gallery */
+.hero-photo-container .btn {
+  z-index: 10;
+}
+
+.hero-photo-container .badge {
+  z-index: 10;
+}
+
+/* Gestione errori foto */
+.hero-image .text-center {
+  background: var(--primary-gradient);
+  color: white;
+  opacity: 0.9;
+}
+
+/* Animazioni per menu items */
+.menu-items > div {
+  animation: fadeInUp 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+.menu-items > div:nth-child(1) { animation-delay: 0.1s; }
+.menu-items > div:nth-child(2) { animation-delay: 0.2s; }
+.menu-items > div:nth-child(3) { animation-delay: 0.3s; }
+.menu-items > div:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Miglioramenti per mobile */
+@media (max-width: 576px) {
+  .restaurant-info .display-6 {
+    font-size: 1.5rem;
+  }
+
+  .restaurant-info .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .menu-items {
+    padding: 0.75rem;
+  }
+
+  .hero-photo-container .btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.7rem;
+  }
+}
+/* =================================================================
+   FIX HERO SECTION - Altezza Desktop
+================================================================= */
+
+/* Hero Section - Altezza aumentata per desktop */
+.hero-section {
+  height: 400px; /* Aumentato da 300px */
+  overflow: hidden;
+}
+
+/* Hero Image */
+.hero-image {
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+/* Hero Photo Container */
+.hero-photo-container {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Hero Photo */
+.hero-photo {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  height: 100%;
+  width: 100%;
+}
+
+/* Responsive breakpoints */
+@media (min-width: 1200px) {
+  .hero-section {
+    height: 500px; /* Ancora più alto per schermi grandi */
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .hero-section {
+    height: 450px; /* Altezza media per tablet landscape */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .hero-section {
+    height: 350px; /* Altezza per tablet */
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-section {
+    height: 250px; /* Altezza per mobile (come prima) */
+  }
+}
+
+/* Gallery Controls - Adattati alle nuove dimensioni */
+.hero-photo-container .btn {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: none !important;
+  color: white !important;
+  width: 50px;  /* Aumentato da 40px */
+  height: 50px; /* Aumentato da 40px */
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.hero-photo-container .btn:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  transform: scale(1.1);
+}
+
+/* Photo Counter Badge - Più grande per desktop */
+.hero-photo-container .badge {
+  backdrop-filter: blur(10px);
+  font-size: 1rem; /* Aumentato da 0.8rem */
+  padding: 0.5rem 1rem;
+}
+
+/* Responsive per controlli */
+@media (max-width: 768px) {
+  .hero-photo-container .btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  .hero-photo-container .badge {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.7rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-photo-container .btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.7rem;
+  }
+
+  .hero-photo-container .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Fix per placeholder su desktop */
+.hero-image .text-center {
+  background: var(--primary-gradient);
+  color: white;
+  opacity: 0.9;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-image .text-center .fs-1 {
+  font-size: 4rem !important; /* Più grande su desktop */
+}
+
+@media (max-width: 768px) {
+  .hero-image .text-center .fs-1 {
+    font-size: 3rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-image .text-center .fs-1 {
+    font-size: 2rem !important;
+  }
+}
+/* =================================================================
+   PHOTO MODAL LIGHTBOX - Da aggiungere al tuo CSS
+================================================================= */
+
+/* Modal Overlay */
+.photo-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  cursor: pointer;
+}
+
+/* Modal Container */
+.photo-modal-container {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+/* Photo */
+.photo-modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
+}
+
+/* Close Button */
+.photo-modal-close {
+  position: absolute;
+  top: -50px;
+  right: -10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.photo-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+/* Navigation Controls */
+.photo-modal-nav {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.photo-modal-prev,
+.photo-modal-next {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+}
+
+.photo-modal-prev:hover,
+.photo-modal-next:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.photo-modal-prev {
+  margin-left: -80px;
+}
+
+.photo-modal-next {
+  margin-right: -80px;
+}
+
+/* Photo Counter */
+.photo-modal-counter {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+}
+
+/* Photo Info */
+.photo-modal-info {
+  position: absolute;
+  bottom: -120px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: white;
+}
+
+.photo-modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.photo-modal-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .photo-modal-overlay {
+    padding: 10px;
+  }
+
+  .photo-modal-container {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+
+  .photo-modal-close {
+    top: -40px;
+    right: -5px;
+    width: 35px;
+    height: 35px;
+    font-size: 1.2rem;
+  }
+
+  .photo-modal-prev,
+  .photo-modal-next {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .photo-modal-prev {
+    margin-left: -60px;
+  }
+
+  .photo-modal-next {
+    margin-right: -60px;
+  }
+
+  .photo-modal-counter {
+    bottom: -50px;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+
+  .photo-modal-info {
+    bottom: -100px;
+  }
+
+  .photo-modal-title {
+    font-size: 1.2rem;
+  }
+
+  .photo-modal-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .photo-modal-prev {
+    margin-left: -40px;
+  }
+
+  .photo-modal-next {
+    margin-right: -40px;
+  }
+
+  .photo-modal-prev,
+  .photo-modal-next {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+/* Animazioni */
+@keyframes photoModalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.photo-modal-overlay {
+  animation: photoModalFadeIn 0.3s ease-out;
+}
+
+.photo-modal-image {
+  animation: photoModalFadeIn 0.3s ease-out;
+}
+
+/* Keyboard navigation hint */
+.photo-modal-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* Prevent body scroll when modal is open */
+.modal-open {
+  overflow: hidden;
+}

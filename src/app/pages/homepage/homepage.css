@@ -486,3 +486,123 @@
 * {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+/* =================================================================
+   AGGIUNTE PER FOTO REALI NELLE CARD - Da aggiungere al tuo CSS
+================================================================= */
+
+/* Container immagine con dimensioni AUMENTATE */
+.restaurant-image-container {
+    height: 280px !important; /* Aumentato da 200px a 280px */
+    overflow: hidden;
+    position: relative;
+}
+
+/* Immagine reale del ristorante */
+.restaurant-image {
+    transition: transform 0.3s ease;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}
+
+/* Placeholder quando non c'è foto - AGGIORNATO */
+.restaurant-image-placeholder {
+    height: 280px !important; /* Stesso height del container */
+    background: var(--primary-gradient) !important;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Badge rating sovrapposto alla foto */
+.rating-badge-overlay {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: var(--text-color) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow);
+}
+
+/* Hover overlay per le card */
+.card-hover-overlay {
+    background: rgba(0, 205, 181, 0.9); /* Usa il tuo primary color */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+
+    .btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    }
+}
+
+/* Aggiorna l'hover effect esistente */
+.restaurant-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover) !important;
+
+    .card-hover-overlay {
+        opacity: 1;
+    }
+
+    .restaurant-image {
+        transform: scale(1.05);
+    }
+}
+
+/* Card più alta per compensare foto grandi */
+.restaurant-card {
+    min-height: 500px; /* Altezza minima aumentata */
+}
+
+/* Animazione fade-in per le foto */
+@keyframes fadeInImage {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.restaurant-image {
+    animation: fadeInImage 0.3s ease-out;
+}
+
+/* Responsive - foto più piccole su mobile */
+@media (max-width: 768px) {
+    .restaurant-image-container,
+    .restaurant-image-placeholder {
+        height: 220px !important;
+    }
+
+    .restaurant-card {
+        min-height: 420px;
+    }
+
+    .card-hover-overlay {
+        display: none; /* Nasconde l'overlay su mobile */
+    }
+}
+
+@media (max-width: 576px) {
+    .restaurant-image-container,
+    .restaurant-image-placeholder {
+        height: 180px !important;
+    }
+
+    .restaurant-card {
+        min-height: 380px;
+    }
+}

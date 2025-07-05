@@ -188,62 +188,82 @@
       </div>
     </div>
 
-    <!-- Griglia Ristoranti -->
-    <div class="row g-4" *ngIf="!loading && !error && filteredRestaurants.length > 0" id="restaurantsGrid">
-      <div class="col-lg-4 col-md-6" *ngFor="let restaurant of filteredRestaurants">
-        <div class="card h-100 border-0 rounded-4 shadow-lg restaurant-card"
-             (click)="viewRestaurant(restaurant.id)">
+    <!-- Griglia Ristoranti - AGGIORNATA CON FOTO REALI -->
+<div class="row g-4" *ngIf="!loading && !error && filteredRestaurants.length > 0" id="restaurantsGrid">
+  <div class="col-lg-4 col-md-6" *ngFor="let restaurant of filteredRestaurants">
+    <div class="card h-100 border-0 rounded-4 shadow-lg restaurant-card"
+         (click)="viewRestaurant(restaurant.id)">
 
-          <!-- Card Image -->
-          <div class="card-img-top d-flex align-items-center justify-content-center text-white fw-semibold fs-5 rounded-top-4 restaurant-image">
-            <div class="text-center">
-              <div class="fs-1 mb-2">📸</div>
-              Foto {{ restaurant.name }}
-            </div>
+      <!-- Card Image Container - AGGIORNATO -->
+      <div class="card-img-top position-relative restaurant-image-container">
+        <!-- Foto reale -->
+        <img *ngIf="getRestaurantMainPhoto(restaurant.id)"
+             [src]="getRestaurantMainPhoto(restaurant.id)"
+             [alt]="restaurant.name"
+             class="restaurant-image w-100 h-100 object-fit-cover rounded-top-4"
+             (error)="onImageError($event, restaurant.id)"
+             loading="lazy">
+
+        <!-- Placeholder quando non c'è foto -->
+        <div *ngIf="!getRestaurantMainPhoto(restaurant.id)"
+             class="restaurant-image-placeholder d-flex align-items-center justify-content-center text-white fw-semibold fs-5 rounded-top-4">
+          <div class="text-center">
+            <div class="fs-1 mb-2">📸</div>
+            <div class="small">{{ restaurant.name }}</div>
           </div>
+        </div>
 
-          <!-- Card Body -->
-          <div class="card-body p-4">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h5 class="card-title fw-bold restaurant-title mb-1">{{ restaurant.name }}</h5>
-                <p class="card-text small fw-semibold mb-0 restaurant-cuisine">{{ restaurant.cuisineType }}</p>
-              </div>
-              <div class="badge rounded-pill px-3 py-2 fw-semibold rating-badge">
-                {{ restaurant.rating || 0 }}
-              </div>
-            </div>
+        <!-- Badge rating sovrapposto -->
+        <div class="position-absolute top-0 end-0 m-3">
+          <div class="badge rounded-pill px-3 py-2 fw-semibold rating-badge-overlay">
+            <span class="text-warning me-1">⭐</span>
+            {{ restaurant.rating || 0 }}
+          </div>
+        </div>
 
-            <!-- Location -->
-            <div class="d-flex align-items-center mb-3 restaurant-location">
-              <span class="me-2">📍</span>
-              <small>{{ restaurant.address }}, {{ restaurant.city }}</small>
-            </div>
-
-            <!-- Description -->
-            <p class="card-text restaurant-description small mb-3">
-              {{ restaurant.description }}
-            </p>
-
-            <!-- Footer - AGGIORNATO -->
-            <div class="d-flex justify-content-between align-items-center pt-3 border-top restaurant-footer">
-              <!-- Rating -->
-              <div class="d-flex flex-column">
-                <div class="text-warning mb-1">{{ getStars(restaurant.rating || 0) }}</div>
-                <small class="text-muted">{{ restaurant.reviewCount || 0 }} recensioni</small>
-              </div>
-
-              <!-- Status - AGGIORNATO -->
-              <div class="badge rounded-pill px-3 py-2 fw-semibold"
-                   [class.bg-success]="restaurant.available"
-                   [class.bg-danger]="!restaurant.available">
-                {{ restaurant.available ? '🟢 Aperto' : '🔴 Giorno di chiusura' }}
-              </div>
-            </div>
+        <!-- Hover overlay -->
+        <div class="card-hover-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded-4">
+          <div class="btn btn-primary btn-lg">
+            👁️ Visualizza Dettagli
           </div>
         </div>
       </div>
+
+      <!-- Card Body -->
+      <div class="card-body p-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="flex-grow-1">
+            <h5 class="card-title fw-bold restaurant-title mb-1">{{ restaurant.name }}</h5>
+            <p class="card-text small fw-semibold mb-0 restaurant-cuisine">
+              <span class="me-1">🍽️</span>{{ restaurant.cuisineType }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="d-flex align-items-center mb-3 restaurant-location">
+          <span class="me-2">📍</span>
+          <small class="text-muted">{{ restaurant.address }}, {{ restaurant.city }}</small>
+        </div>
+
+        <!-- Description -->
+        <p class="card-text restaurant-description small mb-3 text-muted">
+          {{ restaurant.description }}
+        </p>
+
+        <!-- Footer -->
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top restaurant-footer">
+          <!-- Rating dettagliato -->
+          <div class="d-flex flex-column">
+            <div class="text-warning mb-1">{{ getStars(restaurant.rating || 0) }}</div>
+            <small class="text-muted">{{ restaurant.reviewCount || 0 }} recensioni</small>
+          </div>
+
+        </div>
+      </div>
     </div>
+  </div>
+</div>
   </div>
 </section>

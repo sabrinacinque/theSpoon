@@ -21,14 +21,66 @@
 
 <!-- Restaurant Detail -->
 <div *ngIf="restaurant && !loading" class="restaurant-detail">
-
-  <!-- Hero Section -->
+  <!-- Hero Section - AGGIORNATA CON FOTO REALI -->
+  <!-- Hero Section - AGGIORNATA CON CLICK -->
   <section class="hero-section position-relative">
     <!-- Background Image -->
-    <div class="hero-image d-flex align-items-center justify-content-center text-white">
-      <div class="text-center">
+    <div
+      class="hero-image d-flex align-items-center justify-content-center text-white position-relative"
+    >
+      <!-- Foto reale o placeholder -->
+      <div
+        *ngIf="hasPhotos"
+        class="hero-photo-container w-100 h-100 position-relative"
+      >
+        <img
+          [src]="currentPhotoUrl"
+          [alt]="restaurant.name"
+          class="hero-photo w-100 h-100 object-fit-cover"
+          (click)="openPhotoModal()"
+          style="cursor: pointer"
+        />
+
+        <!-- Controlli gallery -->
+        <button
+          *ngIf="photoCount > 1"
+          class="btn btn-dark btn-sm position-absolute top-50 start-0 translate-middle-y ms-3 rounded-circle"
+          (click)="previousPhoto(); $event.stopPropagation();"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button
+          *ngIf="photoCount > 1"
+          class="btn btn-dark btn-sm position-absolute top-50 end-0 translate-middle-y me-3 rounded-circle"
+          (click)="nextPhoto(); $event.stopPropagation();"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <!-- Indicatore foto -->
+        <div
+          class="position-absolute bottom-0 start-50 translate-middle-x mb-3"
+        >
+          <small class="badge bg-dark bg-opacity-75 px-3 py-2">
+            {{ currentPhotoIndex + 1 }} / {{ photoCount }} foto
+          </small>
+        </div>
+
+        <!-- Hint click -->
+        <div class="position-absolute top-0 end-0 m-3">
+          <small class="badge bg-dark bg-opacity-50 px-2 py-1">
+            <i class="fas fa-expand-alt me-1"></i>Clicca per ingrandire
+          </small>
+        </div>
+      </div>
+
+      <!-- Placeholder quando non ci sono foto -->
+      <div *ngIf="!hasPhotos" class="text-center">
         <div class="fs-1 mb-2">📸</div>
-        <small class="badge bg-dark bg-opacity-75 px-3 py-2">qui vanno il count delle FOTO</small>
+        <small class="badge bg-dark bg-opacity-75 px-3 py-2"
+          >Nessuna foto disponibile</small
+        >
       </div>
     </div>
 
@@ -39,10 +91,16 @@
           <i class="fas fa-arrow-left"></i>
         </button>
         <div class="d-flex gap-2">
-          <button class="btn btn-dark btn-lg rounded-circle" (click)="toggleFavorite()">
+          <button
+            class="btn btn-dark btn-lg rounded-circle"
+            (click)="toggleFavorite()"
+          >
             <i class="fas fa-heart"></i>
           </button>
-          <button class="btn btn-dark btn-lg rounded-circle" (click)="shareRestaurant()">
+          <button
+            class="btn btn-dark btn-lg rounded-circle"
+            (click)="shareRestaurant()"
+          >
             <i class="fas fa-share-alt"></i>
           </button>
         </div>
@@ -50,10 +108,9 @@
     </div>
   </section>
 
-  <!-- Restaurant Info -->
+  <!-- Restaurant Info - AGGIORNATA CON DATI REALI -->
   <section class="restaurant-info bg-dark text-white py-4">
     <div class="container-xl">
-
       <!-- Name and Address -->
       <h1 class="display-6 fw-bold mb-3">{{ restaurant.name }}</h1>
       <div class="d-flex align-items-center mb-4">
@@ -63,8 +120,21 @@
 
       <!-- Tags and Price -->
       <div class="d-flex flex-wrap gap-2 mb-4">
-        <span class="badge bg-secondary px-3 py-2 rounded-pill">{{ restaurant.cuisineType }}</span>
-        <span class="badge bg-secondary px-3 py-2 rounded-pill">DI PESCE</span>
+        <span class="badge bg-secondary px-3 py-2 rounded-pill"
+          >{{ restaurant.cuisineType }}</span
+        >
+        <span
+          class="badge bg-secondary px-3 py-2 rounded-pill"
+          *ngIf="restaurant.phoneNumber"
+        >
+          📞 {{ restaurant.phoneNumber }}
+        </span>
+        <span
+          class="badge bg-secondary px-3 py-2 rounded-pill"
+          *ngIf="restaurant.businessEmail"
+        >
+          ✉️ {{ restaurant.businessEmail }}
+        </span>
       </div>
 
       <div class="d-flex align-items-center mb-4">
@@ -72,23 +142,36 @@
         <span class="fw-semibold">PREZZO MEDIO {{ getPriceRange() }}</span>
       </div>
 
-      <!-- Rating -->
+      <!-- Rating - AGGIORNATA CON DATI REALI -->
       <div class="text-center py-4">
         <div class="d-flex align-items-center justify-content-center mb-2">
           <i class="fas fa-utensils text-success me-2 fs-4"></i>
           <span class="display-4 fw-bold">{{ restaurant.rating || 0 }}</span>
         </div>
-        <p class="text-muted">{{ restaurant.reviewCount || 0 }} recensioni su TheSpoon</p>
+        <div class="text-warning mb-2">
+          {{ getStars(restaurant.rating || 0) }}
+        </div>
+        <p class="text-muted">
+          {{ restaurant.reviewCount || 0 }} recensioni su TheSpoon
+        </p>
       </div>
 
+      <!-- Description -->
+      <div class="mt-4" *ngIf="restaurant.description">
+        <h3 class="h5 mb-3">Descrizione</h3>
+        <p class="text-muted">{{ restaurant.description }}</p>
+      </div>
     </div>
   </section>
 
   <!-- Strengths Section -->
-  <section class="strengths-section bg-dark text-white py-4" *ngIf="strengthsFromReviews.length > 0">
+  <section
+    class="strengths-section bg-dark text-white py-4"
+    *ngIf="strengthsFromReviews.length > 0"
+  >
     <div class="container-xl">
       <h3 class="h5 mb-3">
-        Punti di forza estratti dalle recensioni degli utenti
+        Punti di forza del ristorante
         <i class="fas fa-info-circle text-muted ms-2"></i>
       </h3>
 
@@ -112,13 +195,14 @@
         </div>
         <div>
           <div class="fw-semibold">Ricevi fino al 20% di sconto</div>
-          <small class="text-muted">Potrebbero essere applicate condizioni</small>
+          <small class="text-muted"
+            >Potrebbero essere applicate condizioni</small
+          >
         </div>
       </div>
     </div>
   </section>
 
-  
   <!-- Booking Section -->
   <section class="booking-section bg-dark text-white py-4">
     <div class="container-xl">
@@ -127,14 +211,17 @@
         <h3 class="h5 mb-0">Prenota per</h3>
       </div>
 
-      <!-- Date Selection - MODIFICATO per aprire modal -->
+      <!-- Date Selection -->
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3" *ngFor="let date of availableDates">
           <button
             class="btn btn-outline-success w-100 position-relative"
-            (click)="openBookingModal(date)">
+            (click)="openBookingModal(date)"
+          >
             <div>{{ date.label }}</div>
-            <small class="badge bg-success position-absolute top-0 end-0 translate-middle">
+            <small
+              class="badge bg-success position-absolute top-0 end-0 translate-middle"
+            >
               {{ date.discount }}
             </small>
           </button>
@@ -144,14 +231,15 @@
       <div class="text-end">
         <button
           class="btn btn-link text-success text-decoration-none p-0"
-          (click)="openBookingModal()">
+          (click)="openBookingModal()"
+        >
           VEDI ALTRE DATE <i class="fas fa-chevron-right"></i>
         </button>
       </div>
     </div>
   </section>
 
-  <!-- Menu Section -->
+  <!-- Menu Section - AGGIORNATA CON DATI REALI -->
   <section class="menu-section bg-dark text-white py-5">
     <div class="container-xl">
       <h2 class="h3 mb-4">Menù</h2>
@@ -159,27 +247,60 @@
         Ultimo aggiornamento: Luglio 2025
       </div>
 
+      <!-- Loading menu -->
+      <div *ngIf="menuLoading" class="text-center py-4">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>🍽️ Caricamento menu...</p>
+      </div>
+
+      <!-- Menu error -->
+      <div *ngIf="menuError" class="alert alert-warning" role="alert">
+        <p class="mb-0">⚠️ {{ menuError }}</p>
+      </div>
 
       <!-- Price Info -->
-      <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary">
+      <div
+        class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary"
+      >
         <i class="fas fa-euro-sign me-3"></i>
         <span class="fw-semibold">PREZZO MEDIO {{ getPriceRange() }}</span>
       </div>
 
-      <!-- Menu Items -->
-      <h4 class="h5 mb-3">PIATTI HIGHLIGHTS</h4>
-      <div class="menu-items">
-        <div
-          class="d-flex justify-content-between align-items-center py-3 border-bottom border-secondary"
-          *ngFor="let item of menuHighlights">
-          <span>{{ item.name }}</span>
-          <span class="fw-semibold">{{ item.price }} €</span>
+      <!-- Menu Items - AGGIORNATA CON DATI REALI -->
+      <div *ngIf="hasMenuItems && !menuLoading">
+        <h4 class="h5 mb-3">PIATTI HIGHLIGHTS</h4>
+        <div class="menu-items">
+          <div
+            class="d-flex justify-content-between align-items-center py-3 border-bottom border-secondary"
+            *ngFor="let item of menuHighlights"
+          >
+            <div>
+              <span class="fw-medium">{{ item.name }}</span>
+              <small class="text-muted ms-2" *ngIf="item.category"
+                >({{ item.category }})</small
+              >
+            </div>
+            <span class="fw-semibold">{{ item.price }} €</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu placeholder quando non ci sono dati -->
+      <div *ngIf="!hasMenuItems && !menuLoading && !menuError">
+        <div class="text-center py-4">
+          <div class="fs-1 mb-2">🍽️</div>
+          <p class="text-muted">Menu non ancora disponibile</p>
         </div>
       </div>
 
       <!-- View Full Menu -->
       <div class="text-center mt-4">
-        <button class="btn btn-outline-success btn-lg w-100" (click)="viewFullMenu()">
+        <button
+          class="btn btn-outline-success btn-lg w-100"
+          (click)="viewFullMenu()"
+        >
           VEDI IL MENÙ COMPLETO <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -195,7 +316,14 @@
       <div class="d-flex align-items-center mb-4">
         <i class="fas fa-utensils text-success me-3 fs-4"></i>
         <span class="display-6 fw-bold me-3">{{ restaurant.rating || 0 }}</span>
-        <span class="text-muted">{{ restaurant.reviewCount || 0 }} recensioni</span>
+        <div>
+          <div class="text-warning mb-1">
+            {{ getStars(restaurant.rating || 0) }}
+          </div>
+          <small class="text-muted"
+            >{{ restaurant.reviewCount || 0 }} recensioni</small
+          >
+        </div>
       </div>
 
       <!-- Review Quality Badge -->
@@ -205,17 +333,19 @@
           <div>
             <div class="fw-semibold">Esperienze reali di clienti reali</div>
             <small class="text-muted">
-              Possono lasciare un punteggio e una recensione solo le persone che hanno prenotato con TheSpoon.
+              Possono lasciare un punteggio e una recensione solo le persone che
+              hanno prenotato con TheSpoon.
             </small>
           </div>
         </div>
       </div>
 
-
-
       <!-- View All Reviews -->
       <div class="text-center">
-        <button class="btn btn-outline-success btn-lg w-100 mb-4" (click)="viewAllReviews()">
+        <button
+          class="btn btn-outline-success btn-lg w-100 mb-4"
+          (click)="viewAllReviews()"
+        >
           LEGGI LE RECENSIONI
         </button>
       </div>
@@ -223,22 +353,73 @@
   </section>
 
   <!-- Fixed Bottom CTA -->
-  <div class="fixed-bottom p-3 bg-dark border-top border-secondary" *ngIf="!isBookingModalOpen">
+  <div
+    class="fixed-bottom p-3 bg-dark border-top border-secondary"
+    *ngIf="!isBookingModalOpen"
+  >
     <div class="container-xl">
       <button
         class="btn btn-success btn-lg w-100 fw-bold"
-        (click)="bookTable()">
+        (click)="bookTable()"
+      >
         PRENOTA UN TAVOLO
       </button>
     </div>
   </div>
 
-  <!-- Booking Modal -->
-<app-booking-modal
-  [restaurant]="restaurant"
-  [isOpen]="isBookingModalOpen"
-  (closeModal)="closeBookingModal()"
-  (bookingConfirmed)="onBookingConfirmed($event)">
-</app-booking-modal>
+  <!-- Photo Modal - VERSIONE CORRETTA (senza @fadeInOut) -->
+  <div
+    class="photo-modal-overlay"
+    *ngIf="isPhotoModalOpen"
+    (click)="closePhotoModal()"
+  >
+    <div class="photo-modal-container" (click)="$event.stopPropagation()">
+      <!-- Close Button -->
+      <button class="photo-modal-close" (click)="closePhotoModal()">
+        <i class="fas fa-times"></i>
+      </button>
 
+      <!-- Photo -->
+      <img
+        [src]="currentPhotoUrl"
+        [alt]="restaurant.name"
+        class="photo-modal-image"
+        (load)="onPhotoLoaded()"
+        (error)="onPhotoError()"
+      />
+
+      <!-- Navigation Controls (se ci sono più foto) -->
+      <div class="photo-modal-nav" *ngIf="photoCount > 1">
+        <button class="photo-modal-prev" (click)="previousPhotoModal()">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button class="photo-modal-next" (click)="nextPhotoModal()">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <!-- Photo Counter -->
+      <div class="photo-modal-counter" *ngIf="photoCount > 1">
+        {{ currentPhotoIndex + 1 }} / {{ photoCount }}
+      </div>
+
+      <!-- Photo Info -->
+      <div class="photo-modal-info">
+        <h3 class="photo-modal-title">{{ restaurant.name }}</h3>
+        <p class="photo-modal-subtitle">
+          {{ restaurant.address }}, {{ restaurant.city }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <app-booking-modal
+    [restaurant]="restaurant"
+    [isOpen]="isBookingModalOpen"
+    (closeModal)="closeBookingModal()"
+    (bookingConfirmed)="onBookingConfirmed($event)"
+  >
+  </app-booking-modal>
 </div>
