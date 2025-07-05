@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
-import { Reservation } from '../../../../services/reservation';
+import { ReservationService } from '../../../../services/reservation';
+import { RestaurantService } from '../../../../services/restaurant';
 import { IReservation } from '../../../../models/ireservation';
 import { AuthService } from '../../../../services/auth';
 
@@ -15,7 +15,7 @@ interface DayReservations {
 @Component({
   selector: 'app-dashboard-overview',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule],
   templateUrl: './dashboard-overview.html',
   styleUrls: ['./dashboard-overview.css']
 })
@@ -50,9 +50,10 @@ export class DashboardOverview implements OnInit {
   error: string | null = null;
 
   constructor(
-    private reservationService: Reservation,
+    private reservationService: ReservationService,
+    private restaurantService: RestaurantService, // ← AGGIUNGI QUESTO
     private authService: AuthService,
-    private cdr: ChangeDetectorRef  // ← AGGIUNGI QUESTO
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -73,8 +74,8 @@ export class DashboardOverview implements OnInit {
     const businessId = currentUser.userId;
     console.log('👤 Business ID dell\'utente loggato:', businessId);
 
-    // Carica ristorante per business ID
-    this.reservationService.getRestaurantByBusinessId(businessId).subscribe({
+    // ✅ CORREZIONE: Usa RestaurantService invece di ReservationService
+    this.restaurantService.getRestaurantByBusinessId(businessId).subscribe({
       next: (restaurant: any) => {
         this.currentRestaurantId = restaurant.id; // ← DINAMICO!
         console.log('🏪 Restaurant ID ottenuto dinamicamente:', this.currentRestaurantId);
@@ -83,7 +84,7 @@ export class DashboardOverview implements OnInit {
         // Ora carica i dati della dashboard
         this.loadDashboardData();
       },
-      error: (error) => {
+      error: (error: any) => { // ← CORREZIONE: Tipo esplicito
         this.error = 'Errore: ristorante non trovato per questo utente business';
         this.loading = false;
         this.cdr.detectChanges();
@@ -133,7 +134,7 @@ export class DashboardOverview implements OnInit {
 
         console.log('✅ Prenotazioni di oggi caricate:', reservations.length);
       },
-      error: (error) => {
+      error: (error: any) => { // ← CORREZIONE: Tipo esplicito
         this.error = 'Errore nel caricamento delle prenotazioni di oggi';
         this.loading = false;
 
@@ -148,7 +149,7 @@ export class DashboardOverview implements OnInit {
   // 📊 Carica statistiche prenotazioni
   private loadReservationStats(): void {
     this.reservationService.getReservationStats(this.currentRestaurantId).subscribe({
-      next: (stats) => {
+      next: (stats: any) => { // ← CORREZIONE: Tipo esplicito
         this.monthReservations = stats.totalReservations;
 
         // 🔥 FORZA CHANGE DETECTION
@@ -156,7 +157,7 @@ export class DashboardOverview implements OnInit {
 
         console.log('📊 Statistiche prenotazioni caricate:', stats);
       },
-      error: (error) => {
+      error: (error: any) => { // ← CORREZIONE: Tipo esplicito
         console.error('❌ Errore statistiche prenotazioni:', error);
       }
     });
@@ -366,7 +367,7 @@ export class DashboardOverview implements OnInit {
 
           console.log(`📅 Prenotazioni per ${day.dayName}: ${reservations.length}`);
         },
-        error: (error) => {
+        error: (error: any) => { // ← CORREZIONE: Tipo esplicito
           console.error(`❌ Errore prenotazioni per ${day.dayName}:`, error);
           this.selectedDayReservations = [];
 

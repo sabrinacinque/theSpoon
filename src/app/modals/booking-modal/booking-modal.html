@@ -1,10 +1,13 @@
 <!-- Booking Modal -->
 <div class="modal-overlay" [class.show]="isOpen" (click)="close()">
   <div class="modal-content" (click)="$event.stopPropagation()">
-
     <!-- Header -->
     <div class="modal-header">
-      <button class="btn-back" (click)="goToPreviousStep()" *ngIf="currentStep !== 'date'">
+      <button
+        class="btn-back"
+        (click)="goToPreviousStep()"
+        *ngIf="currentStep !== 'date'"
+      >
         <i class="fas fa-arrow-left"></i>
       </button>
       <h2 class="modal-title">{{ restaurant?.name }}</h2>
@@ -36,7 +39,6 @@
 
     <!-- Step Content -->
     <div class="step-content">
-
       <!-- STEP 1: Date Selection -->
       <div *ngIf="currentStep === 'date'" class="date-step">
         <!-- Calendar Header -->
@@ -69,13 +71,13 @@
             [class.available]="day && isDateAvailable(day)"
             [class.unavailable]="day && !isDateAvailable(day)"
             [class.selected]="day && bookingData.date && day.getTime() === bookingData.date.getTime()"
-            (click)="day && selectDate(day)">
-
+            (click)="day && selectDate(day)"
+          >
             <div *ngIf="day" class="day-content">
               <span class="day-number">{{ day.getDate() }}</span>
-              <span
-                *ngIf="isDateAvailable(day)"
-                class="day-discount">{{ getDateDiscount(day) }}</span>
+              <span *ngIf="isDateAvailable(day)" class="day-discount"
+                >{{ getDateDiscount(day) }}</span
+              >
             </div>
           </div>
         </div>
@@ -97,7 +99,8 @@
               *ngFor="let time of lunchTimes"
               class="time-button"
               [class.selected]="bookingData.time === time"
-              (click)="selectTime(time)">
+              (click)="selectTime(time)"
+            >
               <span>{{ time }}</span>
               <small>{{ bookingData.discount }}</small>
             </button>
@@ -112,7 +115,8 @@
               *ngFor="let time of dinnerTimes"
               class="time-button"
               [class.selected]="bookingData.time === time"
-              (click)="selectTime(time)">
+              (click)="selectTime(time)"
+            >
               <span>{{ time }}</span>
               <small>{{ bookingData.discount }}</small>
             </button>
@@ -136,7 +140,8 @@
             *ngFor="let num of [1,2,3,4,5,6,7,8]"
             class="people-button"
             [class.selected]="bookingData.people === num"
-            (click)="selectPeople(num)">
+            (click)="selectPeople(num)"
+          >
             <span class="people-number">{{ num }}</span>
             <small>{{ bookingData.discount }}</small>
           </button>
@@ -150,7 +155,7 @@
         </div>
       </div>
 
-      <!-- STEP 4: Confirmation -->
+      <!-- STEP 4: Confirmation - CON INPUT TELEFONO -->
       <div *ngIf="currentStep === 'confirm'" class="confirm-step">
         <!-- Booking Summary -->
         <div class="booking-summary">
@@ -177,31 +182,82 @@
           <h4>COMPLETA LA PRENOTAZIONE</h4>
           <div class="promotion-content">
             <h5>20% di sconto sulle voci del menù à la carte</h5>
-            <p>Esclusi menù fissi e bevande. Promozione soggetta all'arrivo all'orario prenotato.</p>
+            <p>
+              Esclusi menù fissi e bevande. Promozione soggetta all'arrivo
+              all'orario prenotato.
+            </p>
             <span class="promotion-badge">20% di sconto</span>
           </div>
         </div>
 
-        <!-- User Info -->
+        <!-- User Info - CON INPUT TELEFONO -->
         <div class="d-flex align-items-center p-3 bg-secondary rounded mb-3">
-          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+          <div
+            class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+            style="width: 40px; height: 40px"
+          >
             <i class="fas fa-user"></i>
           </div>
           <div class="flex-fill">
-            <h6 class="mb-0 text-white">nome e cognome utente</h6>
-            <small class="text-muted">email e telefono utente</small>
+            <h6 class="mb-0 text-white">{{ currentUser.name }}</h6>
+            <small class="text-muted">{{ currentUser.email }}</small>
           </div>
         </div>
 
-        <!-- Special Request -->
+        <!-- Phone Input - NUOVO -->
+        <div class="mb-3">
+          <div class="input-group">
+            <span class="input-group-text bg-secondary border-secondary">
+              <i class="fas fa-phone text-primary"></i>
+            </span>
+            <input
+              type="tel"
+              class="form-control bg-secondary border-secondary text-white"
+              placeholder="Inserisci il tuo numero di telefono"
+              [(ngModel)]="bookingData.customerPhone"
+              [disabled]="isSubmitting"
+              required>
+          </div>
+          <small class="text-muted">Numero di telefono per la prenotazione</small>
+        </div>
+
+        <!-- Avviso telefono mancante -->
+        <div *ngIf="!bookingData.customerPhone || bookingData.customerPhone.trim() === ''" class="alert alert-warning mb-3" role="alert">
+          <i class="fas fa-phone me-2"></i>
+          <strong>Telefono obbligatorio:</strong> Inserisci il numero di telefono per completare la prenotazione.
+        </div>
+
+        <!-- Special Request - CON BINDING -->
         <div class="mb-3">
           <div class="input-group">
             <span class="input-group-text bg-secondary border-secondary">
               <i class="fas fa-comment text-primary"></i>
             </span>
-            <input type="text" class="form-control bg-secondary border-secondary text-white" placeholder="Richiesta speciale">
+            <input
+              type="text"
+              class="form-control bg-secondary border-secondary text-white"
+              placeholder="Richiesta speciale (opzionale)"
+              [(ngModel)]="bookingData.notes"
+              [disabled]="isSubmitting"
+            />
           </div>
           <small class="text-muted">Messaggio per il ristorante</small>
+        </div>
+
+        <!-- Error Message -->
+        <div
+          *ngIf="submissionError"
+          class="alert alert-danger mb-3"
+          role="alert"
+        >
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          {{ submissionError }}
+        </div>
+
+        <!-- Not Logged In Message -->
+        <div *ngIf="!isLoggedIn" class="alert alert-warning mb-3" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          Devi essere loggato per effettuare una prenotazione
         </div>
 
         <!-- Terms -->
@@ -214,9 +270,27 @@
           </div>
         </div>
 
-        <!-- Confirm Button -->
-        <button class="btn-confirm" (click)="confirmBooking()">
-          CONFERMA LA PRENOTAZIONE
+        <!-- Confirm Button - CON VALIDAZIONE TELEFONO -->
+        <button
+          class="btn-confirm"
+          (click)="confirmBooking()"
+          [disabled]="isSubmitting || !isLoggedIn || !bookingData.customerPhone || bookingData.customerPhone.trim() === ''"
+        >
+          <span
+            *ngIf="isSubmitting"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </span>
+
+          <span *ngIf="!isSubmitting && bookingData.customerPhone && bookingData.customerPhone.trim() !== ''"
+            >CONFERMA LA PRENOTAZIONE</span
+          >
+          <span *ngIf="!isSubmitting && (!bookingData.customerPhone || bookingData.customerPhone.trim() === '')"
+            >INSERISCI TELEFONO PER PRENOTARE</span
+          >
+          <span *ngIf="isSubmitting">CREAZIONE PRENOTAZIONE...</span>
         </button>
 
         <!-- Legal -->
@@ -227,7 +301,6 @@
           </small>
         </div>
       </div>
-
     </div>
   </div>
 </div>

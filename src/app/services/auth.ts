@@ -90,7 +90,7 @@ export class AuthService {
   }
 
   // 👤 PROFILO UTENTE CORRENTE (usa endpoint /verify invece di /me)
-  getCurrentUser(): Observable<IAuthResponse> {
+  getCurrentUserProfile(): Observable<IAuthResponse> {
     const token = this.getToken();
     if (!token) {
       return of({ success: false, message: 'No token found' });
@@ -170,7 +170,7 @@ export class AuthService {
       this.loadUserFromStorage();
 
       // Poi verifica in background con il backend
-      this.getCurrentUser().subscribe({
+      this.getCurrentUserProfile().subscribe({
         next: (response) => {
           if (response.success && response.data) {
             // Token valido, aggiorna dati utente
@@ -259,19 +259,46 @@ export class AuthService {
     this.currentUser.set(user);
   }
 
-  // 🛡️ UTILITY METHODS
+  // 🛡️ UTILITY METHODS - CORRETTI E SENZA DUPLICATI
   isLoggedIn(): boolean {
     return this.isAuthenticated();
   }
 
   getUserFullName(): string {
     const user = this.currentUser();
-    return user ? `${user.firstName} ${user.lastName}` : '';
+    return user ? `${user.firstName} ${user.lastName}`.trim() : '';
   }
 
   getUserEmail(): string {
     const user = this.currentUser();
     return user ? user.email : '';
+  }
+
+  getUserId(): number {
+    const user = this.currentUser();
+    return user ? user.userId : 0;
+  }
+
+  getUserPhone(): string {
+    const userFromStorage = this.getUserFromStorage();
+    return userFromStorage ? (userFromStorage.phoneNumber || userFromStorage.phone || '') : '';
+  }
+
+  getCurrentUser(): any {
+    return this.getUserFromStorage();
+  }
+
+  private getUserFromStorage(): any {
+    const userJson = localStorage.getItem('thespoon_user');
+    if (userJson) {
+      try {
+        return JSON.parse(userJson);
+      } catch (e) {
+        console.error('Errore parsing user data:', e);
+        return null;
+      }
+    }
+    return null;
   }
 
   isCustomer(): boolean {
