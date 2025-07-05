@@ -10,6 +10,7 @@
 }
 
 .profile-avatar {
+  color:var(--text-color);
   width: 60px;
   height: 60px;
   background: rgba(255, 255, 255, 0.2);
@@ -21,12 +22,14 @@
 }
 
 .profile-title {
+  color:var(--text-color);
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0;
 }
 
 .profile-subtitle {
+  color:var(--text-color);
   opacity: 0.9;
   font-size: 1rem;
 }

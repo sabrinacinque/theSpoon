@@ -18,9 +18,9 @@
           </div>
 
           <!-- Social Links -->
-          <div class="social-links">
-            <h6 class="footer-title mb-3">Seguici</h6>
-            <div class="d-flex gap-3">
+          <div class="social-links text-center">
+            <h6 class="footer-title mb-3 ">Seguici</h6>
+            <div class="d-flex flex-row gap-3 justify-content-between">
               <a *ngFor="let social of socialLinks" [href]="social.url" class="social-link" [title]="social.name">
                 <i [class]="social.icon"></i>
               </a>
@@ -30,7 +30,7 @@
       </div>
 
       <!-- Azienda -->
-      <div class="col-lg-2 col-md-6 col-6">
+      <div class="col-lg-2 col-md-6 col-6 text-center">
         <h6 class="footer-title mb-3">Azienda</h6>
         <ul class="footer-links">
           <li *ngFor="let link of footerLinks.company">
@@ -39,18 +39,8 @@
         </ul>
       </div>
 
-      <!-- Ristoranti -->
-      <div class="col-lg-2 col-md-6 col-6">
-        <h6 class="footer-title mb-3">Ristoranti</h6>
-        <ul class="footer-links">
-          <li *ngFor="let link of footerLinks.restaurants">
-            <a [href]="link.url">{{ link.name }}</a>
-          </li>
-        </ul>
-      </div>
-
       <!-- Supporto -->
-      <div class="col-lg-2 col-md-6 col-6">
+      <div class="col-lg-2 col-md-6 col-6 text-center">
         <h6 class="footer-title mb-3">Supporto</h6>
         <ul class="footer-links">
           <li *ngFor="let link of footerLinks.support">
@@ -60,7 +50,7 @@
       </div>
 
       <!-- Legale -->
-      <div class="col-lg-2 col-md-6 col-6">
+      <div class="col-lg-2 col-md-6 col-6 text-center">
         <h6 class="footer-title mb-3">Legale</h6>
         <ul class="footer-links">
           <li *ngFor="let link of footerLinks.legal">
@@ -70,7 +60,7 @@
       </div>
 
       <!-- Newsletter -->
-      <div class="row py-4 border-top footer-border">
+      <div class="row py-4 border-top footer-border text-center">
         <div class="col-lg-6">
           <h6 class="footer-title mb-3">Newsletter</h6>
           <p class="newsletter-text mb-3">Ricevi le migliori offerte e novità direttamente nella tua email</p>

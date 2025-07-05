@@ -78,7 +78,7 @@
 .tab-item {
   position: relative;
   cursor: pointer;
-  padding: 1rem 1.5rem;
+  padding: 1rem 2rem;
   min-width: fit-content;
   transition: all 0.3s ease;
   border-radius: 0;
@@ -96,7 +96,6 @@
 .tab-content {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   white-space: nowrap;
 }
 
@@ -218,9 +217,7 @@
     font-size: 0.9rem;
   }
 
-  .tab-item {
-    padding: 0.75rem 1rem;
-  }
+
 
   .tab-label {
     font-size: 0.9rem;
@@ -254,10 +251,7 @@
     text-align: center;
   }
 
-  .tab-item {
-    padding: 0.5rem;
-    min-width: 80px;
-  }
+
 }
 
 /* =================================================================

@@ -22,45 +22,7 @@
   <!-- Subscription Content -->
   <div *ngIf="!loading && !error && subscriptionInfo" class="subscription-content">
 
-    <!-- Current Plan Card -->
-    <div class="plan-card current-plan">
-      <div class="plan-header">
-        <div class="plan-info">
-          <h3 class="plan-title">
-            <span class="plan-icon">💎</span>
-            Piano {{ subscriptionInfo.planType || 'Non Definito' }}
-          </h3>
-          <div class="plan-status">
-            <span class="status-badge" [class]="'badge-' + getStatusColor(subscriptionInfo.status)">
-              {{ getStatusIcon(subscriptionInfo.status) }} {{ subscriptionInfo.status }}
-            </span>
-          </div>
-        </div>
-        <div class="plan-price">
-          <span class="price-amount">€{{ subscriptionInfo.monthlyPrice || 0 }}</span>
-          <span class="price-period">/mese</span>
-        </div>
-      </div>
-
-      <div class="plan-details">
-        <div class="detail-item">
-          <span class="detail-label">📅 Data inizio:</span>
-          <span class="detail-value">{{ formatDate(subscriptionInfo.startDate) }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">📅 Data scadenza:</span>
-          <span class="detail-value">{{ formatDate(subscriptionInfo.endDate) }}</span>
-        </div>
-        <div class="detail-item" *ngIf="subscriptionInfo.daysLeft > 0">
-          <span class="detail-label">⏰ Giorni rimanenti:</span>
-          <span class="detail-value highlight">{{ subscriptionInfo.daysLeft }} giorni</span>
-        </div>
-      </div>
-
-      <div class="plan-description">
-        <p>{{ getPlanDescription(subscriptionInfo.planType) }}</p>
-      </div>
-    </div>
+    
 
     <!-- Plan Options -->
     <div class="plan-options">

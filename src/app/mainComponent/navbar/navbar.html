@@ -28,9 +28,9 @@
         </ng-container>
 
         <!-- ✅ SE LOGGATO -->
-        <ng-container *ngIf="isLoggedIn">
+        <ng-container *ngIf="isLoggedIn" >
           <!-- User Dashboard Icon -->
-          <button class="btn btn-outline-primary rounded-circle p-2 d-flex align-items-center justify-content-center"
+          <button *ngIf="authService.isCustomer()"  class="btn btn-outline-primary rounded-circle p-2 d-flex align-items-center justify-content-center"
                   style="width: 40px; height: 40px;"
                   (click)="goToCustomerDashboard()"
                   title="Il mio profilo">
@@ -39,7 +39,7 @@
 
           <!-- User Info -->
           <div class="d-flex align-items-center gap-2">
-            <span class="text-muted small d-none d-md-inline">
+            <span class="text-muted small d-md-inline">
               Ciao, {{ userFullName }}!
             </span>
             <button class="btn btn-outline-danger btn-sm" (click)="logout()">
