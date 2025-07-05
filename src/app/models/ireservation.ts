@@ -16,5 +16,6 @@ export interface IReservation {
   restaurant: {
     id: number;
     name: string;
+    address:string;
   };
 }

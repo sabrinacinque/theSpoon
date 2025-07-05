@@ -1,0 +1,179 @@
+<!-- my-reservations.html -->
+<div class="reservations-container">
+  
+  <!-- Alert System -->
+  <div class="alert-container" *ngIf="showAlert">
+    <div class="alert alert-{{alertType}} alert-dismissible fade show custom-alert" role="alert">
+      <i class="fas" 
+         [class.fa-check-circle]="alertType === 'success'"
+         [class.fa-info-circle]="alertType === 'info'"
+         [class.fa-exclamation-triangle]="alertType === 'warning'"
+         [class.fa-times-circle]="alertType === 'danger'"></i>
+      {{alertMessage}}
+      <button type="button" class="btn-close" (click)="hideAlert()"></button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="section-header">
+    <h3>
+      <i class="fas fa-calendar-alt me-2"></i>
+      Le Mie Prenotazioni
+    </h3>
+    <p class="text-muted">
+      Gestisci le tue prenotazioni passate e future
+    </p>
+  </div>
+
+  <!-- Filtri -->
+  <div class="filters-section" *ngIf="reservations.length > 0">
+    <div class="filter-buttons">
+      <button 
+        class="filter-btn"
+        [class.active]="selectedFilter === 'future'"
+        (click)="onFilterChange('future')">
+        <i class="fas fa-clock me-2"></i>
+        Future
+        <span class="badge">{{filterCounts.future}}</span>
+      </button>
+      
+      <button 
+        class="filter-btn"
+        [class.active]="selectedFilter === 'past'"
+        (click)="onFilterChange('past')">
+        <i class="fas fa-history me-2"></i>
+        Passate
+        <span class="badge">{{filterCounts.past}}</span>
+      </button>
+      
+      <button 
+        class="filter-btn"
+        [class.active]="selectedFilter === 'all'"
+        (click)="onFilterChange('all')">
+        <i class="fas fa-list me-2"></i>
+        Tutte
+        <span class="badge">{{filterCounts.all}}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner-border text-primary"></div>
+    <p>Elaborazione in corso...</p>
+  </div>
+
+  <!-- No Reservations State -->
+  <div class="empty-state" *ngIf="reservations.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-calendar-times"></i>
+    </div>
+    <h4>Nessuna prenotazione</h4>
+    <p>Non hai ancora effettuato prenotazioni.</p>
+    <a routerLink="/" class="btn btn-primary">
+      <i class="fas fa-search me-2"></i>
+      Trova Ristoranti
+    </a>
+  </div>
+
+  <!-- No Filtered Results -->
+  <div class="empty-state" *ngIf="reservations.length > 0 && !hasFilteredReservations">
+    <div class="empty-icon">
+      <i class="fas fa-filter"></i>
+    </div>
+    <h4>Nessun risultato</h4>
+    <p>Non ci sono prenotazioni per il filtro selezionato.</p>
+  </div>
+
+  <!-- Reservations Grid -->
+  <div class="reservations-content" *ngIf="hasFilteredReservations">
+    <div class="reservations-grid">
+      <div class="reservation-card" 
+           *ngFor="let reservation of filteredReservations; trackBy: trackByReservation"
+           [class.upcoming]="getStatusText(reservation) === 'Prossima'"
+           [class.past]="getStatusText(reservation) === 'Completata'">
+        
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="restaurant-info">
+            <h5 class="restaurant-name">
+              Prenotazione #{{reservation.id}}
+            </h5>
+            <p class="reservation-customer">
+              <i class="fas fa-user me-1"></i>
+              {{reservation.customerName}}
+            </p>
+          </div>
+          <div class="status-badge" 
+               [class.upcoming]="getStatusText(reservation) === 'Prossima'"
+               [class.completed]="getStatusText(reservation) === 'Completata'">
+            <i [class]="getStatusIcon(reservation)"></i>
+            <span>{{getStatusText(reservation)}}</span>
+          </div>
+        </div>
+        
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="reservation-details">
+            <div class="detail-row">
+              <div class="detail-item">
+                <i class="fas fa-calendar"></i>
+                <span>{{formatDate(reservation.reservationDate)}}</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-clock"></i>
+                <span>{{formatTime(reservation.reservationTime)}}</span>
+              </div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-item">
+                <i class="fas fa-users"></i>
+                <span>{{reservation.numberOfPeople}} {{reservation.numberOfPeople === 1 ? 'persona' : 'persone'}}</span>
+              </div>
+              <div class="detail-item" *ngIf="reservation.customerPhone">
+                <i class="fas fa-phone"></i>
+                <span>{{reservation.customerPhone}}</span>
+              </div>
+            </div>
+
+            <!-- Note se presenti -->
+            <div class="detail-row" *ngIf="reservation.notes">
+              <div class="detail-item notes">
+                <i class="fas fa-sticky-note"></i>
+                <span>{{reservation.notes}}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Actions CON BOTTONI! -->
+          <div class="card-actions">
+            <!-- Test Modifica -->
+            <button 
+              class="btn btn-primary btn-sm" 
+              (click)="testClick('edit', reservation.id)">
+              <i class="fas fa-edit me-1"></i>
+              TEST Modifica
+            </button>
+            
+            <!-- Test Cancella -->
+            <button 
+              class="btn btn-danger btn-sm" 
+              (click)="testClick('delete', reservation.id)">
+              <i class="fas fa-times me-1"></i>
+              TEST Cancella
+            </button>
+
+            <!-- Debug button -->
+            <button 
+              class="btn btn-info btn-sm" 
+              (click)="debugReservation(reservation)">
+              <i class="fas fa-bug me-1"></i>
+              DEBUG
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
