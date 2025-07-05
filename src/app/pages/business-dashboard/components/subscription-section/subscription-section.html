@@ -1,1 +1,142 @@
-<p>subscription-section works!</p>
+<!-- Subscription Section -->
+<div class="subscription-container">
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Caricamento abbonamento...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-card">
+      <span class="error-icon">⚠️</span>
+      <h4>Errore nel caricamento</h4>
+      <p>{{ error }}</p>
+      <button class="btn btn-primary" (click)="loadSubscriptionInfo()">
+        🔄 Riprova
+      </button>
+    </div>
+  </div>
+
+  <!-- Subscription Content -->
+  <div *ngIf="!loading && !error && subscriptionInfo" class="subscription-content">
+
+    <!-- Current Plan Card -->
+    <div class="plan-card current-plan">
+      <div class="plan-header">
+        <div class="plan-info">
+          <h3 class="plan-title">
+            <span class="plan-icon">💎</span>
+            Piano {{ subscriptionInfo.planType || 'Non Definito' }}
+          </h3>
+          <div class="plan-status">
+            <span class="status-badge" [class]="'badge-' + getStatusColor(subscriptionInfo.status)">
+              {{ getStatusIcon(subscriptionInfo.status) }} {{ subscriptionInfo.status }}
+            </span>
+          </div>
+        </div>
+        <div class="plan-price">
+          <span class="price-amount">€{{ subscriptionInfo.monthlyPrice || 0 }}</span>
+          <span class="price-period">/mese</span>
+        </div>
+      </div>
+
+      <div class="plan-details">
+        <div class="detail-item">
+          <span class="detail-label">📅 Data inizio:</span>
+          <span class="detail-value">{{ formatDate(subscriptionInfo.startDate) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">📅 Data scadenza:</span>
+          <span class="detail-value">{{ formatDate(subscriptionInfo.endDate) }}</span>
+        </div>
+        <div class="detail-item" *ngIf="subscriptionInfo.daysLeft > 0">
+          <span class="detail-label">⏰ Giorni rimanenti:</span>
+          <span class="detail-value highlight">{{ subscriptionInfo.daysLeft }} giorni</span>
+        </div>
+      </div>
+
+      <div class="plan-description">
+        <p>{{ getPlanDescription(subscriptionInfo.planType) }}</p>
+      </div>
+    </div>
+
+    <!-- Plan Options -->
+    <div class="plan-options">
+      <h4 class="options-title">🔄 Cambia Piano</h4>
+
+      <div class="plans-grid">
+
+        <!-- Basic Plan -->
+        <div class="plan-option" [class.current]="subscriptionInfo.planType === 'BASIC'">
+          <div class="option-header">
+            <h5 class="option-title">📋 Basic</h5>
+            <div class="option-price">
+              <span class="price">€30</span>
+              <span class="period">/mese</span>
+            </div>
+          </div>
+          <div class="option-features">
+            <div class="feature">✅ Max 50 prenotazioni/mese</div>
+            <div class="feature">💰 €1 per prenotazione extra</div>
+            <div class="feature">📊 Dashboard base</div>
+          </div>
+          <button
+            class="btn btn-outline-primary option-btn"
+            [disabled]="subscriptionInfo.planType === 'BASIC' || isChanging"
+            (click)="changePlan('BASIC')">
+            <span *ngIf="subscriptionInfo.planType === 'BASIC'">Piano Attuale</span>
+            <span *ngIf="subscriptionInfo.planType !== 'BASIC'">{{ isChanging ? 'Cambiando...' : 'Passa a Basic' }}</span>
+          </button>
+        </div>
+
+        <!-- Gold Plan -->
+        <div class="plan-option gold-plan" [class.current]="subscriptionInfo.planType === 'GOLD'">
+          <div class="option-header">
+            <h5 class="option-title">🏆 Gold</h5>
+            <div class="option-price">
+              <span class="price">€50</span>
+              <span class="period">/mese</span>
+            </div>
+          </div>
+          <div class="option-features">
+            <div class="feature">🚀 Prenotazioni ILLIMITATE</div>
+            <div class="feature">⭐ Visibilità Premium</div>
+            <div class="feature">📈 Analytics avanzate</div>
+            <div class="feature">🎯 Supporto prioritario</div>
+          </div>
+          <button
+            class="btn btn-warning option-btn"
+            [disabled]="subscriptionInfo.planType === 'GOLD' || isChanging"
+            (click)="changePlan('GOLD')">
+            <span *ngIf="subscriptionInfo.planType === 'GOLD'">Piano Attuale</span>
+            <span *ngIf="subscriptionInfo.planType !== 'GOLD'">{{ isChanging ? 'Cambiando...' : 'Upgrade a Gold' }}</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Custom Alert -->
+<div class="custom-alert-overlay" *ngIf="showAlert" (click)="hideAlert()">
+  <div class="custom-alert" (click)="$event.stopPropagation()">
+    <div class="alert-header">
+      <span class="alert-icon">🎉</span>
+      <h4>Piano Cambiato!</h4>
+    </div>
+    <div class="alert-body">
+      <p>{{ alertMessage }}</p>
+      <p class="alert-subtitle">Il nuovo piano è già attivo con 1 mese di prova!</p>
+    </div>
+    <div class="alert-footer">
+      <button class="btn btn-primary" (click)="hideAlert()">
+        Perfetto! 🚀
+      </button>
+    </div>
+  </div>
+</div>
