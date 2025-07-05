@@ -118,4 +118,14 @@ export class RestaurantService {
   filterPremium(restaurants: IRestaurant[]): IRestaurant[] {
     return restaurants.filter(r => (r.rating || 0) >= 4.5);
   }
+
+  // UPDATE singolo campo ristorante
+updateRestaurantField(restaurantId: number, fieldName: string, fieldValue: string, businessId: number): Observable<IRestaurant> {
+  const params = new HttpParams()
+    .set('fieldName', fieldName)
+    .set('fieldValue', fieldValue)
+    .set('businessId', businessId.toString());
+
+  return this.http.patch<IRestaurant>(`${this.API_URL}/${restaurantId}/field`, null, { params });
+}
 }

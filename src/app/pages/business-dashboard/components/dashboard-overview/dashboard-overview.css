@@ -165,6 +165,13 @@
   border-color: var(--primary-color);
 }
 
+.calendar-day.selected {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
 .day-header {
   margin-bottom: 0.75rem;
 }
@@ -455,5 +462,144 @@
 
   .quick-actions-grid {
     grid-template-columns: 1fr;
+  }
+}
+/* =================================================================
+   NAVIGAZIONE CALENDARIO - Aggiungi al tuo CSS esistente
+================================================================= */
+.calendar-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  gap: 1rem;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.nav-btn:disabled {
+  background: var(--border-color);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.nav-btn i {
+  font-size: 0.8rem;
+}
+
+.current-period {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-color);
+  background: var(--card-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+/* =================================================================
+   CALENDARIO GIORNI - SEMPLIFICATO (solo data + selezione)
+================================================================= */
+.calendar-day {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar-day:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day.today {
+  background: rgba(13, 110, 253, 0.1);
+  border-color: #0d6efd;
+  font-weight: 600;
+}
+
+.calendar-day.tomorrow {
+  background: rgba(0, 205, 181, 0.1);
+  border-color: var(--primary-color);
+}
+
+.calendar-day.selected {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.calendar-day.past {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  border-color: var(--border-light);
+}
+
+.calendar-day.past:hover {
+  border-color: var(--border-color);
+}
+
+.day-header {
+  text-align: center;
+}
+
+.day-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.day-date {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* Responsive Navigazione */
+@media (max-width: 768px) {
+  .calendar-navigation {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-btn {
+    min-width: 100px;
+    font-size: 0.8rem;
+  }
+
+  .current-period {
+    order: -1;
+    width: 100%;
   }
 }

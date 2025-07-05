@@ -1,1 +1,422 @@
-<p>profile-section works!</p>
+<!-- Profile Section -->
+<div class="profile-section">
+
+  <!-- 🔄 LOADING STATE -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Caricamento...</span>
+    </div>
+    <p class="text-muted">Caricamento profilo...</p>
+  </div>
+
+  <!-- ❌ ERROR STATE -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-outline-danger btn-sm ms-3" (click)="refreshProfile()">
+      <i class="fas fa-redo me-1"></i>
+      Riprova
+    </button>
+  </div>
+
+  <!-- ✅ PROFILE CONTENT -->
+  <div *ngIf="!loading && !error && restaurant" class="profile-content">
+
+    <!-- Header -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="profile-header p-4 rounded-4 mb-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <div class="profile-avatar me-3">
+                <i class="fas fa-store fa-2x"></i>
+              </div>
+              <div>
+                <h2 class="profile-title mb-1">{{ restaurant.name }}</h2>
+                <p class="profile-subtitle mb-0">
+                  <i class="fas fa-utensils me-2"></i>
+                  {{ restaurant.cuisineType }}
+                </p>
+              </div>
+            </div>
+            <div class="profile-badges">
+              <div class="badge bg-success rounded-pill px-3 py-2">
+                <i class="fas fa-check-circle me-1"></i>
+                Verificato
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Fields -->
+    <div class="row g-4">
+
+      <!-- Info Generale -->
+      <div class="col-lg-6">
+        <div class="section-card h-100">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="fas fa-info-circle me-2"></i>
+              Informazioni Generali
+            </h3>
+          </div>
+
+          <div class="profile-fields">
+
+            <!-- Nome Ristorante -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-store me-2"></i>
+                Nome Ristorante *
+              </label>
+              <div class="field-container" *ngIf="getField('name') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <input type="text"
+                         class="form-control"
+                         [(ngModel)]="field.value"
+                         [disabled]="field.loading"
+                         placeholder="Nome del ristorante">
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success"
+                            (click)="saveField(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="cancelEdit(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tipo Cucina -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-utensils me-2"></i>
+                Tipo Cucina *
+              </label>
+              <div class="field-container" *ngIf="getField('cuisineType') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <select class="form-select"
+                          [(ngModel)]="field.value"
+                          [disabled]="field.loading">
+                    <option *ngFor="let option of field.options" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success"
+                            (click)="saveField(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="cancelEdit(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Giorno Chiusura -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-calendar-times me-2"></i>
+                Giorno Chiusura
+              </label>
+              <div class="field-container" *ngIf="getField('giornoChiusura') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ formatGiornoChiusura(field.value) }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <select class="form-select"
+                          [(ngModel)]="field.value"
+                          [disabled]="field.loading">
+                    <option *ngFor="let option of field.options" [value]="option">
+                      {{ formatGiornoChiusura(option) }}
+                    </option>
+                  </select>
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success"
+                            (click)="saveField(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="cancelEdit(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descrizione -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-align-left me-2"></i>
+                Descrizione
+              </label>
+              <div class="field-container" *ngIf="getField('description') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value || 'Nessuna descrizione' }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <textarea class="form-control"
+                            [(ngModel)]="field.value"
+                            [disabled]="field.loading"
+                            rows="3"
+                            placeholder="Descrizione del ristorante"></textarea>
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success"
+                            (click)="saveField(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="cancelEdit(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Contatti e Ubicazione -->
+      <div class="col-lg-6">
+        <div class="section-card h-100">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="fas fa-map-marker-alt me-2"></i>
+              Contatti e Ubicazione
+            </h3>
+          </div>
+
+          <div class="profile-fields">
+
+            <!-- Indirizzo -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                Indirizzo *
+              </label>
+              <div class="field-container" *ngIf="getField('address') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <input type="text"
+                         class="form-control"
+                         [(ngModel)]="field.value"
+                         [disabled]="field.loading"
+                         placeholder="Via, numero civico">
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success"
+                            (click)="saveField(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="cancelEdit(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Città -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-city me-2"></i>
+                Città *
+              </label>
+              <div class="field-container" *ngIf="getField('city') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <input type="text"
+                         class="form-control"
+                         [(ngModel)]="field.value"
+                         [disabled]="field.loading"
+                         placeholder="Nome della città">
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success"
+                            (click)="saveField(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="cancelEdit(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Telefono -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-phone me-2"></i>
+                Telefono *
+              </label>
+              <div class="field-container" *ngIf="getField('phoneNumber') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <input type="tel"
+                         class="form-control"
+                         [(ngModel)]="field.value"
+                         [disabled]="field.loading"
+                         placeholder="Numero di telefono">
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success"
+                            (click)="saveField(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="cancelEdit(field)"
+                            [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Partita IVA (NON MODIFICABILE) -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-file-invoice me-2"></i>
+                Partita IVA
+              </label>
+              <div class="field-container">
+                <div class="field-view">
+                  <span class="field-value">{{ restaurant.partitaIva }}</span>
+                  <button class="btn-edit btn-disabled"
+                          [title]="'Per modificare la partita IVA si prega di contattare il servizio clienti: servizioclienti@thespoon.it'"
+                          disabled>
+                    <i class="fas fa-ban text-danger"></i>
+                  </button>
+                </div>
+              </div>
+              <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Per modifiche contattare:
+                <a href="mailto:servizioclienti@thespoon.it" class="text-primary">
+                  servizioclienti&#64;thespoon.it
+                </a>
+              </small>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Info Aggiuntive -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="fas fa-info me-2"></i>
+              Informazioni Account
+            </h3>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">ID Ristorante</div>
+              <div class="info-value">{{ restaurant.id }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Data Registrazione</div>
+              <div class="info-value">{{ restaurant.createdAt | date:'dd/MM/yyyy' }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Ultimo Aggiornamento</div>
+              <div class="info-value">{{ restaurant.updatedAt | date:'dd/MM/yyyy HH:mm' }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Rating Medio</div>
+              <div class="info-value">
+                <span class="rating-badge">{{ restaurant.rating || 0 }}/5</span>
+                <small class="text-muted ms-2">({{ restaurant.reviewCount || 0 }} recensioni)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Reservation } from '../../../../services/reservation';
@@ -8,7 +8,6 @@ import { AuthService } from '../../../../services/auth';
 interface DayReservations {
   date: Date;
   dayName: string;
-  reservations: number;
   isToday: boolean;
   isTomorrow: boolean;
 }
@@ -32,8 +31,16 @@ export class DashboardOverview implements OnInit {
   // 📅 Prenotazioni di oggi
   todayReservationsList: IReservation[] = [];
 
+  // 📅 Prenotazioni del giorno selezionato
+  selectedDayReservations: IReservation[] = [];
+  selectedDay: DayReservations | null = null;
+
   // 📅 Prossimi 7 giorni
   next7Days: DayReservations[] = [];
+
+  // 📅 Navigazione calendario
+  currentWeekStart: Date = new Date();
+  weekOffset: number = 0; // 0 = settimana corrente, -1 = precedente, +1 = successiva
 
   // 🏪 ID del ristorante dell'utente loggato - DINAMICO
   currentRestaurantId: number = 0;
@@ -44,7 +51,8 @@ export class DashboardOverview implements OnInit {
 
   constructor(
     private reservationService: Reservation,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef  // ← AGGIUNGI QUESTO
   ) {}
 
   ngOnInit(): void {
@@ -91,9 +99,6 @@ export class DashboardOverview implements OnInit {
 
     // Carica reviews e rating
     this.loadReviewStats();
-
-    // Genera calendario prossimi 7 giorni
-    this.generateNext7Days();
   }
 
   // 📅 Carica prenotazioni di oggi
@@ -102,12 +107,27 @@ export class DashboardOverview implements OnInit {
       next: (reservations: IReservation[]) => {
         this.todayReservationsList = reservations;
         this.todayReservations = reservations.length;
+
+        // Imposta oggi come giorno selezionato di default
+        this.selectedDayReservations = reservations;
+
+        // 📅 Genera calendario dopo aver caricato i dati di oggi
+        this.generateNext7Days();
+
         this.loading = false;
+
+        // 🔥 FORZA CHANGE DETECTION
+        this.cdr.detectChanges();
+
         console.log('✅ Prenotazioni di oggi caricate:', reservations.length);
       },
       error: (error) => {
         this.error = 'Errore nel caricamento delle prenotazioni di oggi';
         this.loading = false;
+
+        // 🔥 FORZA CHANGE DETECTION ANCHE IN CASO DI ERRORE
+        this.cdr.detectChanges();
+
         console.error('❌ Errore prenotazioni oggi:', error);
       }
     });
@@ -118,6 +138,10 @@ export class DashboardOverview implements OnInit {
     this.reservationService.getReservationStats(this.currentRestaurantId).subscribe({
       next: (stats) => {
         this.monthReservations = stats.totalReservations;
+
+        // 🔥 FORZA CHANGE DETECTION
+        this.cdr.detectChanges();
+
         console.log('📊 Statistiche prenotazioni caricate:', stats);
       },
       error: (error) => {
@@ -146,46 +170,114 @@ export class DashboardOverview implements OnInit {
     console.log('⭐ Reviews non ancora implementate - valori a 0');
   }
 
-  // 📅 Genera calendario prossimi 7 giorni
+  // 📅 Genera calendario per la settimana corrente
   private generateNext7Days(): void {
     this.next7Days = [];
     const today = new Date();
 
+    // Calcola l'inizio della settimana basandosi sull'offset
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() + (this.weekOffset * 7));
+
+    this.currentWeekStart = weekStart;
+
     for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + i);
 
       const dayReservations: DayReservations = {
         date: date,
-        dayName: this.getDayName(date, i),
-        reservations: this.getReservationsForDay(i),
-        isToday: i === 0,
-        isTomorrow: i === 1
+        dayName: this.getDayName(date, today),
+        isToday: this.isSameDay(date, today),
+        isTomorrow: this.isSameDay(date, new Date(today.getTime() + 24 * 60 * 60 * 1000))
       };
 
       this.next7Days.push(dayReservations);
     }
+
+    // Se non c'è un giorno selezionato o non è nella settimana corrente, seleziona il primo
+    if (!this.selectedDay || !this.isDateInCurrentWeek(this.selectedDay.date)) {
+      this.selectedDay = this.next7Days[0];
+      this.loadReservationsForDay(this.selectedDay);
+    }
   }
 
-  // 📅 Nome del giorno
-  private getDayName(date: Date, index: number): string {
-    if (index === 0) return 'Oggi';
-    if (index === 1) return 'Domani';
+  // 📅 Naviga alla settimana precedente
+  previousWeek(): void {
+    this.weekOffset--;
+    this.generateNext7Days();
+
+    // 🔥 FORZA CHANGE DETECTION
+    this.cdr.detectChanges();
+
+    console.log('📅 Settimana precedente:', this.getCurrentPeriodText());
+  }
+
+  // 📅 Naviga alla settimana successiva
+  nextWeek(): void {
+    this.weekOffset++;
+    this.generateNext7Days();
+
+    // 🔥 FORZA CHANGE DETECTION
+    this.cdr.detectChanges();
+
+    console.log('📅 Settimana successiva:', this.getCurrentPeriodText());
+  }
+
+  // 📅 Torna alla settimana corrente
+  goToCurrentWeek(): void {
+    this.weekOffset = 0;
+    this.generateNext7Days();
+  }
+
+  // 📅 Testo del periodo corrente
+  getCurrentPeriodText(): string {
+    if (this.weekOffset === 0) {
+      return 'Questa Settimana';
+    } else if (this.weekOffset === -1) {
+      return 'Settimana Scorsa';
+    } else if (this.weekOffset === 1) {
+      return 'Prossima Settimana';
+    } else if (this.weekOffset < 0) {
+      return `${Math.abs(this.weekOffset)} settimane fa`;
+    } else {
+      return `Tra ${this.weekOffset} settimane`;
+    }
+  }
+
+  // 📅 Nome del giorno aggiornato
+  private getDayName(date: Date, today: Date): string {
+    if (this.isSameDay(date, today)) return 'Oggi';
+
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+    if (this.isSameDay(date, tomorrow)) return 'Domani';
+
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    if (this.isSameDay(date, yesterday)) return 'Ieri';
 
     const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
     return dayNames[date.getDay()];
   }
 
-  // 📊 Prenotazioni reali per giorno
-  private getReservationsForDay(dayIndex: number): number {
-    if (dayIndex === 0) {
-      // Oggi: usa il numero reale
-      return this.todayReservations;
-    }
+  // 📅 Verifica se due date sono lo stesso giorno
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return date1.getDate() === date2.getDate() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getFullYear() === date2.getFullYear();
+  }
 
-    // TODO: Implementare chiamate API per i prossimi giorni
-    // Per ora restituiamo 0 (REALE - non ci sono prenotazioni future)
-    return 0;
+  // 📅 Verifica se una data è nel passato
+  isPastDay(date: Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    return checkDate < today;
+  }
+
+  // 📅 Verifica se una data è nella settimana corrente visualizzata
+  private isDateInCurrentWeek(date: Date): boolean {
+    return this.next7Days.some(day => this.isSameDay(day.date, date));
   }
 
   // ⭐ Genera stelle per rating
@@ -228,6 +320,82 @@ export class DashboardOverview implements OnInit {
   // 📱 Formatta orario da backend
   formatTime(time: string): string {
     return this.reservationService.formatTime(time);
+  }
+
+  // 📅 Seleziona un giorno del calendario
+  selectDay(day: DayReservations): void {
+    this.selectedDay = day;
+    this.loadReservationsForDay(day);
+    console.log('📅 Giorno selezionato:', day.dayName, day.date.toDateString());
+  }
+
+  // 📅 Carica prenotazioni per un giorno specifico
+  private loadReservationsForDay(day: DayReservations): void {
+    const today = new Date();
+
+    if (this.isSameDay(day.date, today)) {
+      // Se è oggi, usa i dati già caricati
+      this.selectedDayReservations = this.todayReservationsList;
+
+      // 🔥 FORZA CHANGE DETECTION
+      this.cdr.detectChanges();
+
+      console.log(`📅 Prenotazioni per ${day.dayName}: ${this.selectedDayReservations.length} (cache)`);
+    } else {
+      // Per altri giorni, fai chiamata API
+      const dateString = day.date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+      this.reservationService.getReservationsByDate(this.currentRestaurantId, dateString).subscribe({
+        next: (reservations: IReservation[]) => {
+          this.selectedDayReservations = reservations;
+
+          // 🔥 FORZA CHANGE DETECTION
+          this.cdr.detectChanges();
+
+          console.log(`📅 Prenotazioni per ${day.dayName}: ${reservations.length}`);
+        },
+        error: (error) => {
+          console.error(`❌ Errore prenotazioni per ${day.dayName}:`, error);
+          this.selectedDayReservations = [];
+
+          // 🔥 FORZA CHANGE DETECTION ANCHE IN CASO DI ERRORE
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+
+  // 📋 Titolo dinamico aggiornato
+  getSelectedDayTitle(): string {
+    if (!this.selectedDay) return 'Oggi';
+
+    const today = new Date();
+    if (this.isSameDay(this.selectedDay.date, today)) return 'Oggi';
+
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+    if (this.isSameDay(this.selectedDay.date, tomorrow)) return 'Domani';
+
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    if (this.isSameDay(this.selectedDay.date, yesterday)) return 'Ieri';
+
+    return this.selectedDay.dayName + ' ' +
+           this.selectedDay.date.getDate() + '/' +
+           (this.selectedDay.date.getMonth() + 1);
+  }
+
+  // 📋 Sottotitolo con data completa
+  getSelectedDaySubtitle(): string {
+    if (!this.selectedDay) return '';
+
+    const date = this.selectedDay.date;
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+
+    return date.toLocaleDateString('it-IT', options);
   }
 
   // 📊 Calcola trend mese (TODO: implementare logica reale)
