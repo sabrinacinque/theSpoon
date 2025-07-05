@@ -1,1 +1,361 @@
-<p>settings-section works!</p>
+<!-- Settings Section -->
+<div class="settings-section">
+
+  <!-- Tab Navigation -->
+  <div class="settings-tabs">
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'photos'"
+      (click)="setActiveTab('photos')">
+      <i class="fas fa-camera"></i>
+      <span>Foto Ristorante</span>
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'menu'"
+      (click)="setActiveTab('menu')">
+      <i class="fas fa-utensils"></i>
+      <span>Menu</span>
+    </button>
+  </div>
+
+  <!-- 📸 PHOTOS TAB -->
+  <div class="tab-content" *ngIf="activeTab === 'photos'">
+
+    <!-- Photos Header -->
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="fas fa-camera me-2"></i>
+        Gestione Foto
+      </h3>
+      <p class="section-description">
+        Carica e gestisci le foto del tuo ristorante. La prima foto sarà automaticamente impostata come principale.
+      </p>
+    </div>
+
+    <!-- Upload Area -->
+    <div class="upload-section">
+      <div class="upload-area">
+        <input
+          type="file"
+          id="photoUpload"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          [disabled]="uploadingPhoto"
+          style="display: none">
+
+        <label
+          for="photoUpload"
+          class="upload-label"
+          [class.uploading]="uploadingPhoto">
+          <div class="upload-content">
+            <i class="fas fa-cloud-upload-alt upload-icon" *ngIf="!uploadingPhoto"></i>
+            <i class="fas fa-spinner fa-spin upload-icon" *ngIf="uploadingPhoto"></i>
+            <h4 class="upload-title">
+              {{ uploadingPhoto ? 'Caricamento...' : 'Carica Nuova Foto' }}
+            </h4>
+            <p class="upload-description">
+              Clicca per selezionare un'immagine o trascinala qui
+            </p>
+            <small class="upload-hint">
+              Formati supportati: JPG, PNG, GIF (max 5MB)
+            </small>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Photos Loading -->
+    <div *ngIf="photosLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Caricamento foto...</p>
+    </div>
+
+    <!-- Photos Error -->
+    <div *ngIf="photosError && !photosLoading" class="error-container">
+      <div class="error-card">
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h4>Errore nel caricamento</h4>
+        <p>{{ photosError }}</p>
+        <button class="btn btn-primary" (click)="loadPhotos()">
+          <i class="fas fa-redo"></i> Riprova
+        </button>
+      </div>
+    </div>
+
+    <!-- Photos Grid -->
+    <div *ngIf="!photosLoading && !photosError" class="photos-grid">
+
+      <!-- No Photos -->
+      <div *ngIf="photos.length === 0" class="no-photos">
+        <i class="fas fa-image no-photos-icon"></i>
+        <h4>Nessuna foto caricata</h4>
+        <p>Carica la prima foto del tuo ristorante per iniziare</p>
+      </div>
+
+      <!-- Photos List -->
+      <div *ngFor="let photo of photos" class="photo-card">
+        <div class="photo-image">
+          <img [src]="getPhotoUrl(photo)" [alt]="photo.fileName" />
+          <div class="photo-overlay">
+            <button
+              class="photo-action main-btn"
+              [class.is-main]="photo.isMain"
+              (click)="setMainPhoto(photo)"
+              [disabled]="photo.isMain"
+              [title]="photo.isMain ? 'Foto principale' : 'Imposta come principale'">
+              <i class="fas fa-star"></i>
+            </button>
+            <button
+              class="photo-action delete-btn"
+              (click)="deletePhoto(photo)"
+              title="Elimina foto">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="photo-info">
+          <h5 class="photo-name">{{ photo.fileName }}</h5>
+          <div class="photo-meta">
+            <span class="photo-size">{{ (photo.fileSize / 1024).toFixed(1) }} KB</span>
+            <span class="photo-badge" *ngIf="photo.isMain">Principale</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 🍽️ MENU TAB -->
+  <div class="tab-content" *ngIf="activeTab === 'menu'">
+
+    <!-- Menu Header -->
+    <div class="section-header">
+      <div class="header-content">
+        <div class="header-text">
+          <h3 class="section-title">
+            <i class="fas fa-utensils me-2"></i>
+            Gestione Menu
+          </h3>
+          <p class="section-description">
+            Aggiungi, modifica e organizza i piatti del tuo menu
+          </p>
+        </div>
+        <button
+          class="btn btn-primary add-btn"
+          (click)="showAddItemForm()"
+          [disabled]="showNewItemForm">
+          <i class="fas fa-plus"></i>
+          <span>Aggiungi Piatto</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Add New Item Form -->
+    <div *ngIf="showNewItemForm" class="add-item-form">
+      <div class="form-card">
+        <div class="form-header">
+          <h4 class="form-title">
+            <i class="fas fa-plus-circle"></i>
+            Nuovo Piatto
+          </h4>
+          <button
+            class="btn-close"
+            (click)="hideAddItemForm()"
+            [disabled]="newMenuItem.adding">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="form-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-utensils"></i>
+                Nome Piatto *
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="newMenuItem.name"
+                placeholder="Es. Pizza Margherita"
+                [disabled]="newMenuItem.adding">
+            </div>
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-euro-sign"></i>
+                Prezzo *
+              </label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="newMenuItem.price"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                [disabled]="newMenuItem.adding">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-tags"></i>
+              Categoria *
+            </label>
+            <select
+              class="form-control"
+              [(ngModel)]="newMenuItem.category"
+              [disabled]="newMenuItem.adding">
+              <option value="">Seleziona categoria</option>
+              <option *ngFor="let category of availableCategories" [value]="category">
+                {{ category }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="form-footer">
+          <button
+            class="btn btn-outline-secondary"
+            (click)="hideAddItemForm()"
+            [disabled]="newMenuItem.adding">
+            <i class="fas fa-times"></i>
+            Annulla
+          </button>
+          <button
+            class="btn btn-success"
+            (click)="saveNewMenuItem()"
+            [disabled]="newMenuItem.adding || !newMenuItem.name || !newMenuItem.category || newMenuItem.price <= 0">
+            <i class="fas fa-check" *ngIf="!newMenuItem.adding"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="newMenuItem.adding"></i>
+            {{ newMenuItem.adding ? 'Salvando...' : 'Salva Piatto' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Loading -->
+    <div *ngIf="menuLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Caricamento menu...</p>
+    </div>
+
+    <!-- Menu Error -->
+    <div *ngIf="menuError && !menuLoading" class="error-container">
+      <div class="error-card">
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h4>Errore nel caricamento</h4>
+        <p>{{ menuError }}</p>
+        <button class="btn btn-primary" (click)="loadMenuItems()">
+          <i class="fas fa-redo"></i> Riprova
+        </button>
+      </div>
+    </div>
+
+    <!-- Menu Items -->
+    <div *ngIf="!menuLoading && !menuError" class="menu-content">
+
+      <!-- No Menu Items -->
+      <div *ngIf="menuItems.length === 0" class="no-menu">
+        <i class="fas fa-utensils no-menu-icon"></i>
+        <h4>Nessun piatto nel menu</h4>
+        <p>Aggiungi il primo piatto del tuo menu per iniziare</p>
+      </div>
+
+      <!-- Menu Items by Category -->
+      <div *ngFor="let category of getOrderedCategories()" class="menu-category">
+        <div class="category-header">
+          <h4 class="category-title">
+            <span class="category-icon">{{ getCategoryIcon(category) }}</span>
+            {{ category }}
+            <span class="category-count">({{ menuGrouped[category].length }})</span>
+          </h4>
+        </div>
+
+        <div class="menu-items-grid">
+          <div *ngFor="let item of menuGrouped[category]" class="menu-item-card">
+
+            <!-- View Mode -->
+            <div *ngIf="!item.editing" class="item-view">
+              <div class="item-header">
+                <h5 class="item-name">{{ item.name }}</h5>
+                <span class="item-price">{{ formatPrice(item.price) }}</span>
+              </div>
+              <div class="item-category">
+                <span class="category-badge">{{ item.category }}</span>
+              </div>
+              <div class="item-actions">
+                <button
+                  class="btn-action edit-btn"
+                  (click)="startEditMenuItem(item)"
+                  [disabled]="item.loading"
+                  title="Modifica">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn-action delete-btn"
+                  (click)="deleteMenuItem(item)"
+                  [disabled]="item.loading"
+                  title="Elimina">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <div *ngIf="item.editing" class="item-edit">
+              <div class="edit-form">
+                <div class="form-group">
+                  <label class="form-label-small">Nome</label>
+                  <input
+                    type="text"
+                    class="form-control-small"
+                    [(ngModel)]="item.name"
+                    [disabled]="item.loading">
+                </div>
+                <div class="form-group">
+                  <label class="form-label-small">Prezzo</label>
+                  <input
+                    type="number"
+                    class="form-control-small"
+                    [(ngModel)]="item.price"
+                    step="0.01"
+                    min="0"
+                    [disabled]="item.loading">
+                </div>
+                <div class="form-group">
+                  <label class="form-label-small">Categoria</label>
+                  <select
+                    class="form-control-small"
+                    [(ngModel)]="item.category"
+                    [disabled]="item.loading">
+                    <option *ngFor="let category of availableCategories" [value]="category">
+                      {{ category }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="edit-actions">
+                <button
+                  class="btn-action save-btn"
+                  (click)="saveEditMenuItem(item)"
+                  [disabled]="item.loading || !item.name || !item.category || item.price <= 0"
+                  title="Salva">
+                  <i class="fas fa-check" *ngIf="!item.loading"></i>
+                  <i class="fas fa-spinner fa-spin" *ngIf="item.loading"></i>
+                </button>
+                <button
+                  class="btn-action cancel-btn"
+                  (click)="cancelEditMenuItem(item)"
+                  [disabled]="item.loading"
+                  title="Annulla">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
