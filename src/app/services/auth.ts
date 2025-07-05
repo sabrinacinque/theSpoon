@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, of, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../enviroments/enviroment.development';
 
@@ -72,10 +72,11 @@ export class AuthService {
     );
   }
 
-  // 🔓 LOGOUT
+  // 🔓 LOGOUT (aggiornato per pulire anche user data)
   logout(): void {
-    // Rimuovi token dal localStorage
+    // Rimuovi token e dati utente dal localStorage
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem('thespoon_user');
 
     // Reset stato
     this.isAuthenticated.set(false);
@@ -88,17 +89,55 @@ export class AuthService {
     console.log('🔓 Logout completato');
   }
 
-  // 👤 PROFILO UTENTE CORRENTE
+  // 👤 PROFILO UTENTE CORRENTE (usa endpoint /verify invece di /me)
   getCurrentUser(): Observable<IAuthResponse> {
-    return this.http.get<IAuthResponse>(`${this.API_URL}/me`).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          this.updateUserData(response.data);
+    const token = this.getToken();
+    if (!token) {
+      return of({ success: false, message: 'No token found' });
+    }
+
+    // Usa endpoint /verify che funziona con Authorization header
+    return this.http.get<any>(`${this.API_URL}/verify`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).pipe(
+      tap((response: any) => {
+        if (response.success && response.valid) {
+          // Converte la risposta di /verify nel formato atteso
+          const userData: IUserAuthData = {
+            type: 'login', // Aggiungi il campo type richiesto
+            token: token,
+            userId: response.userId,
+            email: response.email,
+            firstName: '', // Non disponibile in /verify
+            lastName: '',  // Non disponibile in /verify
+            role: response.role
+          };
+          this.updateUserData(userData);
+        }
+      }),
+      map((response: any) => {
+        // Converte la risposta nel formato IAuthResponse
+        if (response.success && response.valid) {
+          return {
+            success: true,
+            data: {
+              type: 'login',
+              token: token,
+              userId: response.userId,
+              email: response.email,
+              firstName: '',
+              lastName: '',
+              role: response.role
+            }
+          };
+        } else {
+          return { success: false, message: 'Token not valid' };
         }
       }),
       catchError(error => {
         console.error('❌ Errore recupero profilo:', error);
-        this.logout(); // Token non valido, fai logout
         return of({ success: false });
       })
     );
@@ -118,48 +157,94 @@ export class AuthService {
     return !!token; // Per ora verifica solo esistenza, JWT validation nel backend
   }
 
-  // 🚀 INIZIALIZZAZIONE
+  // 🚀 INIZIALIZZAZIONE MIGLIORATA
   private initializeAuth(): void {
-    if (this.hasValidToken()) {
-      // Verifica token con backend
+    const token = this.getToken();
+
+    if (token) {
+      // Imposta subito lo stato come autenticato (ottimistico)
+      this.isAuthenticated.set(true);
+      this.authStatus.next(true);
+
+      // Carica dati utente da localStorage se disponibili
+      this.loadUserFromStorage();
+
+      // Poi verifica in background con il backend
       this.getCurrentUser().subscribe({
         next: (response) => {
-          if (!response.success) {
-            this.logout(); // Token non valido
+          if (response.success && response.data) {
+            // Token valido, aggiorna dati utente
+            this.updateUserData(response.data);
+            console.log('✅ Token verificato, utente autenticato:', response.data.email);
+          } else {
+            // Token non valido, logout
+            console.log('❌ Token non valido, logout');
+            this.logout();
           }
         },
-        error: () => {
-          this.logout(); // Errore, logout
+        error: (error) => {
+          // Solo se è un errore 401/403, fai logout
+          if (error.status === 401 || error.status === 403) {
+            console.log('🔒 Token scaduto/non valido, logout');
+            this.logout();
+          } else {
+            // Altri errori (rete, server): mantieni autenticazione
+            console.log('⚠️ Errore di rete, mantieni autenticazione locale');
+          }
         }
       });
     }
   }
 
-  // ✅ SUCCESSO AUTENTICAZIONE
-private handleAuthSuccess(authData: IUserAuthData): void {
-  // Salva token
-  this.setToken(authData.token);
-
-  // Aggiorna stato
-  this.updateUserData(authData);
-  this.isAuthenticated.set(true);
-  this.authStatus.next(true);
-
-  console.log('✅ Autenticazione completata:', authData.email);
-
-  // 🚀 REDIRECT AUTOMATICO POST-LOGIN/REGISTRAZIONE
-  if (authData.role === 'BUSINESS') {
-    console.log('🏢 Redirect a Business Dashboard per:', authData.email);
-    this.router.navigate(['/business-dashboard']);
-  } else if (authData.role === 'CUSTOMER') {
-    console.log('👤 Redirect a Homepage per Customer:', authData.email);
-    this.router.navigate(['/']);
-  } else {
-    // Fallback per ruoli non riconosciuti
-    console.log('🏠 Redirect a Homepage (ruolo non riconosciuto):', authData.role);
-    this.router.navigate(['/']);
+  // 🔄 CARICA DATI UTENTE DA LOCALSTORAGE (nuovo metodo)
+  private loadUserFromStorage(): void {
+    try {
+      const userData = localStorage.getItem('thespoon_user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        this.currentUser.set(user);
+        console.log('📥 Dati utente caricati da localStorage:', user.email);
+      }
+    } catch (error) {
+      console.error('❌ Errore nel caricamento dati utente da localStorage:', error);
+    }
   }
-}
+
+  // ✅ SUCCESSO AUTENTICAZIONE (aggiornato per salvare anche user data)
+  private handleAuthSuccess(authData: IUserAuthData): void {
+    // Salva token
+    this.setToken(authData.token);
+
+    // Salva dati utente in localStorage
+    const userData = {
+      userId: authData.userId,
+      email: authData.email,
+      firstName: authData.firstName,
+      lastName: authData.lastName,
+      role: authData.role
+    };
+    localStorage.setItem('thespoon_user', JSON.stringify(userData));
+
+    // Aggiorna stato
+    this.updateUserData(authData);
+    this.isAuthenticated.set(true);
+    this.authStatus.next(true);
+
+    console.log('✅ Autenticazione completata:', authData.email);
+
+    // 🚀 REDIRECT AUTOMATICO POST-LOGIN/REGISTRAZIONE
+    if (authData.role === 'BUSINESS') {
+      console.log('🏢 Redirect a Business Dashboard per:', authData.email);
+      this.router.navigate(['/business-dashboard']);
+    } else if (authData.role === 'CUSTOMER') {
+      console.log('👤 Redirect a Homepage per Customer:', authData.email);
+      this.router.navigate(['/']);
+    } else {
+      // Fallback per ruoli non riconosciuti
+      console.log('🏠 Redirect a Homepage (ruolo non riconosciuto):', authData.role);
+      this.router.navigate(['/']);
+    }
+  }
 
   // 🔄 AGGIORNA DATI UTENTE
   private updateUserData(userData: IUserAuthData): void {

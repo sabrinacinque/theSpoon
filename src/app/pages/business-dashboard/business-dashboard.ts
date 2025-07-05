@@ -36,7 +36,8 @@ interface DashboardTab {
 export class BusinessDashboardComponent implements OnInit {
 
   // 🎯 Tab attivo
-  activeTab: string = 'dashboard';
+  activeTab: string = localStorage.getItem('dashboard_active_tab') || 'dashboard';
+
 
   // 📋 Configurazione tab
   tabs: DashboardTab[] = [
@@ -105,6 +106,7 @@ export class BusinessDashboardComponent implements OnInit {
   // 🔄 Cambia tab attivo
   setActiveTab(tabId: string): void {
     this.activeTab = tabId;
+    localStorage.setItem('dashboard_active_tab', tabId); // ← AGGIUNGI QUESTA RIGA
     console.log('📋 Tab attivo:', tabId);
   }
 
