@@ -71,4 +71,7 @@ export class Reservation {
     // Per ora tutte le prenotazioni sono "confirmed"
     return reservations.length;
   }
+  getRestaurantByBusinessId(businessId: number): Observable<any> {
+  return this.http.get<any>(`${environment.apiUrl}/restaurants/business/${businessId}`);
+}
 }

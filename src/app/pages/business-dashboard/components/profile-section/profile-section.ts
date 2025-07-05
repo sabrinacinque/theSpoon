@@ -69,23 +69,25 @@ export class ProfileSection implements OnInit {
       return;
     }
 
-    // TODO: Implementare chiamata per ottenere il restaurant ID dall'utente
-    // Per ora usiamo ID 8 come nella dashboard
-    this.currentRestaurantId = 8;
+    // 🔥 USA IL BUSINESS ID DELL'UTENTE LOGGATO
+    const businessId = currentUser.userId;
+    console.log('👤 Business ID dell\'utente loggato:', businessId);
 
-    this.restaurantService.getRestaurantById(this.currentRestaurantId).subscribe({
+    // Carica ristorante per business ID
+    this.restaurantService.getRestaurantByBusinessId(businessId).subscribe({
       next: (restaurant: IRestaurant) => {
         this.restaurant = restaurant;
+        this.currentRestaurantId = restaurant.id; // ← DINAMICO!
         this.initializeEditableFields();
         this.loading = false;
         this.cdr.detectChanges();
-        console.log('✅ Profilo ristorante caricato:', restaurant);
+        console.log('✅ Profilo ristorante caricato per business ID', businessId, ':', restaurant);
       },
       error: (error) => {
-        this.error = 'Errore nel caricamento del profilo';
+        this.error = 'Errore nel caricamento del profilo o ristorante non trovato';
         this.loading = false;
         this.cdr.detectChanges();
-        console.error('❌ Errore caricamento profilo:', error);
+        console.error('❌ Errore caricamento profilo per business ID', businessId, ':', error);
       }
     });
   }

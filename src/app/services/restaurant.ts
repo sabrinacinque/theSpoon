@@ -119,13 +119,16 @@ export class RestaurantService {
     return restaurants.filter(r => (r.rating || 0) >= 4.5);
   }
 
-  // UPDATE singolo campo ristorante
+// Aggiungi nel RestaurantService
+getRestaurantByBusinessId(businessId: number): Observable<IRestaurant> {
+  return this.http.get<IRestaurant>(`${this.API_URL}/business/${businessId}`);
+}
+
 updateRestaurantField(restaurantId: number, fieldName: string, fieldValue: string, businessId: number): Observable<IRestaurant> {
   const params = new HttpParams()
     .set('fieldName', fieldName)
     .set('fieldValue', fieldValue)
     .set('businessId', businessId.toString());
-
   return this.http.patch<IRestaurant>(`${this.API_URL}/${restaurantId}/field`, null, { params });
 }
 }

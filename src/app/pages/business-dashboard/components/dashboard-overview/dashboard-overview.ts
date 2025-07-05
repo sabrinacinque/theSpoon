@@ -69,15 +69,27 @@ export class DashboardOverview implements OnInit {
       return;
     }
 
-    // TODO: Implementare chiamata per ottenere il restaurant ID dell'utente
-    // Per ora usiamo ID 8 che sappiamo essere il tuo ristorante
-    // Ma dovrebbe essere: this.getRestaurantByBusinessId(currentUser.userId)
-    this.currentRestaurantId = 8; // TEMPORANEO - da sostituire con API call
+    // 🔥 USA IL BUSINESS ID DELL'UTENTE LOGGATO
+    const businessId = currentUser.userId;
+    console.log('👤 Business ID dell\'utente loggato:', businessId);
 
-    console.log('👤 Utente business:', currentUser.firstName, currentUser.lastName);
-    console.log('🏪 Restaurant ID:', this.currentRestaurantId);
+    // Carica ristorante per business ID
+    this.reservationService.getRestaurantByBusinessId(businessId).subscribe({
+      next: (restaurant: any) => {
+        this.currentRestaurantId = restaurant.id; // ← DINAMICO!
+        console.log('🏪 Restaurant ID ottenuto dinamicamente:', this.currentRestaurantId);
+        console.log('🏪 Ristorante:', restaurant.name);
 
-    this.loadDashboardData();
+        // Ora carica i dati della dashboard
+        this.loadDashboardData();
+      },
+      error: (error) => {
+        this.error = 'Errore: ristorante non trovato per questo utente business';
+        this.loading = false;
+        this.cdr.detectChanges();
+        console.error('❌ Errore caricamento ristorante per business ID', businessId, ':', error);
+      }
+    });
   }
 
   // 🔄 Carica tutti i dati della dashboard
