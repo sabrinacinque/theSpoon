@@ -1,1 +1,278 @@
-<p>my-profile works!</p>
+<!-- my-profile.html - Customer Profile Template -->
+<div class="profile-section">
+
+  <!-- 🔄 LOADING STATE -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Caricamento...</span>
+    </div>
+    <p class="text-muted">Caricamento profilo...</p>
+  </div>
+
+  <!-- ❌ ERROR STATE -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+  </div>
+
+  <!-- ✅ PROFILE CONTENT -->
+  <div *ngIf="!loading && !error && currentUser" class="profile-content">
+
+    <!-- Header Profilo -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="profile-header p-4 rounded-4 mb-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div class="d-flex align-items-center">
+              <div class="profile-avatar me-3">
+                <span class="avatar-initials">{{ userInitials }}</span>
+              </div>
+              <div>
+                <h2 class="profile-title mb-1">{{ fullName }}</h2>
+              </div>
+            </div>
+            <div class="profile-badges">
+              <div class="badge bg-primary rounded-pill px-3 py-2">
+                <i class="fas fa-user-check me-1"></i>
+                Verificato
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenuto Profilo -->
+    <div class="row g-4">
+
+      <!-- Info Personali -->
+      <div class="col-lg-8">
+        <div class="section-card h-100">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="fas fa-user me-2"></i>
+              Informazioni Personali
+            </h3>
+          </div>
+
+          <div class="profile-fields">
+
+            <!-- Nome -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-user me-2"></i>
+                Nome *
+              </label>
+              <div class="field-container" *ngIf="getField('firstName') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <input type="text" class="form-control" [(ngModel)]="field.value" [disabled]="field.loading"
+                    [placeholder]="field.placeholder" [attr.data-field]="field.name"
+                    (keydown)="onKeydown($event, field)" (blur)="onBlur(field)">
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success" (click)="saveField(field)"
+                      [disabled]="field.loading || !field.value.trim()">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" (click)="cancelEdit(field)"
+                      [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cognome -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-user me-2"></i>
+                Cognome *
+              </label>
+              <div class="field-container" *ngIf="getField('lastName') as field">
+                <!-- View Mode -->
+                <div *ngIf="!field.editing" class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit" (click)="startEdit(field)" [disabled]="field.loading">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <!-- Edit Mode -->
+                <div *ngIf="field.editing" class="field-edit">
+                  <input type="text" class="form-control" [(ngModel)]="field.value" [disabled]="field.loading"
+                    [placeholder]="field.placeholder" [attr.data-field]="field.name"
+                    (keydown)="onKeydown($event, field)" (blur)="onBlur(field)">
+                  <div class="field-actions">
+                    <button class="btn btn-sm btn-success" (click)="saveField(field)"
+                      [disabled]="field.loading || !field.value.trim()">
+                      <i class="fas fa-check" *ngIf="!field.loading"></i>
+                      <i class="fas fa-spinner fa-spin" *ngIf="field.loading"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" (click)="cancelEdit(field)"
+                      [disabled]="field.loading">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email (Non modificabile) -->
+            <div class="profile-field">
+              <label class="field-label">
+                <i class="fas fa-envelope me-2"></i>
+                Email
+              </label>
+              <div class="field-container" *ngIf="getField('email') as field">
+                <div class="field-view">
+                  <span class="field-value">{{ field.value }}</span>
+                  <button class="btn-edit btn-disabled"
+                    [title]="'L\'email non può essere modificata per motivi di sicurezza'" (click)="startEdit(field)">
+                    <i class="fas fa-lock text-warning"></i>
+                  </button>
+                </div>
+              </div>
+              <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                L'email non può essere modificata per motivi di sicurezza
+              </small>
+            </div>
+
+          </div>
+
+          <!-- Azioni Account -->
+          <div class="account-actions mt-4 pt-4 border-top">
+            <h5 class="mb-3">
+              <i class="fas fa-cog me-2"></i>
+              Gestione Account
+            </h5>
+            <div class="d-flex flex-wrap gap-3">
+              <button class="btn btn-outline-primary" (click)="changePassword()">
+                <i class="fas fa-key me-2"></i>
+                Cambia Password
+              </button>
+              <button class="btn btn-outline-danger" (click)="deleteAccount()">
+                <i class="fas fa-trash me-2"></i>
+                Elimina Account
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Statistiche e Info -->
+      <div class="col-lg-4">
+        <div class="section-card h-100">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="fas fa-chart-bar me-2"></i>
+              Le Tue Statistiche
+            </h3>
+          </div>
+
+          <div class="stats-grid">
+            <!-- Loading statistiche -->
+            <div *ngIf="loadingStats" class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">...</div>
+                <div class="stat-label">Caricamento...</div>
+              </div>
+            </div>
+
+            <!-- Statistiche reali -->
+            <div *ngIf="!loadingStats" class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ userStats.totalReservations }}</div>
+                <div class="stat-label">Prenotazioni Totali</div>
+              </div>
+            </div>
+
+            <div *ngIf="!loadingStats" class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ userStats.completedReservations }}</div>
+                <div class="stat-label">Prenotazioni Completate</div>
+              </div>
+            </div>
+
+            <div *ngIf="!loadingStats" class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ userStats.lastLogin }}</div>
+                <div class="stat-label">Ultimo Accesso</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Account -->
+          <div class="account-info mt-4 pt-4 border-top">
+            <h5 class="mb-3">
+              <i class="fas fa-info-circle me-2"></i>
+              Informazioni Account
+            </h5>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">ID Utente</div>
+                <div class="info-value">{{ currentUser.userId }}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Tipo Account</div>
+                <div class="info-value">
+                  <span class="role-badge customer">{{ currentUser.role }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Membro dal</div>
+                <div class="info-value">{{ userStats.memberSince }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Link Utili -->
+          <div class="useful-links mt-4 pt-4 border-top">
+            <h5 class="mb-3">
+              <i class="fas fa-external-link-alt me-2"></i>
+              Link Utili
+            </h5>
+            <div class="d-flex flex-column gap-2">
+              <a href="/help" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-question-circle me-2"></i>
+                Centro Assistenza
+              </a>
+              <a href="/privacy" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-shield-alt me-2"></i>
+                Privacy Policy
+              </a>
+              <a href="/terms" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-file-contract me-2"></i>
+                Termini di Servizio
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

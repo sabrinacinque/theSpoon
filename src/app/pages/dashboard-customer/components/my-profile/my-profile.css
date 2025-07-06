@@ -1,0 +1,583 @@
+/* my-profile.css - Customer Profile Styles */
+
+/* =================================================================
+   PROFILE HEADER
+================================================================= */
+.profile-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--text-color);
+  border: none;
+  box-shadow: 0 8px 32px rgba(0, 205, 181, 0.3);
+}
+
+.profile-avatar {
+  color:var(--text-color);
+  width: 70px;
+  height: 70px;
+  background: var(--bg-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-initials {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.profile-title {
+  color: var(--text-color);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.profile-subtitle {
+  color: var(--text-color);
+  opacity: 0.9;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.profile-member-since {
+  color: var(--text-color);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.profile-badges .badge {
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* =================================================================
+   PROFILE FIELDS
+================================================================= */
+.profile-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.profile-field {
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 1rem;
+}
+
+.profile-field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.field-label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.field-container {
+  position: relative;
+}
+
+/* =================================================================
+   VIEW MODE
+================================================================= */
+.field-view {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.field-value {
+  flex: 1;
+  font-size: 1rem;
+  color: var(--text-color);
+  line-height: 1.4;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.btn-edit {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.btn-edit:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: var(--text-color);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.btn-edit.btn-disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.btn-edit.btn-disabled:hover {
+  background: none;
+  transform: none;
+}
+
+/* =================================================================
+   EDIT MODE
+================================================================= */
+.field-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.field-edit .form-control {
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.field-edit .form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb, 0, 205, 181), 0.25);
+  border-color: var(--primary-hover);
+  background: var(--bg-color);
+}
+
+.field-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-self: flex-end;
+}
+
+.field-actions .btn {
+  border-radius: 6px;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* =================================================================
+   ACCOUNT ACTIONS
+================================================================= */
+.account-actions {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.account-actions h5 {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.account-actions .btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.account-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* =================================================================
+   STATISTICS GRID
+================================================================= */
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* =================================================================
+   INFO GRID
+================================================================= */
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-badge.customer {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* =================================================================
+   USEFUL LINKS
+================================================================= */
+.useful-links .btn {
+  justify-content: flex-start;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.useful-links .btn:hover {
+  transform: translateX(5px);
+}
+
+/* =================================================================
+   SECTION CARDS
+================================================================= */
+.section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* =================================================================
+   LOADING STATES
+================================================================= */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN
+================================================================= */
+@media (max-width: 768px) {
+  .profile-header {
+    text-align: center;
+  }
+
+  .profile-header .d-flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .avatar-initials {
+    font-size: 1.25rem;
+  }
+
+  .profile-title {
+    font-size: 1.5rem;
+  }
+
+  .field-view {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .btn-edit {
+    align-self: flex-end;
+  }
+
+  .field-actions {
+    align-self: stretch;
+    justify-content: flex-end;
+  }
+
+  .account-actions .d-flex {
+    flex-direction: column;
+  }
+
+  .account-actions .btn {
+    width: 100%;
+  }
+
+  .useful-links .btn {
+    width: 100%;
+  }
+
+  .stats-grid {
+    gap: 0.75rem;
+  }
+
+  .stat-item {
+    padding: 0.75rem;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .section-card {
+    padding: 1rem;
+  }
+
+  .profile-header {
+    padding: 1.5rem !important;
+  }
+
+  .account-actions {
+    padding: 1rem;
+  }
+}
+
+/* =================================================================
+   DARK MODE SUPPORT
+================================================================= */
+[data-theme="dark"] .profile-header {
+  background: linear-gradient(135deg, var(--primary-color), #1a4b5c);
+}
+
+[data-theme="dark"] .stat-item,
+[data-theme="dark"] .info-item {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .account-actions {
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .btn-edit.btn-disabled {
+  color: var(--text-muted);
+}
+
+/* =================================================================
+   ANIMATIONS
+================================================================= */
+.profile-content {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.stat-item,
+.info-item {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.stat-item:nth-child(1) { animation-delay: 0.1s; }
+.stat-item:nth-child(2) { animation-delay: 0.2s; }
+.stat-item:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =================================================================
+   TOOLTIPS & HOVER EFFECTS
+================================================================= */
+.btn-edit[title] {
+  position: relative;
+}
+
+.btn-edit[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-color);
+  color: var(--card-bg);
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 0.5rem;
+  max-width: 200px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* =================================================================
+   CUSTOM FOCUS STYLES
+================================================================= */
+.btn:focus,
+.form-control:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* =================================================================
+   SWEETALERT2 CUSTOMIZATION
+================================================================= */
+.swal2-popup {
+  border-radius: 1rem !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+.swal2-title {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+.swal2-input {
+  border: 2px solid var(--border-color) !important;
+  border-radius: 0.5rem !important;
+  font-size: 1rem !important;
+  background: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.swal2-input:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.25rem rgba(0, 205, 181, 0.25) !important;
+}
+
+/* =================================================================
+   ACCESSIBILITY
+================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .stat-item,
+  .info-item,
+  .profile-content,
+  .btn,
+  .account-actions .btn,
+  .useful-links .btn {
+    animation: none;
+    transition: none;
+  }
+  
+  .stat-item:hover,
+  .account-actions .btn:hover,
+  .useful-links .btn:hover {
+    transform: none;
+  }
+}
