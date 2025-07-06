@@ -1,15 +1,17 @@
-// my-reservations.ts
+// my-reservations.ts - CON SWEETALERT2
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { IReservation } from '../../../../models/ireservation';
 import { IUser } from '../../../../models/iuser';
 import { ReservationService } from '../../../../services/reservation';
+import Swal from 'sweetalert2'; // 🍬 IMPORT SWEETALERT2
 
 @Component({
   selector: 'app-my-reservations',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './my-reservations.html',
   styleUrls: ['./my-reservations.css']
 })
@@ -19,7 +21,7 @@ export class MyReservations implements OnInit, OnChanges {
   @Output() reservationUpdated = new EventEmitter<void>();
 
   // Filtri
-  selectedFilter: 'future' | 'past' | 'all' = 'future'; // Default: future
+  selectedFilter: 'future' | 'past' | 'all' = 'future';
   filteredReservations: IReservation[] = [];
   
   // Categorie
@@ -28,9 +30,18 @@ export class MyReservations implements OnInit, OnChanges {
   
   // Stati
   loading: boolean = false;
-  showAlert: boolean = false;
-  alertMessage: string = '';
-  alertType: 'success' | 'info' | 'warning' | 'danger' = 'success';
+
+  // Stati per modal personalizzati (solo edit e confirm)
+  showEditModal: boolean = false;
+  currentReservation: IReservation | null = null;
+
+  // Dati per modifica completa
+  editData = {
+    numberOfPeople: 1,
+    reservationDate: '',
+    reservationTime: '',
+    notes: ''
+  };
 
   constructor(
     private reservationService: ReservationService,
@@ -38,13 +49,11 @@ export class MyReservations implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    console.log('🔍 MyReservations - Prenotazioni ricevute:', this.reservations);
     this.categorizeReservations();
     this.applyFilter();
   }
 
   ngOnChanges(): void {
-    console.log('🔄 MyReservations - OnChanges, prenotazioni aggiornate:', this.reservations);
     this.categorizeReservations();
     this.applyFilter();
   }
@@ -52,7 +61,6 @@ export class MyReservations implements OnInit, OnChanges {
   private categorizeReservations(): void {
     const now = new Date();
     
-    // Filtra prenotazioni future
     this.upcomingReservations = this.reservations
       .filter(reservation => this.isReservationFuture(reservation, now))
       .sort((a, b) => {
@@ -61,49 +69,29 @@ export class MyReservations implements OnInit, OnChanges {
         return dateA.getTime() - dateB.getTime();
       });
 
-    // Filtra prenotazioni passate
     this.pastReservations = this.reservations
       .filter(reservation => !this.isReservationFuture(reservation, now))
       .sort((a, b) => {
         const dateA = new Date(a.reservationDate + ' ' + a.reservationTime);
         const dateB = new Date(b.reservationDate + ' ' + b.reservationTime);
-        return dateB.getTime() - dateA.getTime(); // Più recenti prima
+        return dateB.getTime() - dateA.getTime();
       });
 
-    console.log('✅ Prenotazioni categorizzate:', {
-      totali: this.reservations.length,
-      future: this.upcomingReservations.length,
-      passate: this.pastReservations.length
-    });
-
-    // Force change detection
     this.cdr.detectChanges();
   }
 
-  // 🔥 LOGICA CORRETTA: Considera data E ora
   private isReservationFuture(reservation: IReservation, now: Date): boolean {
     try {
       const reservationDateTime = new Date(reservation.reservationDate + ' ' + reservation.reservationTime);
-      const result = reservationDateTime > now;
-      
-      console.log(`📅 Controllo prenotazione ${reservation.id}:`, {
-        data: reservation.reservationDate,
-        ora: reservation.reservationTime,
-        dateTime: reservationDateTime,
-        now: now,
-        isFuture: result
-      });
-      
-      return result;
+      return reservationDateTime > now;
     } catch (error) {
-      console.error('❌ Errore nel controllo data prenotazione:', error, reservation);
+      console.error('❌ Errore nel controllo data prenotazione:', error);
       return false;
     }
   }
 
   // Filtri
   onFilterChange(filter: 'future' | 'past' | 'all'): void {
-    console.log('🔍 Cambio filtro da', this.selectedFilter, 'a', filter);
     this.selectedFilter = filter;
     this.applyFilter();
   }
@@ -120,116 +108,269 @@ export class MyReservations implements OnInit, OnChanges {
         this.filteredReservations = [...this.upcomingReservations, ...this.pastReservations];
         break;
     }
-    
-    console.log('✅ Filtro applicato:', {
-      filtro: this.selectedFilter,
-      risultati: this.filteredReservations.length,
-      future: this.upcomingReservations.length,
-      passate: this.pastReservations.length
-    });
-    
     this.cdr.detectChanges();
   }
 
-  // Test method per debug
-  testClick(action: string, reservationId: number): void {
-    console.log('🖱️ CLICK TEST:', action, 'per prenotazione', reservationId);
-    
-    if (action === 'edit') {
-      this.editReservation(this.findReservationById(reservationId));
-    } else if (action === 'delete') {
-      this.cancelReservation(this.findReservationById(reservationId));
-    }
-  }
-
-  private findReservationById(id: number): IReservation {
-    return this.reservations.find(r => r.id === id) || this.reservations[0];
-  }
-
-  // Modifica prenotazione
+  // ✏️ MODIFICA PRENOTAZIONE
   editReservation(reservation: IReservation): void {
     if (!reservation) {
       console.error('❌ Prenotazione non trovata per modifica');
       return;
     }
 
-    console.log('✏️ Tentativo modifica prenotazione:', reservation.id);
-
     if (!this.isReservationFuture(reservation, new Date())) {
-      this.showAlertMessage('Non puoi modificare una prenotazione passata', 'warning');
+      this.showErrorMessage('Non puoi modificare una prenotazione passata');
       return;
     }
 
-    this.loading = true;
-    console.log('✏️ Inizio modifica prenotazione:', reservation.id);
+    this.currentReservation = reservation;
+    this.editData = {
+      numberOfPeople: reservation.numberOfPeople,
+      reservationDate: reservation.reservationDate,
+      reservationTime: reservation.reservationTime.substring(0, 5),
+      notes: reservation.notes || ''
+    };
     
-    // Simulazione chiamata API
-    setTimeout(() => {
-      this.loading = false;
-      this.showAlertMessage('Le tue modifiche sono state inviate al ristorante', 'success');
-      console.log('✅ Modifica completata per prenotazione:', reservation.id);
-      this.reservationUpdated.emit();
-    }, 1500);
+    this.showEditModal = true;
+    this.cdr.detectChanges();
   }
 
-  // Cancella prenotazione
-  cancelReservation(reservation: IReservation): void {
+  // 🗑️ CANCELLA PRENOTAZIONE - CON SWEETALERT2
+  async cancelReservation(reservation: IReservation): Promise<void> {
     if (!reservation) {
       console.error('❌ Prenotazione non trovata per cancellazione');
       return;
     }
 
     const isFuture = this.isReservationFuture(reservation, new Date());
-    console.log('🗑️ Tentativo cancellazione prenotazione:', reservation.id, 'isFuture:', isFuture);
     
-    const confirmMessage = isFuture 
-      ? 'Sei sicuro di voler cancellare questa prenotazione? Il ristorante riceverà la notifica.'
-      : 'Questa prenotazione è già passata. Vuoi comunque procedere?';
-    
-    if (!confirm(confirmMessage)) {
-      console.log('❌ Cancellazione annullata dall\'utente');
-      return;
-    }
-
-    this.loading = true;
-    console.log('🗑️ Inizio cancellazione prenotazione:', reservation.id);
-    
-    // Simulazione chiamata API
-    setTimeout(() => {
-      this.loading = false;
-      
-      if (isFuture) {
-        this.showAlertMessage('Il ristorante ha ricevuto la tua cancellazione', 'info');
-      } else {
-        this.showAlertMessage('Cancellazione avvenuta con successo', 'success');
+    // 🍬 SWEETALERT2 CONFIRM
+    const result = await Swal.fire({
+      title: 'Cancella Prenotazione',
+      html: `
+        <div style="text-align: left; margin: 1rem 0;">
+          <p style="margin-bottom: 1rem;">${isFuture 
+            ? 'Sei sicuro di voler cancellare questa prenotazione? Il ristorante riceverà la notifica.'
+            : 'Questa prenotazione è già passata. Vuoi comunque procedere?'}</p>
+          <div style="background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #dc3545;">
+            <strong>Prenotazione #${reservation.id}</strong><br>
+            <small>${reservation.customerName}</small>
+          </div>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: '<i class="fas fa-trash"></i> Cancella',
+      cancelButtonText: '<i class="fas fa-times"></i> Annulla',
+      reverseButtons: true,
+      customClass: {
+        container: 'swal-container',
+        popup: 'swal-popup',
+        title: 'swal-title',
+        confirmButton: 'swal-confirm',
+        cancelButton: 'swal-cancel'
       }
-      
-      console.log('✅ Cancellazione completata per prenotazione:', reservation.id);
-      this.reservationUpdated.emit();
-    }, 1500);
+    });
+
+    if (result.isConfirmed) {
+      this.executeCancel(reservation.id);
+    }
   }
 
-  // Alert system
-  private showAlertMessage(message: string, type: 'success' | 'info' | 'warning' | 'danger'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    console.log('🚨 Alert mostrato:', type, message);
+  // 🔧 GESTIONE MODAL DI MODIFICA
+
+  confirmEdit(): void {
+    if (this.currentReservation && this.isValidEditData()) {
+      this.executeEdit(this.currentReservation.id);
+    }
+    this.cancelEdit();
+  }
+
+  cancelEdit(): void {
+    this.showEditModal = false;
+    this.currentReservation = null;
+    this.editData = {
+      numberOfPeople: 1,
+      reservationDate: '',
+      reservationTime: '',
+      notes: ''
+    };
     this.cdr.detectChanges();
-
-    // Nascondi alert dopo 4 secondi
-    setTimeout(() => {
-      this.hideAlert();
-    }, 4000);
   }
 
-  hideAlert(): void {
-    this.showAlert = false;
-    console.log('❌ Alert nascosto');
-    this.cdr.detectChanges();
+  // 🍬 SWEETALERT2 SUCCESS MESSAGES
+  private showSuccessMessage(type: 'edit' | 'delete'): void {
+    if (type === 'edit') {
+      Swal.fire({
+        title: 'Modifica Completata!',
+        html: `
+          <div style="text-align: center; margin: 1rem 0;">
+            <div style="margin: 1rem 0; font-size: 3rem; color: #28a745;">
+              <i class="fas fa-edit"></i>
+              <i class="fas fa-arrow-right" style="margin: 0 0.5rem; color: #6c757d;"></i>
+              <i class="fas fa-check"></i>
+            </div>
+            <p>Le tue modifiche sono state inviate correttamente al ristorante.</p>
+            <small style="color: #6c757d;">Riceverai una conferma via email.</small>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonText: '<i class="fas fa-check"></i> Perfetto!',
+        confirmButtonColor: '#28a745',
+        timer: 4000,
+        timerProgressBar: true,
+        customClass: {
+          container: 'swal-container',
+          popup: 'swal-popup-success',
+          title: 'swal-title-success',
+          htmlContainer: 'swal-content-success',
+          confirmButton: 'swal-confirm-success'
+        }
+      });
+    } else if (type === 'delete') {
+      Swal.fire({
+        title: 'Cancellazione Completata!',
+        html: `
+          <div style="text-align: center; margin: 1rem 0;">
+            <div style="margin: 1rem 0; font-size: 3rem; color: #28a745;">
+              <i class="fas fa-calendar-alt"></i>
+              <i class="fas fa-arrow-right" style="margin: 0 0.5rem; color: #6c757d;"></i>
+              <i class="fas fa-trash"></i>
+              <i class="fas fa-arrow-right" style="margin: 0 0.5rem; color: #6c757d;"></i>
+              <i class="fas fa-check"></i>
+            </div>
+            <p>Prenotazione cancellata correttamente.</p>
+            <small style="color: #6c757d;">Il ristorante è stato notificato e riceverai una conferma via email.</small>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonText: '<i class="fas fa-check"></i> Ho capito',
+        confirmButtonColor: '#28a745',
+        timer: 4000,
+        timerProgressBar: true,
+        customClass: {
+          container: 'swal-container',
+          popup: 'swal-popup-success',
+          title: 'swal-title-success',
+          htmlContainer: 'swal-content-success',
+          confirmButton: 'swal-confirm-success'
+        }
+      });
+    }
   }
 
-  // Utility methods
+  // 🍬 SWEETALERT2 ERROR MESSAGES  
+  private showErrorMessage(message: string): void {
+    Swal.fire({
+      title: 'Ops! Qualcosa è andato storto',
+      text: message,
+      icon: 'error',
+      confirmButtonText: '<i class="fas fa-times"></i> Chiudi',
+      confirmButtonColor: '#dc3545',
+      customClass: {
+        container: 'swal-container',
+        popup: 'swal-popup-error',
+        title: 'swal-title-error',
+        confirmButton: 'swal-confirm-error'
+      }
+    });
+  }
+
+  isValidEditData(): boolean {
+    return this.editData.numberOfPeople >= 1 && 
+           this.editData.numberOfPeople <= 20 && 
+           this.editData.reservationDate !== '' && 
+           this.editData.reservationTime !== '';
+  }
+
+  // 🚀 ESECUZIONE AZIONI - CON SWEETALERT2
+
+  // ✏️ Esegue modifica con SweetAlert2
+  private executeEdit(reservationId: number): void {
+    this.loading = true;
+    
+    const updateData = {
+      numberOfPeople: this.editData.numberOfPeople,
+      reservationDate: this.editData.reservationDate,
+      reservationTime: this.editData.reservationTime,
+      notes: this.editData.notes || undefined
+    };
+
+    console.log('🔄 Inviando aggiornamento al backend:', updateData);
+
+    this.reservationService.updateReservation(reservationId, updateData).subscribe({
+      next: (updatedReservation) => {
+        this.loading = false;
+        console.log('✅ Prenotazione aggiornata dal backend:', updatedReservation);
+        
+        this.updateReservationInLists(updatedReservation);
+        
+        // 🍬 MOSTRA SWEETALERT2 SUCCESS
+        this.showSuccessMessage('edit');
+        
+        this.reservationUpdated.emit();
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('❌ Errore nella modifica:', error);
+        this.showErrorMessage('Errore durante la modifica. Riprova più tardi.');
+      }
+    });
+  }
+
+  // 🗑️ Esegue cancellazione con SweetAlert2
+  private executeCancel(reservationId: number): void {
+    this.loading = true;
+    
+    console.log('🗑️ Inviando cancellazione al backend per ID:', reservationId);
+
+    this.reservationService.deleteReservation(reservationId).subscribe({
+      next: () => {
+        this.loading = false;
+        console.log('✅ Prenotazione cancellata dal backend');
+        
+        this.removeReservationFromLists(reservationId);
+        
+        // 🍬 MOSTRA SWEETALERT2 SUCCESS
+        this.showSuccessMessage('delete');
+        
+        this.reservationUpdated.emit();
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('❌ Errore nella cancellazione:', error);
+        this.showErrorMessage('Errore durante la cancellazione. Riprova più tardi.');
+      }
+    });
+  }
+
+  // 🔧 GESTIONE LISTE LOCALI
+
+  private removeReservationFromLists(reservationId: number): void {
+    this.reservations = this.reservations.filter(r => r.id !== reservationId);
+    this.upcomingReservations = this.upcomingReservations.filter(r => r.id !== reservationId);
+    this.pastReservations = this.pastReservations.filter(r => r.id !== reservationId);
+    this.applyFilter();
+  }
+
+  private updateReservationInLists(updatedReservation: IReservation): void {
+    const updateArrays = [this.reservations, this.upcomingReservations, this.pastReservations];
+    
+    updateArrays.forEach(array => {
+      const index = array.findIndex(r => r.id === updatedReservation.id);
+      if (index !== -1) {
+        array[index] = updatedReservation;
+      }
+    });
+    
+    this.categorizeReservations();
+    this.applyFilter();
+  }
+
+  // 🔧 UTILITY METHODS
+
   formatDate(date: string): string {
     try {
       return new Date(date).toLocaleDateString('it-IT', {
@@ -239,46 +380,34 @@ export class MyReservations implements OnInit, OnChanges {
         day: 'numeric'
       });
     } catch (error) {
-      console.error('❌ Errore nel formato data:', error, date);
       return date;
     }
   }
 
   formatTime(time: string): string {
     try {
-      return time.slice(0, 5); // Rimuove i secondi
+      return time.slice(0, 5);
     } catch (error) {
-      console.error('❌ Errore nel formato ora:', error, time);
       return time;
     }
   }
 
   getStatusIcon(reservation: IReservation): string {
-    try {
-      const isFuture = this.isReservationFuture(reservation, new Date());
-      return isFuture ? 'fas fa-clock text-warning' : 'fas fa-check-circle text-success';
-    } catch (error) {
-      console.error('❌ Errore nel calcolo icona status:', error, reservation);
-      return 'fas fa-question-circle text-muted';
-    }
+    const isFuture = this.isReservationFuture(reservation, new Date());
+    return isFuture ? 'fas fa-clock text-warning' : 'fas fa-check-circle text-success';
   }
 
   getStatusText(reservation: IReservation): string {
-    try {
-      const isFuture = this.isReservationFuture(reservation, new Date());
-      return isFuture ? 'Prossima' : 'Completata';
-    } catch (error) {
-      console.error('❌ Errore nel calcolo testo status:', error, reservation);
-      return 'Sconosciuto';
-    }
+    const isFuture = this.isReservationFuture(reservation, new Date());
+    return isFuture ? 'Prossima' : 'Completata';
   }
 
-  // TrackBy per performance
   trackByReservation(index: number, reservation: IReservation): number {
     return reservation.id;
   }
 
-  // Getter per template
+  // 📊 GETTERS
+
   get filterCounts() {
     return {
       future: this.upcomingReservations.length,
@@ -291,18 +420,8 @@ export class MyReservations implements OnInit, OnChanges {
     return this.filteredReservations.length > 0;
   }
 
-  // Debug method
-  debugReservation(reservation: IReservation): void {
-    console.log('🔍 DEBUG Prenotazione:', {
-      id: reservation.id,
-      data: reservation.reservationDate,
-      ora: reservation.reservationTime,
-      persone: reservation.numberOfPeople,
-      cliente: reservation.customerName,
-      telefono: reservation.customerPhone,
-      note: reservation.notes,
-      status: this.getStatusText(reservation),
-      isFuture: this.isReservationFuture(reservation, new Date())
-    });
+  get minDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   }
 }

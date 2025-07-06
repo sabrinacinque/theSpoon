@@ -1,16 +1,104 @@
-<!-- my-reservations.html -->
+<!-- my-reservations.html - CON SWEETALERT2 (solo modal modifica) -->
 <div class="reservations-container">
-  
-  <!-- Alert System -->
-  <div class="alert-container" *ngIf="showAlert">
-    <div class="alert alert-{{alertType}} alert-dismissible fade show custom-alert" role="alert">
-      <i class="fas" 
-         [class.fa-check-circle]="alertType === 'success'"
-         [class.fa-info-circle]="alertType === 'info'"
-         [class.fa-exclamation-triangle]="alertType === 'warning'"
-         [class.fa-times-circle]="alertType === 'danger'"></i>
-      {{alertMessage}}
-      <button type="button" class="btn-close" (click)="hideAlert()"></button>
+
+  <!-- SOLO Modal di Modifica (SweetAlert2 gestisce successo/conferma) -->
+  <div class="custom-modal-overlay" *ngIf="showEditModal" (click)="cancelEdit()">
+    <div class="custom-modal edit-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon edit">
+          <i class="fas fa-edit"></i>
+        </div>
+        <h4 class="modal-title">Modifica Prenotazione #{{currentReservation?.id}}</h4>
+        <button class="modal-close" (click)="cancelEdit()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p class="modal-message">Modifica i dettagli della tua prenotazione:</p>
+        
+        <div class="edit-form">
+          <!-- Numero Persone -->
+          <div class="form-group">
+            <label for="editPeople" class="form-label">
+              <i class="fas fa-users me-2"></i>
+              Numero Persone
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="number" 
+                id="editPeople"
+                class="form-control"
+                [(ngModel)]="editData.numberOfPeople"
+                min="1" 
+                max="20">
+            </div>
+            <small class="form-text">Minimo 1, massimo 20 persone</small>
+          </div>
+
+          <!-- Data Prenotazione -->
+          <div class="form-group">
+            <label for="editDate" class="form-label">
+              <i class="fas fa-calendar me-2"></i>
+              Data Prenotazione
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="date" 
+                id="editDate"
+                class="form-control"
+                [(ngModel)]="editData.reservationDate"
+                [min]="minDate">
+            </div>
+            <small class="form-text">Seleziona una data futura</small>
+          </div>
+
+          <!-- Orario -->
+          <div class="form-group">
+            <label for="editTime" class="form-label">
+              <i class="fas fa-clock me-2"></i>
+              Orario
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="time" 
+                id="editTime"
+                class="form-control"
+                [(ngModel)]="editData.reservationTime"
+                min="12:00"
+                max="23:30">
+            </div>
+            <small class="form-text">Orario di apertura: 12:00 - 23:30</small>
+          </div>
+
+          <!-- Note -->
+          <div class="form-group">
+            <label for="editNotes" class="form-label">
+              <i class="fas fa-sticky-note me-2"></i>
+              Note Aggiuntive <span class="text-muted">(opzionale)</span>
+            </label>
+            <div class="input-wrapper">
+              <textarea 
+                id="editNotes"
+                class="form-control"
+                [(ngModel)]="editData.notes"
+                rows="3"
+                placeholder="Allergie, richieste speciali, ecc..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="cancelEdit()">
+          <i class="fas fa-times me-2"></i>
+          Annulla
+        </button>
+        <button class="btn btn-primary" (click)="confirmEdit()" [disabled]="!isValidEditData()">
+          <i class="fas fa-save me-2"></i>
+          Salva Modifiche
+        </button>
+      </div>
     </div>
   </div>
 
@@ -146,31 +234,34 @@
             </div>
           </div>
           
-          <!-- Actions CON BOTTONI! -->
+          <!-- Actions -->
           <div class="card-actions">
-            <!-- Test Modifica -->
+            <!-- Modifica (solo per future) -->
             <button 
-              class="btn btn-primary btn-sm" 
-              (click)="testClick('edit', reservation.id)">
+              *ngIf="getStatusText(reservation) === 'Prossima'"
+              class="btn btn-outline-primary btn-sm" 
+              (click)="editReservation(reservation)"
+              [disabled]="loading">
               <i class="fas fa-edit me-1"></i>
-              TEST Modifica
+              <span class="d-none d-md-inline">Modifica</span>
             </button>
             
-            <!-- Test Cancella -->
-            <button 
-              class="btn btn-danger btn-sm" 
-              (click)="testClick('delete', reservation.id)">
+            <!-- Cancella (per tutte) -->
+            <button *ngIf="getStatusText(reservation) === 'Prossima'"
+              class="btn btn-outline-danger btn-sm" 
+              (click)="cancelReservation(reservation)"
+              [disabled]="loading">
               <i class="fas fa-times me-1"></i>
-              TEST Cancella
+              <span class="d-none d-md-inline">Cancella</span>
             </button>
-
-            <!-- Debug button -->
-            <button 
-              class="btn btn-info btn-sm" 
-              (click)="debugReservation(reservation)">
-              <i class="fas fa-bug me-1"></i>
-              DEBUG
-            </button>
+            
+            <!-- Info completata (solo per passate) -->
+            <div 
+              *ngIf="getStatusText(reservation) === 'Completata'"
+              class="btn btn-outline-success btn-sm disabled">
+              <i class="fas fa-check me-1"></i>
+              <span class="d-none d-md-inline">Completata</span>
+            </div>
           </div>
         </div>
       </div>
