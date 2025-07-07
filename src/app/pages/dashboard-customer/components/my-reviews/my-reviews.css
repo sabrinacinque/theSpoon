@@ -1,0 +1,736 @@
+/* my-reviews.css */
+
+/* =================================================================
+   CONTAINER E LAYOUT
+================================================================= */
+.my-reviews-container {
+  padding: 1.5rem 0;
+  background: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+}
+
+/* =================================================================
+   HEADER
+================================================================= */
+.reviews-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0 0;
+}
+
+/* =================================================================
+   STATS CARDS
+================================================================= */
+.stats-cards {
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* =================================================================
+   FILTRI
+================================================================= */
+.filters-section {
+  margin-bottom: 2rem;
+}
+
+.filters-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.filters-card .form-label {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.filters-card .form-control,
+.filters-card .form-select {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.filters-card .form-control:focus,
+.filters-card .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(0, 205, 181, 0.25);
+  background: var(--bg-color);
+}
+
+.filter-results {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* =================================================================
+   DISTRIBUZIONE RATING
+================================================================= */
+.rating-distribution {
+  margin-bottom: 2rem;
+}
+
+.distribution-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.distribution-title {
+  color: var(--text-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.distribution-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rating-bar {
+  display: grid;
+  grid-template-columns: 60px 1fr 40px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bar-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.bar-container {
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  height: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  background: var(--primary-color);
+}
+
+.bar-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+/* =================================================================
+   STATI VUOTI
+================================================================= */
+.no-reviews-state,
+.no-results-state,
+.loading-state,
+.error-state {
+  margin: 3rem 0;
+}
+
+.no-reviews-card,
+.no-results-card {
+  background: var(--card-bg);
+  border: 2px dashed var(--border-color);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.no-reviews-icon,
+.no-results-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.no-reviews-title,
+.no-results-title {
+  color: var(--text-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.no-reviews-text,
+.no-results-text {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+/* =================================================================
+   REVIEW CARDS
+================================================================= */
+.reviews-list {
+  margin-top: 2rem;
+}
+
+.review-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary-color);
+}
+
+.review-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.review-card:hover::before {
+  opacity: 1;
+}
+
+/* Review Header */
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.restaurant-info {
+  flex: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.restaurant-info:hover .restaurant-name {
+  color: var(--primary-color);
+}
+
+.restaurant-name {
+  color: var(--text-color);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  transition: color 0.3s ease;
+}
+
+.restaurant-location {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Review Actions */
+.review-actions .dropdown-toggle {
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-color);
+  padding: 0.375rem 0.75rem;
+}
+
+.review-actions .dropdown-toggle:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
+  color: white;
+}
+
+.review-actions .dropdown-menu {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.review-actions .dropdown-item {
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+}
+
+.review-actions .dropdown-item:hover {
+  background: var(--bg-secondary);
+  color: var(--primary-color);
+}
+
+.review-actions .dropdown-item.text-danger {
+  color: #ef4444 !important;
+}
+
+.review-actions .dropdown-item.text-danger:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
+}
+
+/* Overall Rating */
+.overall-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.rating-badge {
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.rating-emoji {
+  font-size: 1.5rem;
+}
+
+.rating-stars {
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+/* Detailed Ratings */
+.detailed-ratings {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rating-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.rating-row:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.rating-label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.rating-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* Review Comment */
+.review-comment {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.comment-content {
+  position: relative;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.quote-icon {
+  color: var(--primary-color);
+  opacity: 0.6;
+  margin-right: 0.5rem;
+}
+
+.comment-text {
+  color: var(--text-color);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+.no-comment-text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0.75rem;
+  text-align: center;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px dashed var(--border-color);
+}
+
+/* Review Footer */
+.review-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.review-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.review-actions-quick {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.review-actions-quick .btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+/* =================================================================
+   RESPONSIVE
+================================================================= */
+@media (max-width: 768px) {
+  .my-reviews-container {
+    padding: 1rem 0;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+  }
+
+  .stats-cards .col-6 {
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .filters-card {
+    padding: 1rem;
+  }
+
+  .filters-card .row {
+    gap: 1rem;
+  }
+
+  .distribution-card {
+    padding: 1rem;
+  }
+
+  .rating-bar {
+    grid-template-columns: 50px 1fr 30px;
+    gap: 0.5rem;
+  }
+
+  .bar-label {
+    font-size: 0.8rem;
+  }
+
+  .bar-value {
+    font-size: 0.8rem;
+  }
+
+  .review-card {
+    padding: 1rem;
+  }
+
+  .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .review-actions {
+    align-self: flex-end;
+  }
+
+  .overall-rating {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .rating-badge {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .rating-emoji {
+    font-size: 1.25rem;
+  }
+
+  .rating-stars {
+    font-size: 1rem;
+  }
+
+  .detailed-ratings {
+    padding: 0.75rem;
+  }
+
+  .comment-content {
+    padding: 0.75rem;
+  }
+
+  .comment-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .reviews-header .row {
+    text-align: center;
+  }
+
+  .reviews-header .col-md-6:last-child {
+    margin-top: 1rem;
+  }
+
+  .filters-card .row > div {
+    margin-bottom: 1rem;
+  }
+
+  .filters-card .col-md-1 {
+    display: none;
+  }
+
+  .overall-rating {
+    justify-content: center;
+  }
+
+  .review-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .no-reviews-card,
+  .no-results-card {
+    padding: 2rem 1rem;
+  }
+
+  .no-reviews-icon,
+  .no-results-icon {
+    font-size: 3rem;
+  }
+
+  .no-reviews-title,
+  .no-results-title {
+    font-size: 1.25rem;
+  }
+}
+
+/* =================================================================
+   DARK MODE
+================================================================= */
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .filters-card,
+[data-theme="dark"] .distribution-card,
+[data-theme="dark"] .review-card,
+[data-theme="dark"] .no-reviews-card,
+[data-theme="dark"] .no-results-card {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .overall-rating,
+[data-theme="dark"] .detailed-ratings,
+[data-theme="dark"] .comment-content,
+[data-theme="dark"] .no-comment-text {
+  background: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .review-actions .dropdown-menu {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* =================================================================
+   ANIMAZIONI
+================================================================= */
+.review-card {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.stat-card {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.review-card:nth-child(1) { animation-delay: 0.1s; }
+.review-card:nth-child(2) { animation-delay: 0.2s; }
+.review-card:nth-child(3) { animation-delay: 0.3s; }
+.review-card:nth-child(4) { animation-delay: 0.4s; }
+.review-card:nth-child(5) { animation-delay: 0.5s; }
+.review-card:nth-child(6) { animation-delay: 0.6s; }
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =================================================================
+   ACCESSIBILITY
+================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .review-card,
+  .stat-card,
+  .bar-fill {
+    animation: none;
+    transition: none;
+  }
+
+  .review-card:hover,
+  .stat-card:hover {
+    transform: none;
+  }
+}
+
+/* =================================================================
+   LOADING SKELETON
+================================================================= */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

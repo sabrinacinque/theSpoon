@@ -1,1 +1,352 @@
-<p>my-reviews works!</p>
+<!-- my-reviews.html -->
+<div class="my-reviews-container">
+
+  <!-- 🔄 LOADING STATE -->
+  <div *ngIf="loading" class="loading-state text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Caricamento...</span>
+    </div>
+    <p class="text-muted">⭐ Caricamento delle tue recensioni...</p>
+  </div>
+
+  <!-- ❌ ERROR STATE -->
+  <div *ngIf="error && !loading" class="error-state">
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      {{ error }}
+      <button class="btn btn-outline-danger btn-sm ms-3" (click)="refreshReviews()">
+        <i class="fas fa-sync-alt me-1"></i>
+        Riprova
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ CONTENT -->
+  <div *ngIf="!loading && !error" class="reviews-content">
+
+    <!-- 📊 HEADER CON STATISTICHE -->
+    <div class="reviews-header">
+      <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+          <h2 class="page-title">
+            <i class="fas fa-star me-2"></i>
+            Le Mie Recensioni
+          </h2>
+          <p class="page-subtitle">Gestisci e visualizza tutte le tue recensioni</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <button class="btn btn-outline-primary" (click)="refreshReviews()">
+            <i class="fas fa-sync-alt me-2"></i>
+            Aggiorna
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-cards row g-3 mb-4">
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ totalReviews }}</div>
+              <div class="stat-label">Recensioni Totali</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-medal"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ averageRating }}/10</div>
+              <div class="stat-label">Rating Medio</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ reviewsThisMonth }}</div>
+              <div class="stat-label">Questo Mese</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value" *ngIf="mostRecentReview">{{ formatReviewDate(mostRecentReview.createdAt) }}</div>
+              <div class="stat-value" *ngIf="!mostRecentReview">-</div>
+              <div class="stat-label">Ultima Recensione</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔍 FILTRI E RICERCA -->
+    <div class="filters-section" *ngIf="totalReviews > 0">
+      <div class="filters-card">
+        <div class="row g-3 align-items-end">
+
+          <!-- Ricerca -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">🔍 Cerca</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Nome ristorante o commento..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()">
+          </div>
+
+          <!-- Ordinamento -->
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">📊 Ordina per</label>
+            <select class="form-select" [(ngModel)]="sortBy" (change)="onSortChange()">
+              <option value="date">Data</option>
+              <option value="rating">Rating</option>
+              <option value="restaurant">Ristorante</option>
+            </select>
+          </div>
+
+          <!-- Direzione ordinamento -->
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">📈 Direzione</label>
+            <select class="form-select" [(ngModel)]="sortOrder" (change)="onSortChange()">
+              <option value="desc">Decrescente</option>
+              <option value="asc">Crescente</option>
+            </select>
+          </div>
+
+          <!-- Filtro Rating -->
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">⭐ Min Rating</label>
+            <select class="form-select" [(ngModel)]="filterRating" (change)="onRatingFilterChange()">
+              <option [ngValue]="null">Tutti</option>
+              <option [ngValue]="8">8+ Eccellente</option>
+              <option [ngValue]="6">6+ Buono</option>
+              <option [ngValue]="4">4+ Sufficiente</option>
+            </select>
+          </div>
+
+          <!-- Reset -->
+          <div class="col-md-1">
+            <button class="btn btn-outline-secondary w-100" (click)="resetFilters()" title="Reset filtri">
+              <i class="fas fa-undo"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Risultati filtro -->
+        <div class="filter-results mt-3" *ngIf="filteredReviews.length !== userReviews.length">
+          <small class="text-muted">
+            <i class="fas fa-filter me-1"></i>
+            Mostrate {{ filteredReviews.length }} di {{ userReviews.length }} recensioni
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📊 DISTRIBUZIONE RATING (se ci sono più di 3 recensioni) -->
+    <div class="rating-distribution" *ngIf="totalReviews > 3">
+      <div class="distribution-card">
+        <h5 class="distribution-title">
+          <i class="fas fa-chart-bar me-2"></i>
+          Distribuzione Rating
+        </h5>
+        <div class="distribution-bars">
+          <div class="rating-bar" *ngFor="let item of getRatingDistribution()">
+            <div class="bar-label">{{ item.rating }}/10</div>
+            <div class="bar-container">
+              <div class="bar-fill" [style.width.%]="item.percentage" [style.background-color]="getRatingColor(item.rating)"></div>
+            </div>
+            <div class="bar-value">{{ item.count }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📭 NESSUNA RECENSIONE -->
+    <div *ngIf="totalReviews === 0" class="no-reviews-state">
+      <div class="no-reviews-card text-center">
+        <div class="no-reviews-icon">⭐</div>
+        <h3 class="no-reviews-title">Nessuna recensione ancora</h3>
+        <p class="no-reviews-text">
+          Non hai ancora scritto nessuna recensione.<br>
+          Prenota un ristorante e condividi la tua esperienza!
+        </p>
+        <a routerLink="/" class="btn btn-primary btn-lg">
+          <i class="fas fa-search me-2"></i>
+          Trova Ristoranti
+        </a>
+      </div>
+    </div>
+
+    <!-- 🔍 NESSUN RISULTATO FILTRI -->
+    <div *ngIf="totalReviews > 0 && filteredReviews.length === 0" class="no-results-state">
+      <div class="no-results-card text-center">
+        <div class="no-results-icon">🔍</div>
+        <h4 class="no-results-title">Nessun risultato</h4>
+        <p class="no-results-text">
+          Nessuna recensione corrisponde ai filtri selezionati.
+        </p>
+        <button class="btn btn-outline-primary" (click)="resetFilters()">
+          <i class="fas fa-undo me-2"></i>
+          Reset Filtri
+        </button>
+      </div>
+    </div>
+
+    <!-- ✅ LISTA RECENSIONI -->
+    <div *ngIf="filteredReviews.length > 0" class="reviews-list">
+      <div class="row g-4">
+        <!-- FIX 1: trackBy: trackByFn invece di trackBy: null -->
+        <div class="col-lg-6 col-xl-4" *ngFor="let review of filteredReviews; trackBy: trackByFn">
+
+          <div class="review-card">
+
+            <!-- Review Header -->
+            <div class="review-header">
+              <div class="restaurant-info" (click)="goToRestaurant(review.restaurant.id)">
+                <h5 class="restaurant-name">{{ review.restaurant.name }}</h5>
+                <p class="restaurant-location">
+                  <i class="fas fa-map-marker-alt me-1"></i>
+                  {{ review.restaurant.city }}
+                </p>
+              </div>
+
+              <!-- Actions Dropdown -->
+              <div class="review-actions">
+                <div class="dropdown">
+                  <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                          type="button"
+                          [id]="'reviewDropdown' + review.id"
+                          data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-h"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item" href="#" (click)="openEditReviewModal(review); $event.preventDefault()">
+                        <i class="fas fa-edit me-2"></i>
+                        Modifica
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item text-danger" href="#" (click)="deleteReview(review); $event.preventDefault()">
+                        <i class="fas fa-trash me-2"></i>
+                        Elimina
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overall Rating Badge -->
+            <div class="overall-rating">
+              <span class="rating-badge" [style.background-color]="getRatingColor(review.ratingGeneral)">
+                {{ review.ratingGeneral }}/10
+              </span>
+              <span class="rating-emoji">{{ getRatingEmoji(review.ratingGeneral) }}</span>
+              <span class="rating-stars">{{ getStars(review.ratingGeneral) }}</span>
+            </div>
+
+            <!-- Detailed Ratings -->
+            <div class="detailed-ratings">
+              <div class="rating-row">
+                <span class="rating-label">🌟 Generale:</span>
+                <span class="rating-value" [style.color]="getRatingColor(review.ratingGeneral)">
+                  {{ review.ratingGeneral }}/10
+                </span>
+              </div>
+              <div class="rating-row">
+                <span class="rating-label">🏛️ Atmosfera:</span>
+                <span class="rating-value" [style.color]="getRatingColor(review.ratingAtmosfera)">
+                  {{ review.ratingAtmosfera }}/10
+                </span>
+              </div>
+              <div class="rating-row">
+                <span class="rating-label">🍽️ Cibo:</span>
+                <span class="rating-value" [style.color]="getRatingColor(review.ratingCibo)">
+                  {{ review.ratingCibo }}/10
+                </span>
+              </div>
+              <div class="rating-row">
+                <span class="rating-label">🤝 Servizio:</span>
+                <span class="rating-value" [style.color]="getRatingColor(review.ratingServizio)">
+                  {{ review.ratingServizio }}/10
+                </span>
+              </div>
+            </div>
+
+            <!-- Comment -->
+            <div class="review-comment" *ngIf="review.comment">
+              <div class="comment-content">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p class="comment-text">{{ review.comment }}</p>
+              </div>
+            </div>
+
+            <!-- No Comment -->
+            <div class="review-comment" *ngIf="!review.comment">
+              <p class="no-comment-text">
+                <i class="fas fa-comment-slash me-2 text-muted"></i>
+                <em>Nessun commento aggiunto</em>
+              </p>
+            </div>
+
+            <!-- Review Footer -->
+            <div class="review-footer">
+              <div class="review-date">
+                <i class="fas fa-calendar me-1"></i>
+                {{ formatReviewDate(review.createdAt) }}
+              </div>
+              <div class="review-actions-quick">
+                <button class="btn btn-sm btn-outline-primary"
+                        (click)="openEditReviewModal(review)"
+                        title="Modifica recensione">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary"
+                        (click)="goToRestaurant(review.restaurant.id)"
+                        title="Vai al ristorante">
+                  <i class="fas fa-external-link-alt"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                        (click)="deleteReview(review)"
+                        title="Elimina recensione">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ✅ REVIEW MODAL -->
+  <!-- FIX 2: [restaurant]="selectedRestaurant" invece di editingReview?.restaurant -->
+  <app-review-modal
+    [restaurant]="selectedRestaurant"
+    [editingReview]="editingReview"
+    [isOpen]="isReviewModalOpen"
+    (closeModal)="closeReviewModal()"
+    (reviewSubmitted)="onReviewSubmitted($event)"
+  >
+  </app-review-modal>
+
+</div>

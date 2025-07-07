@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationService } from '../../../../services/reservation';
 import { RestaurantService } from '../../../../services/restaurant';
+import { ReviewService } from '../../../../services/review.service'; // ← NUOVO IMPORT
 import { IReservation } from '../../../../models/ireservation';
 import { AuthService } from '../../../../services/auth';
 
@@ -51,7 +52,8 @@ export class DashboardOverview implements OnInit {
 
   constructor(
     private reservationService: ReservationService,
-    private restaurantService: RestaurantService, // ← AGGIUNGI QUESTO
+    private restaurantService: RestaurantService,
+    private reviewService: ReviewService, // ← NUOVO SERVICE
     private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -84,7 +86,7 @@ export class DashboardOverview implements OnInit {
         // Ora carica i dati della dashboard
         this.loadDashboardData();
       },
-      error: (error: any) => { // ← CORREZIONE: Tipo esplicito
+      error: (error: any) => {
         this.error = 'Errore: ristorante non trovato per questo utente business';
         this.loading = false;
         this.cdr.detectChanges();
@@ -110,7 +112,7 @@ export class DashboardOverview implements OnInit {
     // Carica statistiche totali
     this.loadReservationStats();
 
-    // Carica reviews e rating
+    // ✅ NUOVO - Carica reviews e rating REALI
     this.loadReviewStats();
   }
 
@@ -128,19 +130,14 @@ export class DashboardOverview implements OnInit {
         this.generateNext7Days();
 
         this.loading = false;
-
-        // 🔥 FORZA CHANGE DETECTION
         this.cdr.detectChanges();
 
         console.log('✅ Prenotazioni di oggi caricate:', reservations.length);
       },
-      error: (error: any) => { // ← CORREZIONE: Tipo esplicito
+      error: (error: any) => {
         this.error = 'Errore nel caricamento delle prenotazioni di oggi';
         this.loading = false;
-
-        // 🔥 FORZA CHANGE DETECTION ANCHE IN CASO DI ERRORE
         this.cdr.detectChanges();
-
         console.error('❌ Errore prenotazioni oggi:', error);
       }
     });
@@ -149,38 +146,58 @@ export class DashboardOverview implements OnInit {
   // 📊 Carica statistiche prenotazioni
   private loadReservationStats(): void {
     this.reservationService.getReservationStats(this.currentRestaurantId).subscribe({
-      next: (stats: any) => { // ← CORREZIONE: Tipo esplicito
+      next: (stats: any) => {
         this.monthReservations = stats.totalReservations;
-
-        // 🔥 FORZA CHANGE DETECTION
         this.cdr.detectChanges();
-
         console.log('📊 Statistiche prenotazioni caricate:', stats);
       },
-      error: (error: any) => { // ← CORREZIONE: Tipo esplicito
+      error: (error: any) => {
         console.error('❌ Errore statistiche prenotazioni:', error);
       }
     });
   }
 
-  // ⭐ Carica statistiche reviews (TODO: implementare quando creiamo ReviewService)
+  // ⭐ NUOVO - Carica statistiche reviews REALI
   private loadReviewStats(): void {
-    // TODO: Implementare ReviewService e chiamata API
-    // this.reviewService.getReviewStats(this.currentRestaurantId).subscribe({
-    //   next: (stats) => {
-    //     this.averageRating = stats.averageRating;
-    //     this.totalReviews = stats.totalReviews;
-    //     console.log('⭐ Statistiche reviews caricate:', stats);
-    //   },
-    //   error: (error) => {
-    //     console.error('❌ Errore statistiche reviews:', error);
-    //   }
-    // });
+    console.log('⭐ Caricamento statistiche review per ristorante:', this.currentRestaurantId);
 
-    // Per ora impostiamo a 0 (REALE)
-    this.averageRating = 0;
-    this.totalReviews = 0;
-    console.log('⭐ Reviews non ancora implementate - valori a 0');
+    this.reviewService.getRestaurantReviewStats(this.currentRestaurantId).subscribe({
+      next: (stats) => {
+        this.averageRating = stats.averageGeneral || 0;
+        this.totalReviews = stats.totalReviews || 0;
+
+        this.cdr.detectChanges();
+
+        console.log('✅ Statistiche review caricate:', {
+          averageRating: this.averageRating,
+          totalReviews: this.totalReviews,
+          stats: stats
+        });
+      },
+      error: (error) => {
+        console.error('❌ Errore statistiche reviews:', error);
+
+        // Se l'API fallisce, mantieni a 0 (invece di bloccare tutto)
+        this.averageRating = 0;
+        this.totalReviews = 0;
+        this.cdr.detectChanges();
+      }
+    });
+
+    // ✅ BONUS - Carica anche il conteggio review come backup
+    this.reviewService.getReviewCountByRestaurant(this.currentRestaurantId).subscribe({
+      next: (count) => {
+        // Usa questo come fallback se le stats principali falliscono
+        if (this.totalReviews === 0) {
+          this.totalReviews = count;
+          this.cdr.detectChanges();
+        }
+        console.log('📊 Conteggio review backup:', count);
+      },
+      error: (error) => {
+        console.error('❌ Errore conteggio reviews:', error);
+      }
+    });
   }
 
   // 📅 Genera calendario per la settimana corrente
@@ -219,10 +236,7 @@ export class DashboardOverview implements OnInit {
   previousWeek(): void {
     this.weekOffset--;
     this.generateNext7Days();
-
-    // 🔥 FORZA CHANGE DETECTION
     this.cdr.detectChanges();
-
     console.log('📅 Settimana precedente:', this.getCurrentPeriodText());
   }
 
@@ -230,10 +244,7 @@ export class DashboardOverview implements OnInit {
   nextWeek(): void {
     this.weekOffset++;
     this.generateNext7Days();
-
-    // 🔥 FORZA CHANGE DETECTION
     this.cdr.detectChanges();
-
     console.log('📅 Settimana successiva:', this.getCurrentPeriodText());
   }
 
@@ -293,19 +304,21 @@ export class DashboardOverview implements OnInit {
     return this.next7Days.some(day => this.isSameDay(day.date, date));
   }
 
-  // ⭐ Genera stelle per rating
+  // ⭐ Genera stelle per rating - AGGIORNATO per 1-10
   getStars(rating: number): string {
     if (rating === 0) return '☆☆☆☆☆'; // Stelle vuote se non ci sono recensioni
 
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
+    // Converti da 1-10 a 1-5 per il display
+    const scaledRating = rating / 2;
+    const fullStars = Math.floor(scaledRating);
+    const hasHalfStar = (scaledRating % 1) >= 0.5;
 
     let stars = '⭐'.repeat(fullStars);
-    if (hasHalfStar) stars += '✨';
+    if (hasHalfStar && fullStars < 5) stars += '✨';
 
     // Aggiungi stelle vuote per arrivare a 5
-    const emptyStars = 5 - Math.ceil(rating);
-    stars += '☆'.repeat(emptyStars);
+    const emptyStars = 5 - Math.ceil(scaledRating);
+    stars += '☆'.repeat(Math.max(0, emptyStars));
 
     return stars;
   }
@@ -349,10 +362,7 @@ export class DashboardOverview implements OnInit {
     if (this.isSameDay(day.date, today)) {
       // Se è oggi, usa i dati già caricati
       this.selectedDayReservations = this.todayReservationsList;
-
-      // 🔥 FORZA CHANGE DETECTION
       this.cdr.detectChanges();
-
       console.log(`📅 Prenotazioni per ${day.dayName}: ${this.selectedDayReservations.length} (cache)`);
     } else {
       // Per altri giorni, fai chiamata API
@@ -361,17 +371,12 @@ export class DashboardOverview implements OnInit {
       this.reservationService.getReservationsByDate(this.currentRestaurantId, dateString).subscribe({
         next: (reservations: IReservation[]) => {
           this.selectedDayReservations = reservations;
-
-          // 🔥 FORZA CHANGE DETECTION
           this.cdr.detectChanges();
-
           console.log(`📅 Prenotazioni per ${day.dayName}: ${reservations.length}`);
         },
-        error: (error: any) => { // ← CORREZIONE: Tipo esplicito
+        error: (error: any) => {
           console.error(`❌ Errore prenotazioni per ${day.dayName}:`, error);
           this.selectedDayReservations = [];
-
-          // 🔥 FORZA CHANGE DETECTION ANCHE IN CASO DI ERRORE
           this.cdr.detectChanges();
         }
       });
@@ -411,10 +416,5 @@ export class DashboardOverview implements OnInit {
     return date.toLocaleDateString('it-IT', options);
   }
 
-  // 📊 Calcola trend mese (TODO: implementare logica reale)
-  private calculateMonthTrend(): void {
-    // TODO: Implementare confronto con mese precedente
-    // Per ora impostiamo a 0
-    this.monthTrend = 0;
-  }
+
 }

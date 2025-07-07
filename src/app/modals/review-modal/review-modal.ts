@@ -128,7 +128,14 @@ export class ReviewModalComponent implements OnInit, OnChanges {
   // ❌ Chiudi modal
   close() {
     console.log('❌ Chiusura modal review');
+
+    // FIX: Chiudi tutti i modal SweetAlert2 aperti
+    Swal.close();
+
+    // Rimuovi classe modal-open
     document.body.classList.remove('modal-open');
+
+    // Emetti evento di chiusura
     this.closeModal.emit();
   }
 
@@ -246,9 +253,15 @@ export class ReviewModalComponent implements OnInit, OnChanges {
       next: (review) => {
         console.log('✅ Review creata con successo:', review);
         this.loading = false;
-        this.showSuccessMessage();
+
+        // FIX: Chiudi il modal PRIMA di mostrare il messaggio
         this.reviewSubmitted.emit(review);
         this.close();
+
+        // DOPO la chiusura, mostra il messaggio
+        setTimeout(() => {
+          this.showSuccessMessage();
+        }, 100);
       },
       error: (error) => {
         console.error('❌ Errore creazione review:', error);
@@ -274,9 +287,15 @@ export class ReviewModalComponent implements OnInit, OnChanges {
       next: (review) => {
         console.log('✅ Review aggiornata con successo:', review);
         this.loading = false;
-        this.showUpdateSuccessMessage();
+
+        // FIX: Chiudi il modal PRIMA di mostrare il messaggio
         this.reviewSubmitted.emit(review);
         this.close();
+
+        // DOPO la chiusura, mostra il messaggio
+        setTimeout(() => {
+          this.showUpdateSuccessMessage();
+        }, 100);
       },
       error: (error) => {
         console.error('❌ Errore aggiornamento review:', error);
@@ -286,7 +305,7 @@ export class ReviewModalComponent implements OnInit, OnChanges {
     });
   }
 
-  // 🎉 Messaggio successo creazione
+  // 🎉 Messaggio successo creazione - FIX: Più semplice e senza timer
   private showSuccessMessage() {
     Swal.fire({
       title: '🎉 Recensione Pubblicata!',
@@ -307,18 +326,13 @@ export class ReviewModalComponent implements OnInit, OnChanges {
       `,
       confirmButtonText: 'Perfetto!',
       confirmButtonColor: '#22c55e',
-      timer: 5000,
-      timerProgressBar: true,
-      showClass: {
-        popup: 'animate__animated animate__zoomIn'
-      },
-      hideClass: {
-        popup: 'animate__animated animate__zoomOut'
-      }
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      focusConfirm: true
     });
   }
 
-  // 🎉 Messaggio successo aggiornamento
+  // 🎉 Messaggio successo aggiornamento - FIX: Più semplice e senza timer
   private showUpdateSuccessMessage() {
     Swal.fire({
       title: '✅ Recensione Aggiornata!',
@@ -329,15 +343,15 @@ export class ReviewModalComponent implements OnInit, OnChanges {
             <h4>Recensione modificata con successo!</h4>
           </div>
           <div class="mb-3">
-            <strong>${this.restaurant?.name}</strong><br>
             <span class="text-muted">Nuovo rating medio: ${this.averageRating}/10</span>
           </div>
         </div>
       `,
       confirmButtonText: 'Perfetto!',
       confirmButtonColor: '#3b82f6',
-      timer: 4000,
-      timerProgressBar: true
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      focusConfirm: true
     });
   }
 
