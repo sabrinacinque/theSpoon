@@ -254,18 +254,18 @@
               Link Utili
             </h5>
             <div class="d-flex flex-column gap-2">
-              <a href="/help" class="btn btn-outline-info btn-sm">
+              <button class="btn btn-outline-info btn-sm" (click)="openSupportCenter()">
                 <i class="fas fa-question-circle me-2"></i>
                 Centro Assistenza
-              </a>
-              <a href="/privacy" class="btn btn-outline-secondary btn-sm">
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="showPrivacyPolicy()">
                 <i class="fas fa-shield-alt me-2"></i>
                 Privacy Policy
-              </a>
-              <a href="/terms" class="btn btn-outline-secondary btn-sm">
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="showTermsOfService()">
                 <i class="fas fa-file-contract me-2"></i>
                 Termini di Servizio
-              </a>
+              </button>
             </div>
           </div>
 
