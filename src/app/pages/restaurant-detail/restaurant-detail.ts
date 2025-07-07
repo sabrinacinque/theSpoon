@@ -5,10 +5,15 @@ import { RestaurantService } from '../../services/restaurant';
 import { PhotoService } from '../../services/photo.service';
 import { MenuItemService } from '../../services/menu-item.service';
 import { UploadService } from '../../services/upload-service';
+// ✅ NUOVI IMPORT PER REVIEW
+import { ReviewService, IReview } from '../../services/review.service';
+import { AuthService } from '../../services/auth';
 import { IRestaurant } from '../../models/i-restaurant';
 import { IPhoto } from '../../services/photo.service';
 import { IMenuItem } from '../../services/menu-item.service';
 import { BookingModalComponent } from '../../modals/booking-modal/booking-modal';
+// ✅ IMPORT REVIEW MODAL
+import { ReviewModalComponent } from '../../modals/review-modal/review-modal';
 import { HostListener } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -22,7 +27,8 @@ interface MenuHighlight {
 @Component({
   selector: 'app-restaurant-detail',
   standalone: true,
-  imports: [CommonModule, BookingModalComponent],
+  // ✅ AGGIUNGI REVIEW MODAL AI COMPONENTS
+  imports: [CommonModule, BookingModalComponent, ReviewModalComponent],
   templateUrl: './restaurant-detail.html',
   styleUrls: ['./restaurant-detail.css']
 })
@@ -35,10 +41,20 @@ export class RestaurantDetailComponent implements OnInit {
   heroImageUrl: string = '';
   currentPhotoIndex: number = 0;
 
+  // ✅ NUOVE PROPRIETÀ PER REVIEW
+  reviews: IReview[] = [];
+  userReview: IReview | null = null; // Review dell'utente corrente (se esiste)
+  reviewsLoading = false;
+  reviewsError: string | null = null;
+
   // Menu Modal
-isMenuModalOpen = false;
-menuByCategory: { category: string; items: IMenuItem[] }[] = [];
-menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
+  isMenuModalOpen = false;
+  menuByCategory: { category: string; items: IMenuItem[] }[] = [];
+  menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
+
+  // ✅ REVIEW MODAL STATE
+  isReviewModalOpen = false;
+  editingReview: IReview | null = null; // Per modificare review esistente
 
   // Loading states
   loading = true;
@@ -78,6 +94,9 @@ menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
     private photoService: PhotoService,
     private menuItemService: MenuItemService,
     private uploadService: UploadService,
+    // ✅ NUOVI SERVICE
+    private reviewService: ReviewService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -102,9 +121,11 @@ menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
         this.restaurant = data;
         this.loading = false;
 
-        // Carica dati aggiuntivi (foto e menu)
+        // Carica dati aggiuntivi (foto, menu e REVIEW)
         this.loadPhotos();
         this.loadMenuItems();
+        // ✅ CARICA REVIEW
+        this.loadReviews();
 
         console.log('🔧 DEBUG - loading:', this.loading, 'restaurant:', this.restaurant);
         this.cdr.detectChanges();
@@ -116,6 +137,116 @@ menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
         this.cdr.detectChanges();
       }
     });
+  }
+
+  // ✅ NUOVO METODO - Carica review del ristorante
+  private loadReviews() {
+    if (!this.restaurantId) return;
+
+    this.reviewsLoading = true;
+    this.reviewsError = null;
+
+    this.reviewService.getReviewsByRestaurant(this.restaurantId).subscribe({
+      next: (reviews) => {
+        console.log('⭐ Review caricate:', reviews);
+        this.reviews = reviews;
+
+        // Verifica se l'utente corrente ha già recensito
+        this.checkUserReview();
+
+        this.reviewsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Errore caricamento review:', err);
+        this.reviewsError = 'Errore nel caricamento delle recensioni.';
+        this.reviewsLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ✅ NUOVO METODO - Verifica review utente
+  private checkUserReview() {
+    const currentUser = this.authService.currentUser();
+    if (currentUser && this.reviews.length > 0) {
+      this.userReview = this.reviews.find(review =>
+        review.customer.id === currentUser.userId
+      ) || null;
+
+      console.log('👤 Review utente corrente:', this.userReview ? 'Trovata' : 'Non trovata');
+    }
+  }
+
+  // ✅ NUOVO METODO - Apri modal review
+  openReviewModal() {
+    const currentUser = this.authService.currentUser();
+
+    if (!currentUser) {
+      // Mostra messaggio di login richiesto
+      console.log('🔒 Login richiesto per scrivere review');
+      // TODO: Mostra modal login o redirect
+      return;
+    }
+
+    if (!this.authService.isCustomer()) {
+      console.log('🚫 Solo i customer possono scrivere review');
+      return;
+    }
+
+    // Se ha già una review, apri in modalità modifica
+    this.editingReview = this.userReview;
+    this.isReviewModalOpen = true;
+
+    console.log('📝 Apertura modal review:', {
+      mode: this.userReview ? 'modifica' : 'nuova',
+      restaurant: this.restaurant?.name
+    });
+  }
+
+  // ✅ NUOVO METODO - Chiudi modal review
+  closeReviewModal() {
+    console.log('❌ Chiusura modal review');
+    this.isReviewModalOpen = false;
+    this.editingReview = null;
+  }
+
+  // ✅ NUOVO METODO - Review sottomessa
+  onReviewSubmitted(review: IReview) {
+    console.log('✅ Review sottomessa:', review);
+
+    // Ricarica le review per aggiornare la lista
+    this.loadReviews();
+
+    // Ricarica anche il ristorante per aggiornare rating e count
+    if (this.restaurantId) {
+      this.restaurantService.getRestaurantById(this.restaurantId).subscribe({
+        next: (updatedRestaurant) => {
+          this.restaurant = updatedRestaurant;
+          console.log('🔄 Ristorante aggiornato con nuovo rating:', updatedRestaurant.rating);
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+
+  // ✅ NUOVO GETTER - Verifica se può scrivere review
+  get canWriteReview(): boolean {
+    const currentUser = this.authService.currentUser();
+    return !!(currentUser && this.authService.isCustomer());
+  }
+
+  // ✅ NUOVO GETTER - Testo bottone review
+  get reviewButtonText(): string {
+    if (!this.canWriteReview) {
+      return 'Accedi per Recensire';
+    }
+    return this.userReview ? 'Modifica la tua Recensione' : 'Scrivi una Recensione';
+  }
+
+  // ✅ NUOVO GETTER - Icona bottone review
+  get reviewButtonIcon(): string {
+    return this.userReview ? 'fas fa-edit' : 'fas fa-star';
   }
 
   // Carica foto del ristorante
@@ -146,8 +277,6 @@ menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
       }
     });
   }
-
-
 
   // Gestione gallery foto
   nextPhoto() {
@@ -196,10 +325,12 @@ menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
     // TODO: Implementare condivisione
   }
 
-
+  // ✅ AGGIORNATO - Visualizza tutte le review
   viewAllReviews() {
     console.log('⭐ Visualizza tutte le recensioni');
-    // TODO: Implementare visualizzazione recensioni
+    // TODO: Implementare modal o pagina lista review complete
+    // Per ora logga le review caricate
+    console.log('📋 Review caricate:', this.reviews);
   }
 
   getStars(rating: number): string {
@@ -256,153 +387,158 @@ menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
   }
 
   // Apre il modal foto
-openPhotoModal() {
-  console.log('📸 Apri modal foto');
-  this.isPhotoModalOpen = true;
-  document.body.classList.add('modal-open');
-}
+  openPhotoModal() {
+    console.log('📸 Apri modal foto');
+    this.isPhotoModalOpen = true;
+    document.body.classList.add('modal-open');
+  }
 
-// Chiude il modal foto
-closePhotoModal() {
-  console.log('❌ Chiudi modal foto');
-  this.isPhotoModalOpen = false;
-  document.body.classList.remove('modal-open');
-}
+  // Chiude il modal foto
+  closePhotoModal() {
+    console.log('❌ Chiudi modal foto');
+    this.isPhotoModalOpen = false;
+    document.body.classList.remove('modal-open');
+  }
 
-// Foto successiva nel modal
-nextPhotoModal() {
-  this.nextPhoto();
-}
+  // Foto successiva nel modal
+  nextPhotoModal() {
+    this.nextPhoto();
+  }
 
-// Foto precedente nel modal
-previousPhotoModal() {
-  this.previousPhoto();
-}
+  // Foto precedente nel modal
+  previousPhotoModal() {
+    this.previousPhoto();
+  }
 
-// Gestisce il caricamento della foto
-onPhotoLoaded() {
-  console.log('✅ Foto caricata nel modal');
-}
+  // Gestisce il caricamento della foto
+  onPhotoLoaded() {
+    console.log('✅ Foto caricata nel modal');
+  }
 
-// Gestisce errori foto
-onPhotoError() {
-  console.error('❌ Errore caricamento foto nel modal');
-}
+  // Gestisce errori foto
+  onPhotoError() {
+    console.error('❌ Errore caricamento foto nel modal');
+  }
 
+  // Aggiorna il metodo loadMenuItems()
+  private loadMenuItems() {
+    if (!this.restaurantId) return;
 
+    this.menuLoading = true;
+    this.menuError = null;
 
-// Aggiorna il metodo loadMenuItems()
-private loadMenuItems() {
-  if (!this.restaurantId) return;
+    this.menuItemService.getMenuItemsByRestaurant(this.restaurantId).subscribe({
+      next: (menuItems) => {
+        console.log('🍽️ Menu items caricati:', menuItems);
+        this.menuItems = menuItems;
 
-  this.menuLoading = true;
-  this.menuError = null;
+        // Organizza per categoria
+        this.organizeMenuByCategory();
 
-  this.menuItemService.getMenuItemsByRestaurant(this.restaurantId).subscribe({
-    next: (menuItems) => {
-      console.log('🍽️ Menu items caricati:', menuItems);
-      this.menuItems = menuItems;
+        // Crea highlights (2 per categoria)
+        this.createMenuHighlights();
 
-      // Organizza per categoria
-      this.organizeMenuByCategory();
+        this.menuLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Errore caricamento menu:', err);
+        this.menuError = 'Errore nel caricamento del menu.';
+        this.menuLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
-      // Crea highlights (2 per categoria)
-      this.createMenuHighlights();
+  // Organizza menu per categoria
+  private organizeMenuByCategory() {
+    const categoriesMap = new Map<string, IMenuItem[]>();
 
-      this.menuLoading = false;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('❌ Errore caricamento menu:', err);
-      this.menuError = 'Errore nel caricamento del menu.';
-      this.menuLoading = false;
-      this.cdr.detectChanges();
+    this.menuItems.forEach(item => {
+      const category = item.category || 'Altri piatti';
+      if (!categoriesMap.has(category)) {
+        categoriesMap.set(category, []);
+      }
+      categoriesMap.get(category)!.push(item);
+    });
+
+    // Converti in array e ordina
+    this.menuByCategory = Array.from(categoriesMap.entries())
+      .map(([category, items]) => ({
+        category,
+        items: items.sort((a, b) => a.name.localeCompare(b.name))
+      }))
+      .sort((a, b) => a.category.localeCompare(b.category));
+  }
+
+  // Crea highlights (2 per categoria)
+  private createMenuHighlights() {
+    this.menuHighlightsByCategory = this.menuByCategory.map(categoryGroup => ({
+      category: categoryGroup.category,
+      items: categoryGroup.items.slice(0, 2) // Prendi solo i primi 2
+    })).filter(group => group.items.length > 0);
+  }
+
+  // Metodi per Menu Modal
+  openMenuModal() {
+    console.log('📋 Apri modal menu');
+    this.isMenuModalOpen = true;
+    document.body.classList.add('menu-modal-open');
+  }
+
+  closeMenuModal() {
+    console.log('❌ Chiudi modal menu');
+    this.isMenuModalOpen = false;
+    document.body.classList.remove('menu-modal-open');
+  }
+
+  // Aggiorna il metodo viewFullMenu()
+  viewFullMenu() {
+    console.log('📋 Visualizza menù completo');
+    this.openMenuModal();
+  }
+
+  // ✅ AGGIORNATO - Listener keyboard con review modal
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (this.isPhotoModalOpen) {
+      switch (event.key) {
+        case 'Escape':
+          this.closePhotoModal();
+          break;
+        case 'ArrowLeft':
+          if (this.photoCount > 1) {
+            this.previousPhotoModal();
+          }
+          break;
+        case 'ArrowRight':
+          if (this.photoCount > 1) {
+            this.nextPhotoModal();
+          }
+          break;
+      }
     }
-  });
-}
 
-// Organizza menu per categoria
-private organizeMenuByCategory() {
-  const categoriesMap = new Map<string, IMenuItem[]>();
-
-  this.menuItems.forEach(item => {
-    const category = item.category || 'Altri piatti';
-    if (!categoriesMap.has(category)) {
-      categoriesMap.set(category, []);
+    if (this.isMenuModalOpen) {
+      switch (event.key) {
+        case 'Escape':
+          this.closeMenuModal();
+          break;
+      }
     }
-    categoriesMap.get(category)!.push(item);
-  });
 
-  // Converti in array e ordina
-  this.menuByCategory = Array.from(categoriesMap.entries())
-    .map(([category, items]) => ({
-      category,
-      items: items.sort((a, b) => a.name.localeCompare(b.name))
-    }))
-    .sort((a, b) => a.category.localeCompare(b.category));
-}
-
-// Crea highlights (2 per categoria)
-private createMenuHighlights() {
-  this.menuHighlightsByCategory = this.menuByCategory.map(categoryGroup => ({
-    category: categoryGroup.category,
-    items: categoryGroup.items.slice(0, 2) // Prendi solo i primi 2
-  })).filter(group => group.items.length > 0);
-}
-
-// Metodi per Menu Modal
-openMenuModal() {
-  console.log('📋 Apri modal menu');
-  this.isMenuModalOpen = true;
-  document.body.classList.add('menu-modal-open');
-}
-
-closeMenuModal() {
-  console.log('❌ Chiudi modal menu');
-  this.isMenuModalOpen = false;
-  document.body.classList.remove('menu-modal-open');
-}
-
-// Aggiorna il metodo viewFullMenu()
-viewFullMenu() {
-  console.log('📋 Visualizza menù completo');
-  this.openMenuModal();
-}
-
-// Aggiorna il listener keyboard per includere il menu modal
-@HostListener('document:keydown', ['$event'])
-onKeyDown(event: KeyboardEvent) {
-  if (this.isPhotoModalOpen) {
-    switch (event.key) {
-      case 'Escape':
-        this.closePhotoModal();
-        break;
-      case 'ArrowLeft':
-        if (this.photoCount > 1) {
-          this.previousPhotoModal();
-        }
-        break;
-      case 'ArrowRight':
-        if (this.photoCount > 1) {
-          this.nextPhotoModal();
-        }
-        break;
+    // ✅ NUOVO - Gestione ESC per review modal
+    if (this.isReviewModalOpen) {
+      switch (event.key) {
+        case 'Escape':
+          this.closeReviewModal();
+          break;
+      }
     }
   }
 
-  if (this.isMenuModalOpen) {
-    switch (event.key) {
-      case 'Escape':
-        this.closeMenuModal();
-        break;
-    }
+  // Getter per verificare se ci sono highlights
+  get hasMenuHighlights(): boolean {
+    return this.menuHighlightsByCategory.length > 0;
   }
-}
-
-// Getter per verificare se ci sono highlights
-get hasMenuHighlights(): boolean {
-  return this.menuHighlightsByCategory.length > 0;
-}
-
-
 }

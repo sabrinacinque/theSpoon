@@ -1,0 +1,315 @@
+<!-- Review Modal -->
+<div
+  class="review-modal-overlay"
+  *ngIf="isOpen"
+  (click)="onOverlayClick($event)"
+  (keydown)="onKeyDown($event)"
+  tabindex="0">
+
+  <div class="review-modal-container" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="review-modal-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="modal-title mb-1">{{ modalTitle }}</h3>
+          <p class="modal-subtitle text-muted mb-0">{{ modalSubtitle }}</p>
+        </div>
+        <button class="btn-close-modal" (click)="close()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-container mt-3">
+        <div class="progress">
+          <div
+            class="progress-bar"
+            [style.width.%]="(currentStep / maxSteps) * 100">
+          </div>
+        </div>
+        <small class="progress-text">Step {{ currentStep }} di {{ maxSteps }}</small>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="review-modal-content">
+
+      <!-- Step 1: Ratings -->
+      <div *ngIf="currentStep === 1" class="step-content">
+        <div class="step-header">
+          <h4 class="step-title">⭐ Valuta la tua esperienza</h4>
+          <p class="step-description">Assegna un voto da 1 a 10 per ogni categoria</p>
+        </div>
+
+        <div class="ratings-grid">
+
+          <!-- Rating Generale -->
+          <div class="rating-category">
+            <div class="category-header">
+              <h5 class="category-title">🌟 {{ ratingLabels.ratingGeneral }}</h5>
+              <div class="category-info">
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingGeneral)">
+                  {{ reviewForm.ratingGeneral || 0 }}/10
+                </span>
+                <small class="rating-description">
+                  {{ getRatingDescription(reviewForm.ratingGeneral) }}
+                </small>
+              </div>
+            </div>
+            <div class="stars-container">
+              <button
+                *ngFor="let star of getStarsArray(10);"
+                class="star-btn"
+                [class.active]="isStarActive(reviewForm.ratingGeneral, star)"
+                (click)="setRating('ratingGeneral', star)">
+                {{ star }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Rating Atmosfera -->
+          <div class="rating-category">
+            <div class="category-header">
+              <h5 class="category-title">🏛️ {{ ratingLabels.ratingAtmosfera }}</h5>
+              <div class="category-info">
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingAtmosfera)">
+                  {{ reviewForm.ratingAtmosfera || 0 }}/10
+                </span>
+                <small class="rating-description">
+                  {{ getRatingDescription(reviewForm.ratingAtmosfera) }}
+                </small>
+              </div>
+            </div>
+            <div class="stars-container">
+              <button
+                *ngFor="let star of getStarsArray(10);"
+                class="star-btn"
+                [class.active]="isStarActive(reviewForm.ratingAtmosfera, star)"
+                (click)="setRating('ratingAtmosfera', star)">
+                {{ star }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Rating Cibo -->
+          <div class="rating-category">
+            <div class="category-header">
+              <h5 class="category-title">🍽️ {{ ratingLabels.ratingCibo }}</h5>
+              <div class="category-info">
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingCibo)">
+                  {{ reviewForm.ratingCibo || 0 }}/10
+                </span>
+                <small class="rating-description">
+                  {{ getRatingDescription(reviewForm.ratingCibo) }}
+                </small>
+              </div>
+            </div>
+            <div class="stars-container">
+              <button
+                *ngFor="let star of getStarsArray(10);"
+                class="star-btn"
+                [class.active]="isStarActive(reviewForm.ratingCibo, star)"
+                (click)="setRating('ratingCibo', star)">
+                {{ star }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Rating Servizio -->
+          <div class="rating-category">
+            <div class="category-header">
+              <h5 class="category-title">🤝 {{ ratingLabels.ratingServizio }}</h5>
+              <div class="category-info">
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingServizio)">
+                  {{ reviewForm.ratingServizio || 0 }}/10
+                </span>
+                <small class="rating-description">
+                  {{ getRatingDescription(reviewForm.ratingServizio) }}
+                </small>
+              </div>
+            </div>
+            <div class="stars-container">
+              <button
+                *ngFor="let star of getStarsArray(10);"
+                class="star-btn"
+                [class.active]="isStarActive(reviewForm.ratingServizio, star)"
+                (click)="setRating('ratingServizio', star)">
+                {{ star }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Rating Summary -->
+        <div class="rating-summary" *ngIf="canProceedToNextStep()">
+          <div class="summary-card">
+            <h5 class="summary-title">📊 Rating Medio</h5>
+            <div class="summary-rating" [style.color]="getRatingColor(averageRating)">
+              {{ averageRating }}/10
+            </div>
+            <small class="summary-description">
+              {{ getRatingDescription(Math.round(averageRating)) }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Commento -->
+      <div *ngIf="currentStep === 2" class="step-content">
+        <div class="step-header">
+          <h4 class="step-title">💬 Aggiungi un commento</h4>
+          <p class="step-description">Condividi maggiori dettagli sulla tua esperienza (facoltativo)</p>
+        </div>
+
+        <div class="comment-section">
+          <textarea
+            [(ngModel)]="reviewForm.comment"
+            class="form-control comment-textarea"
+            placeholder="Descrivi la tua esperienza al ristorante... (facoltativo)"
+            rows="6"
+            maxlength="500">
+          </textarea>
+          <small class="text-muted comment-counter">
+            {{ reviewForm.comment.length }}/500 caratteri
+          </small>
+        </div>
+
+        <!-- Comment Tips -->
+        <div class="comment-tips">
+          <h6 class="tips-title">💡 Suggerimenti:</h6>
+          <ul class="tips-list">
+            <li>Descrivi i piatti che hai provato</li>
+            <li>Menciona il servizio ricevuto</li>
+            <li>Parla dell'atmosfera del locale</li>
+            <li>Condividi consigli per altri clienti</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 3: Conferma -->
+      <div *ngIf="currentStep === 3" class="step-content">
+        <div class="step-header">
+          <h4 class="step-title">✅ Conferma la tua recensione</h4>
+          <p class="step-description">Controlla i dettagli prima di pubblicare</p>
+        </div>
+
+        <div class="review-preview">
+          <!-- Restaurant Info -->
+          <div class="preview-restaurant">
+            <h5 class="restaurant-name">{{ restaurant?.name }}</h5>
+            <p class="restaurant-info">{{ restaurant?.address }}, {{ restaurant?.city }}</p>
+          </div>
+
+          <!-- Ratings Preview -->
+          <div class="preview-ratings">
+            <h6 class="preview-section-title">Le tue valutazioni:</h6>
+            <div class="ratings-list">
+              <div class="rating-item">
+                <span class="rating-label">🌟 Generale:</span>
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingGeneral)">
+                  {{ reviewForm.ratingGeneral }}/10
+                </span>
+              </div>
+              <div class="rating-item">
+                <span class="rating-label">🏛️ Atmosfera:</span>
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingAtmosfera)">
+                  {{ reviewForm.ratingAtmosfera }}/10
+                </span>
+              </div>
+              <div class="rating-item">
+                <span class="rating-label">🍽️ Cibo:</span>
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingCibo)">
+                  {{ reviewForm.ratingCibo }}/10
+                </span>
+              </div>
+              <div class="rating-item">
+                <span class="rating-label">🤝 Servizio:</span>
+                <span class="rating-value" [style.color]="getRatingColor(reviewForm.ratingServizio)">
+                  {{ reviewForm.ratingServizio }}/10
+                </span>
+              </div>
+            </div>
+
+            <!-- Average -->
+            <div class="average-rating">
+              <strong>Media: </strong>
+              <span [style.color]="getRatingColor(averageRating)">{{ averageRating }}/10</span>
+            </div>
+          </div>
+
+          <!-- Comment Preview -->
+          <div class="preview-comment" *ngIf="reviewForm.comment.trim()">
+            <h6 class="preview-section-title">Il tuo commento:</h6>
+            <div class="comment-preview">
+              "{{ reviewForm.comment }}"
+            </div>
+          </div>
+
+          <!-- No Comment -->
+          <div class="no-comment" *ngIf="!reviewForm.comment.trim()">
+            <small class="text-muted">Nessun commento aggiunto</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-danger error-alert" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="review-modal-footer">
+      <div class="d-flex justify-content-between align-items-center">
+
+        <!-- Back Button -->
+        <button
+          *ngIf="currentStep > 1"
+          class="btn btn-outline-secondary"
+          (click)="previousStep()"
+          [disabled]="loading">
+          <i class="fas fa-chevron-left me-2"></i>
+          Indietro
+        </button>
+        <div *ngIf="currentStep === 1"></div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <!-- Next Button -->
+          <button
+            *ngIf="currentStep < maxSteps"
+            class="btn btn-primary btn-lg"
+            (click)="nextStep()"
+            [disabled]="!canProceedToNextStep() || loading">
+            Continua
+            <i class="fas fa-chevron-right ms-2"></i>
+          </button>
+
+          <!-- Submit Button -->
+          <button
+            *ngIf="currentStep === maxSteps"
+            class="btn btn-success btn-lg"
+            (click)="submitReview()"
+            [disabled]="!canSubmit()">
+
+            <span *ngIf="!loading">
+              <i class="fas fa-paper-plane me-2"></i>
+              {{ isEditMode ? 'Aggiorna Recensione' : 'Pubblica Recensione' }}
+            </span>
+
+            <span *ngIf="loading">
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              {{ isEditMode ? 'Aggiornamento...' : 'Pubblicazione...' }}
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -303,7 +303,7 @@
     </div>
   </section>
 
-  <!-- Reviews Section -->
+  <!-- ✅ REVIEWS SECTION - AGGIORNATA CON BOTTONE SCRIVI RECENSIONE -->
   <section class="reviews-section bg-dark text-white py-5">
     <div class="container-xl">
       <h2 class="h3 mb-4">Recensioni dei nostri clienti</h2>
@@ -329,29 +329,113 @@
           <div>
             <div class="fw-semibold">Esperienze reali di clienti reali</div>
             <small class="text-muted">
-              Possono lasciare un punteggio e una recensione solo le persone che
-              hanno prenotato con TheSpoon.
+              Lascia una recensione e condividi la tua esperienza con altri clienti.
             </small>
           </div>
         </div>
       </div>
 
-      <!-- View All Reviews -->
-      <div class="text-center">
+      <!-- ✅ NUOVO - Write Review Button -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <button
+            class="btn btn-success btn-lg w-100"
+            (click)="openReviewModal()"
+            [disabled]="!canWriteReview"
+          >
+            <i class="{{ reviewButtonIcon }} me-2"></i>
+            {{ reviewButtonText }}
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button
+            class="btn btn-outline-success btn-lg w-100"
+            (click)="viewAllReviews()"
+          >
+            <i class="fas fa-list me-2"></i>
+            LEGGI LE RECENSIONI
+          </button>
+        </div>
+      </div>
+
+      <!-- ✅ NUOVO - User Review Status (se l'utente ha già recensito) -->
+      <div *ngIf="userReview" class="alert alert-info mb-4">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-star text-warning me-3"></i>
+          <div>
+            <div class="fw-semibold">Hai già recensito questo ristorante</div>
+            <small class="text-muted">
+              Rating: {{ userReview.ratingGeneral }}/10 •
+              {{ userReview.createdAt | date:'dd/MM/yyyy' }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ NUOVO - Reviews Loading -->
+      <div *ngIf="reviewsLoading" class="text-center py-4">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>⭐ Caricamento recensioni...</p>
+      </div>
+
+      <!-- ✅ NUOVO - Reviews Error -->
+      <div *ngIf="reviewsError" class="alert alert-warning" role="alert">
+        <p class="mb-0">⚠️ {{ reviewsError }}</p>
+      </div>
+
+      <!-- ✅ NUOVO - Recent Reviews Preview (opzionale) -->
+      <div *ngIf="reviews.length > 0 && !reviewsLoading" class="mt-4">
+        <h4 class="h6 mb-3">Recensioni Recenti</h4>
+        <div class="row g-3">
+          <div class="col-md-6" *ngFor="let review of reviews.slice(0, 2)">
+            <div class="review-preview-card bg-secondary rounded p-3">
+              <div class="d-flex align-items-center mb-2">
+                <div class="review-avatar me-2">
+                  <i class="fas fa-user-circle fs-4 text-primary"></i>
+                </div>
+                <div>
+                  <div class="fw-semibold">{{ review.customer.firstName }} {{ review.customer.lastName.charAt(0) }}.</div>
+                  <small class="text-muted">{{ review.createdAt | date:'dd/MM/yyyy' }}</small>
+                </div>
+                <div class="ms-auto">
+                  <span class="badge bg-success">{{ review.ratingGeneral }}/10</span>
+                </div>
+              </div>
+              <p class="mb-0 small" *ngIf="review.comment">
+                "{{ review.comment.length > 100 ? (review.comment | slice:0:100) + '...' : review.comment }}"
+              </p>
+              <div class="text-muted small mt-2" *ngIf="!review.comment">
+                <em>Nessun commento</em>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ NUOVO - No Reviews Message -->
+      <div *ngIf="reviews.length === 0 && !reviewsLoading && !reviewsError" class="text-center py-4">
+        <div class="fs-1 mb-2">⭐</div>
+        <h5 class="mb-3">Nessuna recensione ancora</h5>
+        <p class="text-muted mb-4">Sii il primo a lasciare una recensione per questo ristorante!</p>
         <button
-          class="btn btn-outline-success btn-lg w-100 mb-4"
-          (click)="viewAllReviews()"
+          class="btn btn-success btn-lg"
+          (click)="openReviewModal()"
+          [disabled]="!canWriteReview"
         >
-          LEGGI LE RECENSIONI
+          <i class="fas fa-star me-2"></i>
+          Scrivi la Prima Recensione
         </button>
       </div>
+
     </div>
   </section>
 
   <!-- Fixed Bottom CTA -->
   <div
     class="fixed-bottom p-3 bg-dark border-top border-secondary"
-    *ngIf="!isBookingModalOpen && !isPhotoModalOpen && !isMenuModalOpen"
+    *ngIf="!isBookingModalOpen && !isPhotoModalOpen && !isMenuModalOpen && !isReviewModalOpen"
   >
     <div class="container-xl">
       <button
@@ -466,6 +550,16 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ NUOVO - Review Modal -->
+  <app-review-modal
+    [restaurant]="restaurant"
+    [editingReview]="editingReview"
+    [isOpen]="isReviewModalOpen"
+    (closeModal)="closeReviewModal()"
+    (reviewSubmitted)="onReviewSubmitted($event)"
+  >
+  </app-review-modal>
 
   <!-- Booking Modal -->
   <app-booking-modal
