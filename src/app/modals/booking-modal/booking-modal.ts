@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IRestaurant } from '../../models/i-restaurant';
 import { ReservationService, CreateReservationRequest } from '../../services/reservation';
 import { AuthService } from '../../services/auth';
+import Swal from 'sweetalert2'; // 🍬 IMPORT SWEETALERT2
 
 interface BookingStep {
   step: 'date' | 'time' | 'people' | 'confirm';
@@ -16,7 +17,7 @@ interface BookingData {
   people: number;
   discount: string;
   notes?: string;
-  customerPhone?: string; // ← NUOVO CAMPO
+  customerPhone?: string;
 }
 
 @Component({
@@ -45,7 +46,7 @@ export class BookingModalComponent implements OnInit {
     people: 2,
     discount: '-20%',
     notes: '',
-    customerPhone: '' // ← NUOVO CAMPO
+    customerPhone: ''
   };
 
   steps: BookingStep[] = [
@@ -81,7 +82,6 @@ export class BookingModalComponent implements OnInit {
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
 
-    // Inizia dal lunedì della settimana
     startDate.setDate(startDate.getDate() - (startDate.getDay() || 7) + 1);
 
     const days: (Date | null)[] = [];
@@ -103,12 +103,10 @@ export class BookingModalComponent implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Disponibile se non è passata e non è più di 30 giorni nel futuro
     return date >= today && date <= new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
   }
 
   getDateDiscount(date: Date): string {
-    // Logica sconto basata su giorno settimana
     const dayOfWeek = date.getDay();
     if (dayOfWeek >= 1 && dayOfWeek <= 4) return '-20%'; // Lun-Gio
     if (dayOfWeek === 5) return '-15%'; // Ven
@@ -136,7 +134,7 @@ export class BookingModalComponent implements OnInit {
   // Navigazione steps
   goToStep(step: BookingStep['step']) {
     this.currentStep = step;
-    this.submissionError = null; // Reset errore
+    this.submissionError = null;
   }
 
   goToPreviousStep() {
@@ -147,7 +145,7 @@ export class BookingModalComponent implements OnInit {
     }
   }
 
-  // 🔧 CONFERMA PRENOTAZIONE REALE - CON TELEFONO DA INPUT
+  // 🔧 CONFERMA PRENOTAZIONE - CON SWEETALERT2
   confirmBooking() {
     if (!this.restaurant || !this.bookingData.date || !this.bookingData.time) {
       this.submissionError = 'Dati prenotazione incompleti';
@@ -159,7 +157,6 @@ export class BookingModalComponent implements OnInit {
       return;
     }
 
-    // ✅ VALIDAZIONE TELEFONO DA INPUT
     if (!this.bookingData.customerPhone || this.bookingData.customerPhone.trim() === '') {
       this.submissionError = 'Il numero di telefono è obbligatorio';
       return;
@@ -175,19 +172,20 @@ export class BookingModalComponent implements OnInit {
         this.restaurant.id,
         this.authService.getUserId(),
         this.authService.getUserFullName(),
-        this.bookingData.customerPhone, // ← USA IL TELEFONO DALL'INPUT
+        this.bookingData.customerPhone,
         this.bookingData.notes
       );
 
       console.log('📤 Creazione prenotazione:', reservationData);
-      console.log('📅 Data selezionata:', this.bookingData.date);
-      console.log('📅 Data formattata per backend:', reservationData.reservationDate);
 
       // Invia prenotazione al backend
       this.reservationService.createReservation(reservationData).subscribe({
         next: (reservation) => {
           console.log('✅ Prenotazione creata con successo:', reservation);
           this.isSubmitting = false;
+
+          // 🍬 SWEETALERT2 SUCCESS - BELLISSIMO!
+          this.showBookingSuccessAlert(reservation);
 
           // Emetti evento di successo
           this.bookingConfirmed.emit({
@@ -201,15 +199,194 @@ export class BookingModalComponent implements OnInit {
         error: (error) => {
           console.error('❌ Errore creazione prenotazione:', error);
           this.isSubmitting = false;
-          this.submissionError = error.error?.message || 'Errore nella creazione della prenotazione. Riprova.';
+
+          // 🍬 SWEETALERT2 ERROR
+          this.showBookingErrorAlert(error.error?.message || 'Errore nella creazione della prenotazione. Riprova.');
         }
       });
 
     } catch (error: any) {
       console.error('❌ Errore validazione:', error);
       this.isSubmitting = false;
-      this.submissionError = error.message || 'Errore nella validazione dei dati';
+
+      // 🍬 SWEETALERT2 ERROR
+      this.showBookingErrorAlert(error.message || 'Errore nella validazione dei dati');
     }
+  }
+
+  // 🍬 SWEETALERT2 SUCCESS - ANIMATO E CARINO
+  private showBookingSuccessAlert(reservation: any): void {
+    const formattedDate = this.formatFullDate(this.bookingData.date!);
+    const formattedTime = this.bookingData.time;
+
+    Swal.fire({
+      title: '🎉 Prenotazione Confermata!',
+      html: `
+        <div style="text-align: center; margin: 2rem 0;">
+          <!-- Animazione icone -->
+          <div style="margin: 1.5rem 0; font-size: 4rem; color: #28a745;">
+            <i class="fas fa-calendar-check" style="animation: bounceIn 1s ease-out;"></i>
+          </div>
+
+          <!-- Dettagli prenotazione -->
+          <div style="background: #f8f9fa; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; border-left: 4px solid #28a745;">
+            <h4 style="color: #28a745; margin-bottom: 1rem; font-weight: 600;">
+              <i class="fas fa-utensils"></i> ${this.restaurant?.name}
+            </h4>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar" style="color: #28a745; width: 20px;"></i>
+                <strong>${formattedDate}</strong>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-clock" style="color: #28a745; width: 20px;"></i>
+                <strong>${formattedTime}</strong>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-users" style="color: #28a745; width: 20px;"></i>
+                <strong>${this.bookingData.people} ${this.bookingData.people === 1 ? 'persona' : 'persone'}</strong>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-phone" style="color: #28a745; width: 20px;"></i>
+                <strong>${this.bookingData.customerPhone}</strong>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-ticket-alt" style="color: #dc3545; width: 20px;"></i>
+                <strong style="color: #dc3545;">${this.bookingData.discount} di sconto!</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- ID Prenotazione -->
+          <div style="background: #28a745; color: white; padding: 0.75rem; border-radius: 8px; margin: 1rem 0;">
+            <strong>ID Prenotazione: #${reservation.id}</strong>
+          </div>
+
+          <!-- Messaggio -->
+          <p style="color: #6c757d; margin: 1rem 0; line-height: 1.5;">
+            <i class="fas fa-envelope" style="color: #28a745;"></i>
+            Riceverai una conferma via email con tutti i dettagli della prenotazione.
+          </p>
+
+          <!-- Prossimi passi -->
+          <div style="background: #e7f3ff; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+            <h6 style="color: #0066cc; margin-bottom: 0.5rem;">
+              <i class="fas fa-info-circle"></i> Prossimi passi:
+            </h6>
+            <ul style="text-align: left; color: #0066cc; margin: 0; padding-left: 1.5rem;">
+              <li>Arriva 5 minuti prima dell'orario prenotato</li>
+              <li>Presenta il tuo nome alla reception</li>
+              <li>Goditi il tuo ${this.bookingData.discount} di sconto!</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      icon: 'success',
+      confirmButtonText: '<i class="fas fa-check"></i> Perfetto!',
+      confirmButtonColor: '#28a745',
+      width: '600px',
+      timer: 8000,
+      timerProgressBar: true,
+      showCloseButton: true,
+      allowOutsideClick: false,
+      customClass: {
+        container: 'booking-success-modal',
+        popup: 'booking-success-popup',
+        title: 'booking-success-title',
+        confirmButton: 'booking-success-button'
+      },
+      didOpen: () => {
+        // Aggiungi animazioni CSS custom
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+
+          .booking-success-popup {
+            border-radius: 16px !important;
+            box-shadow: 0 20px 60px rgba(40, 167, 69, 0.3) !important;
+          }
+
+          .booking-success-button {
+            border-radius: 25px !important;
+            padding: 12px 24px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Opzionale: redirect alla dashboard delle prenotazioni
+        console.log('🎯 Utente ha confermato - possibile redirect a dashboard');
+      }
+    });
+  }
+
+  // 🍬 SWEETALERT2 ERROR - ELEGANTE
+  private showBookingErrorAlert(errorMessage: string): void {
+    Swal.fire({
+      title: '❌ Prenotazione Non Riuscita',
+      html: `
+        <div style="text-align: center; margin: 1.5rem 0;">
+          <div style="margin: 1rem 0; font-size: 3rem; color: #dc3545;">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+
+          <div style="background: #f8d7da; border-radius: 8px; padding: 1rem; margin: 1rem 0; border-left: 4px solid #dc3545;">
+            <p style="color: #721c24; margin: 0; font-weight: 500;">
+              ${errorMessage}
+            </p>
+          </div>
+
+          <div style="background: #e2e3e5; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+            <h6 style="color: #6c757d; margin-bottom: 0.5rem;">
+              <i class="fas fa-lightbulb"></i> Cosa puoi fare:
+            </h6>
+            <ul style="text-align: left; color: #6c757d; margin: 0; padding-left: 1.5rem;">
+              <li>Verifica tutti i dati inseriti</li>
+              <li>Prova un orario diverso</li>
+              <li>Controlla la connessione internet</li>
+              <li>Riprova tra qualche minuto</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      icon: 'error',
+      confirmButtonText: '<i class="fas fa-redo"></i> Riprova',
+      confirmButtonColor: '#dc3545',
+      width: '500px',
+      customClass: {
+        popup: 'booking-error-popup',
+        confirmButton: 'booking-error-button'
+      },
+      didOpen: () => {
+        const style = document.createElement('style');
+        style.textContent = `
+          .booking-error-popup {
+            border-radius: 16px !important;
+            box-shadow: 0 20px 60px rgba(220, 53, 69, 0.3) !important;
+          }
+
+          .booking-error-button {
+            border-radius: 25px !important;
+            padding: 12px 24px !important;
+            font-weight: 600 !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    });
   }
 
   // Gestione modale
@@ -228,7 +405,7 @@ export class BookingModalComponent implements OnInit {
       people: 2,
       discount: '-20%',
       notes: '',
-      customerPhone: '' // ← RESET TELEFONO
+      customerPhone: ''
     };
   }
 
@@ -269,7 +446,7 @@ export class BookingModalComponent implements OnInit {
     return this.steps.find(s => s.step === this.currentStep)?.title || '';
   }
 
-  // Getters per il template - VERSIONE UNICA
+  // Getters per il template
   get currentUser() {
     return {
       name: this.authService.getUserFullName(),

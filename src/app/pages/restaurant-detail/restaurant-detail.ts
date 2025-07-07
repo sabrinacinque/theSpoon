@@ -247,7 +247,6 @@ menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
 
   onBookingConfirmed(bookingData: any) {
     console.log('✅ Prenotazione confermata:', bookingData);
-    alert('Prenotazione confermata! 🎉');
     this.closeBookingModal();
   }
 
