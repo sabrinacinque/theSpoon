@@ -66,8 +66,6 @@
             {{ currentPhotoIndex + 1 }} / {{ photoCount }} foto
           </small>
         </div>
-
-
       </div>
 
       <!-- Placeholder quando non ci sono foto -->
@@ -206,12 +204,14 @@
         <h3 class="h5 mb-0">Prenota per</h3>
       </div>
 
-      <!-- Date Selection -->
+      <!-- Date disponibili -->
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3" *ngFor="let date of availableDates">
           <button
             class="btn btn-outline-success w-100 position-relative"
             (click)="openBookingModal(date)"
+            [disabled]="!canBook"
+            [title]="!canBook ? 'Effettua il login per prenotare' : ''"
           >
             <div>{{ date.label }}</div>
             <small
@@ -267,7 +267,10 @@
       <div *ngIf="menuHighlightsByCategory.length > 0 && !menuLoading">
         <h4 class="h5 mb-3">PIATTI HIGHLIGHTS</h4>
 
-        <div *ngFor="let categoryGroup of menuHighlightsByCategory" class="mb-4">
+        <div
+          *ngFor="let categoryGroup of menuHighlightsByCategory"
+          class="mb-4"
+        >
           <h5 class="h6 text-success mb-2">{{ categoryGroup.category }}</h5>
           <div class="menu-items">
             <div
@@ -284,7 +287,9 @@
       </div>
 
       <!-- Menu placeholder quando non ci sono dati -->
-      <div *ngIf="menuHighlightsByCategory.length === 0 && !menuLoading && !menuError">
+      <div
+        *ngIf="menuHighlightsByCategory.length === 0 && !menuLoading && !menuError"
+      >
         <div class="text-center py-4">
           <div class="fs-1 mb-2">🍽️</div>
           <p class="text-muted">Menu non ancora disponibile</p>
@@ -329,7 +334,8 @@
           <div>
             <div class="fw-semibold">Esperienze reali di clienti reali</div>
             <small class="text-muted">
-              Lascia una recensione e condividi la tua esperienza con altri clienti.
+              Lascia una recensione e condividi la tua esperienza con altri
+              clienti.
             </small>
           </div>
         </div>
@@ -365,8 +371,8 @@
           <div>
             <div class="fw-semibold">Hai già recensito questo ristorante</div>
             <small class="text-muted">
-              Rating: {{ userReview.ratingGeneral }}/10 •
-              {{ userReview.createdAt | date:'dd/MM/yyyy' }}
+              Rating: {{ userReview.ratingGeneral }}/10 • {{
+              userReview.createdAt | date:'dd/MM/yyyy' }}
             </small>
           </div>
         </div>
@@ -396,15 +402,23 @@
                   <i class="fas fa-user-circle fs-4 text-primary"></i>
                 </div>
                 <div>
-                  <div class="fw-semibold">{{ review.customer.firstName }} {{ review.customer.lastName.charAt(0) }}.</div>
-                  <small class="text-muted">{{ review.createdAt | date:'dd/MM/yyyy' }}</small>
+                  <div class="fw-semibold">
+                    {{ review.customer.firstName }} {{
+                    review.customer.lastName.charAt(0) }}.
+                  </div>
+                  <small class="text-muted"
+                    >{{ review.createdAt | date:'dd/MM/yyyy' }}</small
+                  >
                 </div>
                 <div class="ms-auto">
-                  <span class="badge bg-success">{{ review.ratingGeneral }}/10</span>
+                  <span class="badge bg-success"
+                    >{{ review.ratingGeneral }}/10</span
+                  >
                 </div>
               </div>
               <p class="mb-0 small" *ngIf="review.comment">
-                "{{ review.comment.length > 100 ? (review.comment | slice:0:100) + '...' : review.comment }}"
+                "{{ review.comment.length > 100 ? (review.comment | slice:0:100)
+                + '...' : review.comment }}"
               </p>
               <div class="text-muted small mt-2" *ngIf="!review.comment">
                 <em>Nessun commento</em>
@@ -415,10 +429,15 @@
       </div>
 
       <!-- ✅ NUOVO - No Reviews Message -->
-      <div *ngIf="reviews.length === 0 && !reviewsLoading && !reviewsError" class="text-center py-4">
+      <div
+        *ngIf="reviews.length === 0 && !reviewsLoading && !reviewsError"
+        class="text-center py-4"
+      >
         <div class="fs-1 mb-2">⭐</div>
         <h5 class="mb-3">Nessuna recensione ancora</h5>
-        <p class="text-muted mb-4">Sii il primo a lasciare una recensione per questo ristorante!</p>
+        <p class="text-muted mb-4">
+          Sii il primo a lasciare una recensione per questo ristorante!
+        </p>
         <button
           class="btn btn-success btn-lg"
           (click)="openReviewModal()"
@@ -428,7 +447,6 @@
           Scrivi la Prima Recensione
         </button>
       </div>
-
     </div>
   </section>
 
@@ -441,8 +459,9 @@
       <button
         class="btn btn-success btn-lg w-100 fw-bold"
         (click)="bookTable()"
+        [disabled]="!canBook"
       >
-        PRENOTA UN TAVOLO
+        {{ canBook ? 'PRENOTA UN TAVOLO' : 'Accedi per prenotare' }}
       </button>
     </div>
   </div>
@@ -514,7 +533,6 @@
 
       <!-- Menu Content -->
       <div class="menu-modal-content">
-
         <!-- Loading -->
         <div *ngIf="menuLoading" class="text-center py-4">
           <div class="spinner-border text-primary mb-3" role="status">
@@ -525,13 +543,13 @@
 
         <!-- Menu by Category -->
         <div *ngIf="menuByCategory.length > 0 && !menuLoading">
-          <div *ngFor="let categoryGroup of menuByCategory" class="menu-category-group">
+          <div
+            *ngFor="let categoryGroup of menuByCategory"
+            class="menu-category-group"
+          >
             <h4 class="menu-category-title">{{ categoryGroup.category }}</h4>
             <ul class="menu-items-list">
-              <li
-                *ngFor="let item of categoryGroup.items"
-                class="menu-item"
-              >
+              <li *ngFor="let item of categoryGroup.items" class="menu-item">
                 <div class="menu-item-header">
                   <span class="menu-item-name">{{ item.name }}</span>
                   <span class="menu-item-price">{{ item.price }} €</span>
@@ -542,11 +560,13 @@
         </div>
 
         <!-- No menu available -->
-        <div *ngIf="menuByCategory.length === 0 && !menuLoading" class="text-center py-4">
+        <div
+          *ngIf="menuByCategory.length === 0 && !menuLoading"
+          class="text-center py-4"
+        >
           <div class="fs-1 mb-2">🍽️</div>
           <p class="text-muted">Menu non disponibile</p>
         </div>
-
       </div>
     </div>
   </div>

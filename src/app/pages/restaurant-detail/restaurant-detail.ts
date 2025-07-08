@@ -358,19 +358,22 @@ export class RestaurantDetailComponent implements OnInit {
 
   // Booking modal methods
   bookTable() {
-    console.log('📅 Prenota tavolo per ristorante:', this.restaurantId);
-    this.isBookingModalOpen = true;
+  if (!this.canBook) {
+    this.promptLoginForBooking();
+    return;
   }
+  this.isBookingModalOpen = true;
+}
 
   openBookingModal(selectedDate?: any) {
-    console.log('📅 Apri modal prenotazione:', selectedDate ? selectedDate : 'tutte le date');
-
-    if (selectedDate) {
-      console.log('📅 Data pre-selezionata:', selectedDate.date);
-    }
-
-    this.isBookingModalOpen = true;
+  if (!this.canBook) {
+    this.promptLoginForBooking();
+    return;
   }
+
+  console.log('📅 Apri modal prenotazione:', selectedDate ?? 'tutte le date');
+  this.isBookingModalOpen = true;
+}
 
   closeBookingModal() {
     this.isBookingModalOpen = false;
@@ -541,4 +544,18 @@ export class RestaurantDetailComponent implements OnInit {
   get hasMenuHighlights(): boolean {
     return this.menuHighlightsByCategory.length > 0;
   }
+
+
+  /** ritorna true se l’utente è loggato e può prenotare */
+get canBook(): boolean {
+  const user = this.authService.currentUser();
+  return !!user && this.authService.isCustomer();
+}
+
+/** chiamato quando l’utente prova a prenotare ma non è autenticato */
+private promptLoginForBooking(): void {
+  // qui puoi aprire un modal di login, oppure fare un redirect a /login
+  alert('Devi effettuare il login come customer per prenotare.');
+  this.router.navigate(['/login']);
+}
 }
