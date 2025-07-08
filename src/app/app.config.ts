@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -9,8 +9,18 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes),
+
+    // 🎯 ROUTER CON SCROLL CONFIGURATION (CORRETTO)
+    provideRouter(
+      routes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'top',     // ⬆️ Auto-scroll in alto
+        anchorScrolling: 'enabled'             // 🔗 Abilita scroll agli anchor
+      })
+    ),
+
     provideHttpClient(),
+
     // 🔐 AUTH INTERCEPTOR
     {
       provide: HTTP_INTERCEPTORS,

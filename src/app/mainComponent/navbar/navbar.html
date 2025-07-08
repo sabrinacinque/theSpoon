@@ -2,45 +2,60 @@
 <nav class="navbar navbar-expand-lg sticky-top shadow-lg navbar-bg">
   <div class="container-xl">
     <!-- Logo Dinamico con ThemeService -->
-    <a class="navbar-brand d-flex align-items-center gap-2" (click)="onGoHome()" style="cursor: pointer;">
-      <img [src]="themeService.isDarkTheme() ? '/images/logoNavbarDark1nobg.png' : '/images/logoNavbarLightnobg.png'"
-           alt="TheSpoon Logo"
-           [ngStyle]="{'height': themeService.isDarkTheme() ? '50px' : '45px'}">
+    <a
+      class="navbar-brand d-flex align-items-center gap-2"
+      (click)="onGoHome()"
+      style="cursor: pointer"
+    >
+      <img
+        [src]="themeService.isDarkTheme() ? '/images/logoNavbarDark1nobg.png' : '/images/logoNavbarLightnobg.png'"
+        alt="TheSpoon Logo"
+        [ngStyle]="{'height': themeService.isDarkTheme() ? '50px' : '45px'}"
+      />
     </a>
 
     <!-- Toggler per mobile -->
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <button
+      class="navbar-toggler border-0"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <!-- Nav Links -->
     <div class="collapse navbar-collapse" id="navbarNav">
       <div class="navbar-nav ms-auto d-flex align-items-center gap-3">
-
         <!-- 🔐 SE NON LOGGATO -->
         <ng-container *ngIf="!isLoggedIn">
           <!-- Login Button -->
-          <a class="nav-link px-3 py-2 rounded-pill"
-             (click)="openAuthModal()"
-             style="cursor: pointer;">
+          <a
+            class="nav-link px-3 py-2 rounded-pill"
+            (click)="openAuthModal()"
+            style="cursor: pointer"
+          >
             Accedi
           </a>
         </ng-container>
 
         <!-- ✅ SE LOGGATO -->
-        <ng-container *ngIf="isLoggedIn" >
+        <ng-container *ngIf="isLoggedIn">
           <!-- User Dashboard Icon -->
-          <button *ngIf="authService.isCustomer()"  class="btn btn-outline-primary rounded-circle p-2 d-flex align-items-center justify-content-center"
-                  style="width: 40px; height: 40px;"
-                  (click)="goToCustomerDashboard()"
-                  title="Il mio profilo">
+          <button
+            *ngIf="authService.isCustomer()"
+            class="btn btn-outline-primary rounded-circle p-2 d-flex align-items-center justify-content-center"
+            style="width: 40px; height: 40px"
+            (click)="goToCustomerDashboard()"
+            title="Il mio profilo"
+          >
             <i class="fas fa-user"></i>
           </button>
 
           <!-- User Info -->
           <div class="d-flex align-items-center gap-2">
             <span class="text-muted small d-md-inline">
-              Ciao, {{ userFullName }}!
+              Ciao, {{ getUserDisplayName() }}!
             </span>
             <button class="btn btn-outline-danger btn-sm" (click)="logout()">
               <i class="fas fa-sign-out-alt me-1 d-none d-md-inline"></i>
@@ -51,9 +66,11 @@
         </ng-container>
 
         <!-- Theme Toggle -->
-        <button class="btn btn-outline-secondary rounded-circle p-2 d-flex align-items-center justify-content-center"
-                style="width: 40px; height: 40px;"
-                (click)="onThemeToggle()">
+        <button
+          class="btn btn-outline-secondary rounded-circle p-2 d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px"
+          (click)="onThemeToggle()"
+        >
           {{ themeService.isDarkTheme() ? '☀️' : '🌙' }}
         </button>
       </div>
@@ -65,5 +82,6 @@
 <app-auth-modal
   [isOpen]="isAuthModalOpen"
   (closeModal)="closeAuthModal()"
-  (authSuccess)="onAuthSuccess()">
+  (authSuccess)="onAuthSuccess()"
+>
 </app-auth-modal>

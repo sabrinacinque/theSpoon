@@ -76,6 +76,20 @@ export class NavbarComponent {
     }
   }
 
+  getUserDisplayName(): string {
+  const currentUser = this.authService.currentUser();
+
+  if (currentUser?.firstName && currentUser?.lastName) {
+    return `${currentUser.firstName} ${currentUser.lastName}`;
+  } else if (currentUser?.firstName) {
+    return currentUser.firstName;
+  } else if (currentUser?.email) {
+    return currentUser.email.split('@')[0]; // Usa parte email prima di @
+  } else {
+    return 'Utente'; // Fallback
+  }
+}
+
   // 🎯 GETTER CONVENIENCE
   get isLoggedIn() {
     return this.authService.isLoggedIn();
