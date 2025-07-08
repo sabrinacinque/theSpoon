@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, catchError, of, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../enviroments/enviroment.development';
@@ -150,6 +150,15 @@ export class AuthService {
     return !!token;
   }
 
+  // 🔧 FIX - AGGIUNGI METODO getHeaders()
+  private getHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    });
+  }
+
   // 🚀 INIZIALIZZAZIONE
   private initializeAuth(): void {
     const token = this.getToken();
@@ -198,7 +207,7 @@ export class AuthService {
   // ✅ SUCCESSO AUTENTICAZIONE
   private handleAuthSuccess(authData: IUserAuthData): void {
     this.setToken(authData.token);
-    
+
     const userData = {
       userId: authData.userId,
       email: authData.email,
@@ -206,7 +215,7 @@ export class AuthService {
       lastName: authData.lastName,
       role: authData.role
     };
-    
+
     localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
     this.setUserData(authData);
     this.isAuthenticated.set(true);
@@ -249,13 +258,13 @@ export class AuthService {
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName
       };
-      
+
       // Aggiorna signal
       this.currentUser.set(updatedUserData);
-      
+
       // Aggiorna localStorage
       localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUserData));
-      
+
       console.log('✅ AuthService: Dati utente aggiornati:', updatedUserData);
     }
   }
@@ -323,5 +332,25 @@ export class AuthService {
       return false;
     }
     return true;
+  }
+
+  // 🔑 FIX - PASSWORD RESET METHODS
+  sendPasswordResetEmail(email: string): Observable<any> {
+    console.log('📧 AuthService: Invio email reset password per:', email);
+
+    return this.http.post(`${this.API_URL}/forgot-password`, { email }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    console.log('🔑 AuthService: Reset password con token');
+
+    return this.http.post(`${this.API_URL}/reset-password`, {
+      token,
+      newPassword
+    }, {
+      headers: this.getHeaders()
+    });
   }
 }

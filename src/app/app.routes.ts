@@ -2,6 +2,7 @@ import { DashboardCustomer } from './pages/dashboard-customer/dashboard-customer
 import { Routes } from '@angular/router';
 import { HomepageComponent } from './pages/homepage/homepage';
 import { BusinessDashboardComponent } from './pages/business-dashboard/business-dashboard';
+import { ResetPasswordComponent } from './components/reset-password/reset-password';
 
 // Import dei Guards
 import { customerGuardGuard } from './guards/customer-guard-guard';
@@ -28,6 +29,11 @@ export const routes: Routes = [
     path: 'dashboard-customer',
     component: DashboardCustomer,
     canActivate: [customerGuardGuard]  // 🛡️ Solo Business può accedere
+  },
+   {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
+    title: 'Reset Password - TheSpoon'
   },
   {
     path: '**',
