@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { RestaurantService } from '../../services/restaurant';
 import { PhotoService } from '../../services/photo.service';
 import { UploadService } from '../../services/upload-service';
@@ -38,6 +39,12 @@ export class HomepageComponent implements OnInit {
     cuisine: ''
   };
 
+  // ✅ AUTOCOMPLETE PROPRIETÀ
+  availableCities: string[] = [];
+  filteredCities: string[] = [];
+  showCityDropdown = false;
+  selectedCityIndex = -1;
+
   // Categories
   categories = [
     { name: 'Napoletana', icon: '🍕' },
@@ -61,13 +68,126 @@ export class HomepageComponent implements OnInit {
     private photoService: PhotoService,
     private uploadService: UploadService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
     console.log('🏠 Homepage inizializzata');
+    this.loadItalianCities();
     this.loadRestaurants();
     this.initAnimations();
+  }
+
+  // ✅ CARICA CITTÀ ITALIANE DA JSON
+  private loadItalianCities() {
+    console.log('📍 Caricamento città italiane...');
+
+    this.http.get<string[]>('assets/data/italian-cities.json').subscribe({
+      next: (cities) => {
+        console.log('✅ Città caricate:', cities.length);
+        this.availableCities = cities.sort();
+        this.filteredCities = [];
+      },
+      error: (err) => {
+        console.error('❌ Errore caricamento città:', err);
+        // Fallback con città principali
+        this.availableCities = [
+          'Milano', 'Roma', 'Napoli', 'Torino', 'Palermo', 'Genova', 'Bologna', 'Firenze',
+          'Bari', 'Catania', 'Venezia', 'Verona', 'Messina', 'Padova', 'Trieste', 'Taranto',
+          'Brescia', 'Parma', 'Reggio Emilia', 'Modena', 'Prato', 'Cagliari', 'Livorno',
+          'Perugia', 'Ravenna', 'Rimini', 'Salerno', 'Ferrara', 'Sassari', 'Monza',
+          'Bergamo', 'Trento', 'Forlì', 'Vicenza', 'Terni', 'Bolzano', 'Novara',
+          'Piacenza', 'Ancona', 'Andria', 'Arezzo', 'Udine', 'Cesena', 'Lecce',
+          'Pesaro', 'Barletta', 'Alessandria', 'La Spezia', 'Pistoia', 'Caserta'
+        ].sort();
+        this.filteredCities = [];
+      }
+    });
+  }
+
+  // ✅ AUTOCOMPLETE METODI
+  onCityInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.toLowerCase().trim();
+
+    console.log('🔍 Ricerca città:', value);
+
+    if (value.length === 0) {
+      this.filteredCities = [];
+      this.showCityDropdown = false;
+      this.selectedCityIndex = -1;
+      return;
+    }
+
+    // Filtra città che contengono la stringa digitata
+    this.filteredCities = this.availableCities
+      .filter(city => city.toLowerCase().includes(value))
+      .slice(0, 10); // Limita a 10 risultati
+
+    this.showCityDropdown = this.filteredCities.length > 0;
+    this.selectedCityIndex = -1;
+
+    console.log('📋 Città filtrate:', this.filteredCities.length);
+  }
+
+  onCityFocus() {
+    console.log('👁️ Focus su input città');
+    if (this.searchFilters.city.length > 0) {
+      this.onCityInput({ target: { value: this.searchFilters.city } } as any);
+    }
+  }
+
+  onCityBlur() {
+    // Ritarda la chiusura per permettere il click sui risultati
+    setTimeout(() => {
+      console.log('😴 Blur input città');
+      this.showCityDropdown = false;
+      this.selectedCityIndex = -1;
+    }, 200);
+  }
+
+  selectCity(city: string) {
+    console.log('🎯 Città selezionata:', city);
+    this.searchFilters.city = city;
+    this.showCityDropdown = false;
+    this.selectedCityIndex = -1;
+    this.filteredCities = [];
+  }
+
+  // ✅ NAVIGAZIONE TASTIERA
+  @HostListener('keydown', ['$event'])
+  handleKeyboardNavigation(event: KeyboardEvent) {
+    if (!this.showCityDropdown || this.filteredCities.length === 0) {
+      return;
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.selectedCityIndex = Math.min(
+          this.selectedCityIndex + 1,
+          this.filteredCities.length - 1
+        );
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        this.selectedCityIndex = Math.max(this.selectedCityIndex - 1, -1);
+        break;
+
+      case 'Enter':
+        event.preventDefault();
+        if (this.selectedCityIndex >= 0) {
+          this.selectCity(this.filteredCities[this.selectedCityIndex]);
+        }
+        break;
+
+      case 'Escape':
+        this.showCityDropdown = false;
+        this.selectedCityIndex = -1;
+        break;
+    }
   }
 
   // Animations

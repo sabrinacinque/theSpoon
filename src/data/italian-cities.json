@@ -1,0 +1,62 @@
+[
+  "Agrigento", "Alessandria", "Ancona", "Aosta", "Arezzo", "Ascoli Piceno", "Asti", "Avellino",
+  "Bari", "Barletta-Andria-Trani", "Belluno", "Benevento", "Bergamo", "Biella", "Bologna", "Bolzano", "Brescia", "Brindisi",
+  "Cagliari", "Caltanissetta", "Campobasso", "Carbonia-Iglesias", "Caserta", "Catania", "Catanzaro", "Chieti", "Como", "Cosenza", "Cremona", "Crotone", "Cuneo",
+  "Enna",
+  "Fermo", "Ferrara", "Firenze", "Foggia", "Forlì-Cesena", "Frosinone",
+  "Genova", "Gorizia", "Grosseto",
+  "Imperia", "Isernia",
+  "La Spezia", "L'Aquila", "Latina", "Lecce", "Lecco", "Livorno", "Lodi", "Lucca",
+  "Macerata", "Mantova", "Massa-Carrara", "Matera", "Messina", "Milano", "Modena", "Monza e Brianza",
+  "Napoli", "Novara", "Nuoro",
+  "Olbia-Tempio", "Oristano",
+  "Padova", "Palermo", "Parma", "Pavia", "Perugia", "Pesaro e Urbino", "Pescara", "Piacenza", "Pisa", "Pistoia", "Pordenone", "Potenza", "Prato", "Ragusa", "Ravenna", "Reggio Calabria", "Reggio Emilia", "Rieti", "Rimini", "Roma", "Rovigo",
+  "Salerno", "Medio Campidano", "Sassari", "Savona", "Siena", "Siracusa", "Sondrio",
+  "Taranto", "Teramo", "Terni", "Torino", "Ogliastra", "Trapani", "Trento", "Treviso", "Trieste",
+  "Udine",
+  "Varese", "Venezia", "Verbano-Cusio-Ossola", "Vercelli", "Verona", "Vibo Valentia", "Vicenza", "Viterbo",
+
+  "Abano Terme", "Acireale", "Adrano", "Afragola", "Agira", "Albano Laziale", "Albenga", "Alghero", "Altamura", "Amalfi", "Amantea", "Anagni", "Andria", "Anzio", "Aprilia", "Aragona", "Arco", "Argenta", "Ariano Irpino", "Arona", "Arzano", "Assisi", "Atri", "Aversa", "Avezzano", "Avola",
+
+  "Bacoli", "Bagheria", "Barcellona Pozzo di Gotto", "Bassano del Grappa", "Battipaglia", "Bellaria-Igea Marina", "Bisceglie", "Bitonto", "Bojano", "Bolzano", "Boscoreale", "Bracciano", "Bronte", "Busto Arsizio",
+
+  "Caivano", "Caltagirone", "Camaiore", "Canicattì", "Canosa di Puglia", "Capaccio", "Capannori", "Capua", "Carini", "Carpi", "Carrara", "Casale Monferrato", "Casalnuovo di Napoli", "Casalpalocco", "Cascina", "Casoria", "Cassano all'Ionio", "Cassino", "Castelfidardo", "Castellammare di Stabia", "Castello di Cisterna", "Castelvolturno", "Catona", "Cattolica", "Cava de' Tirreni", "Cerignola", "Cerveteri", "Cesano Maderno", "Cesenatico", "Chioggia", "Cinisello Balsamo", "Cittanova", "Civitanova Marche", "Civitavecchia", "Colleferro", "Colle di Val d'Elsa", "Collegno", "Cologno Monzese", "Conegliano", "Correggio", "Cortona", "Crotone",
+
+  "Dalmine", "Desio", "Diamante", "Domodossola",
+
+  "Eboli", "Empoli", "Ercolano", "Este",
+
+  "Faenza", "Fasano", "Fiumicino", "Foligno", "Fondi", "Formia", "Forte dei Marmi", "Francavilla Fontana", "Frascati", "Frosinone",
+
+  "Gabice Mare", "Gaeta", "Gallipoli", "Gela", "Gioia del Colle", "Gioia Tauro", "Giulianova", "Giugliano in Campania", "Gravina in Puglia", "Grugliasco", "Guidonia Montecelio",
+
+  "Iglesias", "Imola", "Ischia", "Isola d'Elba", "Ivrea",
+
+  "Jesi",
+
+  "Ladispoli", "Lamezia Terme", "Lanciano", "Lanusei", "Lavello", "Lentini", "Licata", "Lido di Ostia", "Limbiate", "Locri", "Lodi", "Luino",
+
+  "Maddaloni", "Maglie", "Manfredonia", "Marano di Napoli", "Marcianise", "Marghera", "Marino", "Marsala", "Martina Franca", "Martinsicuro", "Marzano Appio", "Massafra", "Mazara del Vallo", "Melfi", "Melito di Napoli", "Mestre", "Mila", "Milazzo", "Minturno", "Mirandola", "Misterbianco", "Modica", "Molfetta", "Monopoli", "Montecatini Terme", "Montesilvano", "Mottola", "Mugnano di Napoli",
+
+  "Nardò", "Nettuno", "Nichelino", "Nocera Inferiore", "Nocera Superiore", "Nola", "Noto", "Novara", "Nuoro",
+
+  "Olbia", "Orbetello", "Orta San Giulio", "Ostuni", "Otranto",
+
+  "Pachino", "Paestum", "Palazzolo Acreide", "Palestrina", "Palmi", "Paola", "Parghelia", "Partinico", "Patti", "Pavia", "Perugia", "Pescia", "Piazza Armerina", "Piombino", "Piossasco", "Pisa", "Pitigliano", "Pomezia", "Pompei", "Ponsacco", "Pontecagnano Faiano", "Pontedera", "Portici", "Porto Empedocle", "Porto Sant'Elpidio", "Portofino", "Portogruaro", "Potenza", "Pozzuoli", "Prato", "Procida", "Putignano",
+
+  "Quartu Sant'Elena", "Quarto", "Quattro Castella",
+
+  "Rapallo", "Ravello", "Reggio Calabria", "Reggio Emilia", "Ribera", "Riccione", "Rieti", "Rimini", "Rionero in Vulture", "Riva del Garda", "Rivoli", "Roma", "Roseto degli Abruzzi", "Rossano", "Rovereto", "Ruvo di Puglia",
+
+  "Salemi", "Salerno", "San Benedetto del Tronto", "San Cataldo", "San Donà di Piave", "San Giorgio a Cremano", "San Giovanni in Persiceto", "San Giuseppe Vesuviano", "San Lazzaro di Savena", "San Miniato", "San Remo", "San Salvo", "San Severo", "Santa Maria Capua Vetere", "Santa Teresa di Riva", "Santeramo in Colle", "Saronno", "Savona", "Scafati", "Scalea", "Scandicci", "Sciacca", "Schio", "Scicli", "Senigallia", "Seregno", "Sesto San Giovanni", "Sezze", "Siena", "Sinalunga", "Siniscola", "Siracusa", "Sirmione", "Sora", "Sorrento", "Soverato", "Spoltore", "Squinzano", "Stresa", "Sutri",
+
+  "Taormina", "Taranto", "Teramo", "Termoli", "Terni", "Tivoli", "Todi", "Torino", "Torre Annunziata", "Torre del Greco", "Tortona", "Tradate", "Trani", "Trapani", "Trento", "Treviso", "Trieste", "Tropea", "Tuscania",
+
+  "Udine", "Umbertide", "Urbino", "Ustica",
+
+  "Vasto", "Velletri", "Venafro", "Venezia", "Ventimiglia", "Verbania", "Vercelli", "Verona", "Viareggio", "Vicenza", "Vigevano", "Villafranca di Verona", "Villaricca", "Viterbo", "Vittoria", "Voghera", "Volterra",
+
+  "Winterthur",
+
+  "Zagarolo"
+]

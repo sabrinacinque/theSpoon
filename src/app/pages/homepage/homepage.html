@@ -28,7 +28,7 @@
   </div>
 </section>
 
-<!-- Search Section -->
+<!-- Search Section - CON AUTOCOMPLETE CITTÀ -->
 <section class="search-section py-4">
   <div class="container-xl">
     <div class="row justify-content-center">
@@ -38,18 +38,37 @@
           <div class="card-body p-4">
             <form class="search-form" (ngSubmit)="searchRestaurants()">
               <div class="row g-3">
-                <!-- Dove -->
+                <!-- Dove - CON AUTOCOMPLETE -->
                 <div class="col-md-6">
                   <label for="city" class="form-label fw-semibold search-label">📍 Dove?</label>
-                  <select id="city" class="form-select form-select-lg search-select"
-                          [(ngModel)]="searchFilters.city" name="city">
-                    <option value="">Tutte le città</option>
-                    <option value="Milano">Milano</option>
-                    <option value="Roma">Roma</option>
-                    <option value="Napoli">Napoli</option>
-                    <option value="Firenze">Firenze</option>
-                    <option value="Palermo">Palermo</option>
-                  </select>
+                  <div class="position-relative">
+                    <input
+                      type="text"
+                      id="city"
+                      class="form-control form-control-lg search-input"
+                      [(ngModel)]="searchFilters.city"
+                      name="city"
+                      placeholder="Scrivi la tua città..."
+                      autocomplete="off"
+                      (input)="onCityInput($event)"
+                      (focus)="onCityFocus()"
+                      (blur)="onCityBlur()"
+                    >
+
+                    <!-- Dropdown Autocomplete -->
+                    <div *ngIf="showCityDropdown && filteredCities.length > 0"
+                         class="search-dropdown position-absolute w-100 mt-1">
+                      <div
+                        *ngFor="let city of filteredCities; let i = index"
+                        class="search-dropdown-item"
+                        [class.active]="selectedCityIndex === i"
+                        (click)="selectCity(city)"
+                      >
+                        <span class="me-2">📍</span>
+                        {{ city }}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Che cucina -->
