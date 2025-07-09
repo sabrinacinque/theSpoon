@@ -227,13 +227,13 @@ export class AuthService {
     if (authData.role === 'BUSINESS') {
       console.log('🏢 Redirect a Business Dashboard per:', authData.email);
       this.router.navigate(['/business-dashboard']);
-    } else if (authData.role === 'CUSTOMER') {
+    } /*else if (authData.role === 'CUSTOMER') {
       console.log('👤 Redirect a Dashboard Customer per:', authData.email);
       this.router.navigate(['/dashboard-customer']);
     } else {
       console.log('🏠 Redirect a Homepage:', authData.role);
       this.router.navigate(['/']);
-    }
+    }*/
   }
 
   // 🔄 IMPOSTA DATI UTENTE

@@ -1,10 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RestaurantService } from '../../services/restaurant';
 import { PhotoService } from '../../services/photo.service';
 import { MenuItemService } from '../../services/menu-item.service';
 import { UploadService } from '../../services/upload-service';
+import { AuthModalComponent } from '../../components/auth/auth-modal/auth-modal';
 // ✅ NUOVI IMPORT PER REVIEW
 import { ReviewService, IReview } from '../../services/review.service';
 import { AuthService } from '../../services/auth';
@@ -17,6 +18,8 @@ import { ReviewModalComponent } from '../../modals/review-modal/review-modal';
 import { HostListener } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+// ✅ IMPORT SWEETALERT2
+import Swal from 'sweetalert2';
 
 interface MenuHighlight {
   name: string;
@@ -27,12 +30,11 @@ interface MenuHighlight {
 @Component({
   selector: 'app-restaurant-detail',
   standalone: true,
-  // ✅ AGGIUNGI REVIEW MODAL AI COMPONENTS
-  imports: [CommonModule, BookingModalComponent, ReviewModalComponent],
+  imports: [CommonModule, BookingModalComponent, ReviewModalComponent, AuthModalComponent],
   templateUrl: './restaurant-detail.html',
   styleUrls: ['./restaurant-detail.css']
 })
-export class RestaurantDetailComponent implements OnInit {
+export class RestaurantDetailComponent implements OnInit, OnDestroy {
 
   restaurant: IRestaurant | null = null;
   photos: IPhoto[] = [];
@@ -41,26 +43,28 @@ export class RestaurantDetailComponent implements OnInit {
   heroImageUrl: string = '';
   currentPhotoIndex: number = 0;
 
-  // ✅ NUOVE PROPRIETÀ PER REVIEW
+  // ✅ PROPRIETÀ PER REVIEW
   reviews: IReview[] = [];
-  userReview: IReview | null = null; // Review dell'utente corrente (se esiste)
+  userReview: IReview | null = null;
   reviewsLoading = false;
   reviewsError: string | null = null;
 
-  // Menu Modal
+  // ✅ MODAL STATES
   isMenuModalOpen = false;
+  isAuthModalOpen = false;
+  isReviewModalOpen = false;
+  isBookingModalOpen = false;
+  isPhotoModalOpen = false;
+
   menuByCategory: { category: string; items: IMenuItem[] }[] = [];
   menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
-
-  // ✅ REVIEW MODAL STATE
-  isReviewModalOpen = false;
-  editingReview: IReview | null = null; // Per modificare review esistente
+  editingReview: IReview | null = null;
 
   // Loading states
   loading = true;
   photosLoading = true;
   menuLoading = true;
-  isPhotoModalOpen = false;
+
   // Error states
   error: string | null = null;
   photosError: string | null = null;
@@ -68,10 +72,7 @@ export class RestaurantDetailComponent implements OnInit {
 
   restaurantId: number | null = null;
 
-  // Booking modal
-  isBookingModalOpen = false;
-
-  // Dati mock per demo (poi verranno dal backend)
+  // Dati mock per demo
   availableDates = [
     { label: 'Oggi', date: new Date(), discount: '-20%' },
     { label: 'Domani', date: new Date(Date.now() + 86400000), discount: '-20%' },
@@ -79,7 +80,7 @@ export class RestaurantDetailComponent implements OnInit {
     { label: 'Dom 07 Lug', date: new Date(Date.now() + 3 * 86400000), discount: '-20%' }
   ];
 
-  // Strengths placeholder (da implementare con recensioni future)
+  // Strengths placeholder
   strengthsFromReviews = [
     'Qualità degli ingredienti',
     'Servizio attento',
@@ -94,7 +95,6 @@ export class RestaurantDetailComponent implements OnInit {
     private photoService: PhotoService,
     private menuItemService: MenuItemService,
     private uploadService: UploadService,
-    // ✅ NUOVI SERVICE
     private reviewService: ReviewService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
@@ -107,6 +107,19 @@ export class RestaurantDetailComponent implements OnInit {
         this.loadRestaurantDetail();
       }
     });
+
+    // Verifica Bootstrap e inizializza tooltip
+    setTimeout(() => {
+      if (this.checkBootstrapAvailability()) {
+        this.initializeTooltips();
+      } else {
+        console.warn('⚠️ Bootstrap non disponibile - tooltip disabilitati');
+      }
+    }, 500);
+  }
+
+  ngOnDestroy() {
+    this.destroyTooltips();
   }
 
   loadRestaurantDetail() {
@@ -121,14 +134,16 @@ export class RestaurantDetailComponent implements OnInit {
         this.restaurant = data;
         this.loading = false;
 
-        // Carica dati aggiuntivi (foto, menu e REVIEW)
+        // Carica dati aggiuntivi
         this.loadPhotos();
         this.loadMenuItems();
-        // ✅ CARICA REVIEW
         this.loadReviews();
 
         console.log('🔧 DEBUG - loading:', this.loading, 'restaurant:', this.restaurant);
         this.cdr.detectChanges();
+
+        // Re-inizializza tooltip dopo il caricamento
+        this.initializeTooltips();
       },
       error: (err) => {
         console.error('❌ Errore caricamento dettaglio:', err);
@@ -139,7 +154,6 @@ export class RestaurantDetailComponent implements OnInit {
     });
   }
 
-  // ✅ NUOVO METODO - Carica review del ristorante
   private loadReviews() {
     if (!this.restaurantId) return;
 
@@ -150,10 +164,7 @@ export class RestaurantDetailComponent implements OnInit {
       next: (reviews) => {
         console.log('⭐ Review caricate:', reviews);
         this.reviews = reviews;
-
-        // Verifica se l'utente corrente ha già recensito
         this.checkUserReview();
-
         this.reviewsLoading = false;
         this.cdr.detectChanges();
       },
@@ -166,26 +177,23 @@ export class RestaurantDetailComponent implements OnInit {
     });
   }
 
-  // ✅ NUOVO METODO - Verifica review utente
   private checkUserReview() {
     const currentUser = this.authService.currentUser();
     if (currentUser && this.reviews.length > 0) {
       this.userReview = this.reviews.find(review =>
         review.customer.id === currentUser.userId
       ) || null;
-
       console.log('👤 Review utente corrente:', this.userReview ? 'Trovata' : 'Non trovata');
     }
   }
 
-  // ✅ NUOVO METODO - Apri modal review
+  // ✅ REVIEW MODAL METHODS
   openReviewModal() {
     const currentUser = this.authService.currentUser();
 
     if (!currentUser) {
-      // Mostra messaggio di login richiesto
       console.log('🔒 Login richiesto per scrivere review');
-      // TODO: Mostra modal login o redirect
+      this.openAuthModal();
       return;
     }
 
@@ -194,7 +202,6 @@ export class RestaurantDetailComponent implements OnInit {
       return;
     }
 
-    // Se ha già una review, apri in modalità modifica
     this.editingReview = this.userReview;
     this.isReviewModalOpen = true;
 
@@ -204,21 +211,16 @@ export class RestaurantDetailComponent implements OnInit {
     });
   }
 
-  // ✅ NUOVO METODO - Chiudi modal review
   closeReviewModal() {
     console.log('❌ Chiusura modal review');
     this.isReviewModalOpen = false;
     this.editingReview = null;
   }
 
-  // ✅ NUOVO METODO - Review sottomessa
   onReviewSubmitted(review: IReview) {
     console.log('✅ Review sottomessa:', review);
-
-    // Ricarica le review per aggiornare la lista
     this.loadReviews();
 
-    // Ricarica anche il ristorante per aggiornare rating e count
     if (this.restaurantId) {
       this.restaurantService.getRestaurantById(this.restaurantId).subscribe({
         next: (updatedRestaurant) => {
@@ -230,26 +232,179 @@ export class RestaurantDetailComponent implements OnInit {
     }
   }
 
-  // ✅ NUOVO GETTER - Verifica se può scrivere review
-  get canWriteReview(): boolean {
-    const currentUser = this.authService.currentUser();
-    return !!(currentUser && this.authService.isCustomer());
-  }
+  // ✅ BOOKING METHODS - CON DEBUG MIGLIORATO
+  bookTable() {
+    console.log('🔄 bookTable() chiamato');
+    console.log('📊 Stato canBook:', this.canBook);
+    console.log('📊 Stato isAuthModalOpen:', this.isAuthModalOpen);
 
-  // ✅ NUOVO GETTER - Testo bottone review
-  get reviewButtonText(): string {
-    if (!this.canWriteReview) {
-      return 'Accedi per Recensire';
+    if (!this.canBook) {
+      console.log('🚫 Utente non autorizzato - mostro modal login');
+      this.showLoginModal();
+      return;
     }
-    return this.userReview ? 'Modifica la tua Recensione' : 'Scrivi una Recensione';
+
+    console.log('✅ Utente autorizzato - apro modal prenotazione');
+    this.isBookingModalOpen = true;
   }
 
-  // ✅ NUOVO GETTER - Icona bottone review
-  get reviewButtonIcon(): string {
-    return this.userReview ? 'fas fa-edit' : 'fas fa-star';
+  openBookingModal(selectedDate?: any) {
+    if (!this.canBook) {
+      return; // Non fare nulla, il tooltip gestisce la UX
+    }
+
+    console.log('📅 Apri modal prenotazione:', selectedDate ?? 'tutte le date');
+    this.isBookingModalOpen = true;
   }
 
-  // Carica foto del ristorante
+  closeBookingModal() {
+    this.isBookingModalOpen = false;
+  }
+
+  onBookingConfirmed(bookingData: any) {
+    console.log('✅ Prenotazione confermata:', bookingData);
+    this.closeBookingModal();
+  }
+
+  onDateClick(date: any): void {
+    if (!this.canBook) {
+      console.log('🚫 Click ignorato - utente non autorizzato');
+      return;
+    }
+    this.openBookingModal(date);
+  }
+
+  // ✅ AUTH MODAL METHODS - VERSIONE SEMPLIFICATA
+  private showLoginModal(): void {
+    console.log('🔐 Apertura modal login direttamente...');
+    this.openAuthModal();
+  }
+
+  // ✅ VERSIONE CON SWEETALERT2 - Se preferisci mantenerla
+  private showLoginModalWithSwal(): void {
+    console.log('🔐 Apertura modal login con SweetAlert2...');
+
+    Swal.fire({
+      title: '🔐 Accesso Richiesto',
+      html: `
+        <div class="text-center">
+          <div class="mb-3">
+            <i class="fas fa-user-lock fa-3x text-primary mb-3"></i>
+          </div>
+          <p class="mb-2">Per prenotare un tavolo devi essere registrato come <strong>cliente</strong>.</p>
+          <p class="text-muted small">Effettua il login per accedere a tutte le funzionalità di prenotazione.</p>
+        </div>
+      `,
+      icon: undefined,
+      showCancelButton: true,
+      confirmButtonText: '🚀 Accedi ora',
+      cancelButtonText: '❌ Annulla',
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      buttonsStyling: false,
+      allowOutsideClick: true,
+      allowEscapeKey: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('🔄 Utente ha confermato - apro modal auth...');
+        this.openAuthModal();
+      } else {
+        console.log('❌ Login annullato dall\'utente');
+      }
+    });
+  }
+
+  openAuthModal() {
+    console.log('🔐 Apertura modal auth - isAuthModalOpen diventa true');
+    this.isAuthModalOpen = true;
+    console.log('✅ isAuthModalOpen settato a:', this.isAuthModalOpen);
+  }
+
+  closeAuthModal() {
+    console.log('🔒 Chiusura modal auth - isAuthModalOpen diventa false');
+    this.isAuthModalOpen = false;
+    console.log('✅ isAuthModalOpen settato a:', this.isAuthModalOpen);
+  }
+
+  onAuthSuccess() {
+    console.log('✅ Autenticazione completata - inizio processo...');
+
+    // Chiudi il modal auth
+    this.closeAuthModal();
+
+    // Aspetta un attimo prima di fare altre operazioni
+    setTimeout(() => {
+      console.log('🔄 Refresh tooltip e check canBook...');
+      console.log('📊 Stato canBook dopo login:', this.canBook);
+
+      // Refresh tooltip
+      this.refreshTooltips();
+
+      // Opzionale: Apri direttamente il modal di prenotazione
+      if (this.canBook) {
+        console.log('🎉 Utente ora può prenotare - apro modal prenotazione');
+        this.isBookingModalOpen = true;
+      } else {
+        console.log('⚠️ Utente ancora non può prenotare dopo login');
+      }
+    }, 300);
+  }
+
+  // ✅ TOOLTIP METHODS
+  private initializeTooltips(): void {
+    if (!this.canBook) {
+      setTimeout(() => {
+        this.destroyTooltips();
+        const tooltipTriggerList = Array.from(
+          document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        );
+
+        tooltipTriggerList.forEach(tooltipTriggerEl => {
+          try {
+            new (window as any).bootstrap.Tooltip(tooltipTriggerEl, {
+              trigger: 'hover focus',
+              delay: { show: 200, hide: 100 },
+              animation: true,
+              html: false,
+              placement: 'top',
+              customClass: 'custom-booking-tooltip'
+            });
+            console.log('✅ Tooltip inizializzato per:', tooltipTriggerEl);
+          } catch (error) {
+            console.warn('⚠️ Errore inizializzazione tooltip:', error);
+          }
+        });
+      }, 150);
+    }
+  }
+
+  private destroyTooltips(): void {
+    try {
+      const tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipElements.forEach(element => {
+        const tooltip = (window as any).bootstrap?.Tooltip?.getInstance(element);
+        if (tooltip) {
+          tooltip.dispose();
+        }
+      });
+    } catch (error) {
+      console.warn('⚠️ Errore durante cleanup tooltip:', error);
+    }
+  }
+
+  private checkBootstrapAvailability(): boolean {
+    return typeof (window as any).bootstrap !== 'undefined' &&
+           typeof (window as any).bootstrap.Tooltip !== 'undefined';
+  }
+
+  refreshTooltips(): void {
+    this.destroyTooltips();
+    setTimeout(() => {
+      this.initializeTooltips();
+    }, 100);
+  }
+
+  // ✅ PHOTO METHODS
   private loadPhotos() {
     if (!this.restaurantId) return;
 
@@ -261,7 +416,6 @@ export class RestaurantDetailComponent implements OnInit {
         console.log('📸 Foto caricate:', photos);
         this.photos = photos;
 
-        // Imposta foto hero (prima foto o placeholder)
         if (photos.length > 0) {
           this.heroImageUrl = this.uploadService.getImageUrl(photos[0].fileName);
         }
@@ -278,7 +432,6 @@ export class RestaurantDetailComponent implements OnInit {
     });
   }
 
-  // Gestione gallery foto
   nextPhoto() {
     if (this.photos.length > 0) {
       this.currentPhotoIndex = (this.currentPhotoIndex + 1) % this.photos.length;
@@ -293,44 +446,123 @@ export class RestaurantDetailComponent implements OnInit {
     }
   }
 
-  // Getters per il template
-  get hasPhotos(): boolean {
-    return this.photos.length > 0;
+  openPhotoModal() {
+    console.log('📸 Apri modal foto');
+    this.isPhotoModalOpen = true;
+    document.body.classList.add('modal-open');
   }
 
-  get photoCount(): number {
-    return this.photos.length;
+  closePhotoModal() {
+    console.log('❌ Chiudi modal foto');
+    this.isPhotoModalOpen = false;
+    document.body.classList.remove('modal-open');
   }
 
-  get hasMenuItems(): boolean {
-    return this.menuHighlights.length > 0;
+  nextPhotoModal() {
+    this.nextPhoto();
   }
 
-  get currentPhotoUrl(): string {
-    return this.heroImageUrl || '';
+  previousPhotoModal() {
+    this.previousPhoto();
   }
 
-  // Metodi esistenti
+  onPhotoLoaded() {
+    console.log('✅ Foto caricata nel modal');
+  }
+
+  onPhotoError() {
+    console.error('❌ Errore caricamento foto nel modal');
+  }
+
+  // ✅ MENU METHODS
+  private loadMenuItems() {
+    if (!this.restaurantId) return;
+
+    this.menuLoading = true;
+    this.menuError = null;
+
+    this.menuItemService.getMenuItemsByRestaurant(this.restaurantId).subscribe({
+      next: (menuItems) => {
+        console.log('🍽️ Menu items caricati:', menuItems);
+        this.menuItems = menuItems;
+        this.organizeMenuByCategory();
+        this.createMenuHighlights();
+        this.menuLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Errore caricamento menu:', err);
+        this.menuError = 'Errore nel caricamento del menu.';
+        this.menuLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private organizeMenuByCategory() {
+    const categoriesMap = new Map<string, IMenuItem[]>();
+
+    this.menuItems.forEach(item => {
+      const category = item.category || 'Altri piatti';
+      if (!categoriesMap.has(category)) {
+        categoriesMap.set(category, []);
+      }
+      categoriesMap.get(category)!.push(item);
+    });
+
+    this.menuByCategory = Array.from(categoriesMap.entries())
+      .map(([category, items]) => ({
+        category,
+        items: items.sort((a, b) => a.name.localeCompare(b.name))
+      }))
+      .sort((a, b) => a.category.localeCompare(b.category));
+  }
+
+  private createMenuHighlights() {
+    this.menuHighlightsByCategory = this.menuByCategory.map(categoryGroup => ({
+      category: categoryGroup.category,
+      items: categoryGroup.items.slice(0, 2)
+    })).filter(group => group.items.length > 0);
+  }
+
+  openMenuModal() {
+    console.log('📋 Apri modal menu');
+    this.isMenuModalOpen = true;
+    document.body.classList.add('menu-modal-open');
+  }
+
+  closeMenuModal() {
+    console.log('❌ Chiudi modal menu');
+    this.isMenuModalOpen = false;
+    document.body.classList.remove('menu-modal-open');
+  }
+
+  viewFullMenu() {
+    console.log('📋 Visualizza menù completo');
+    this.openMenuModal();
+  }
+
+  // ✅ UTILITY METHODS
   goBack() {
     this.router.navigate(['/']);
   }
 
   toggleFavorite() {
     console.log('💖 Toggle preferito per ristorante:', this.restaurantId);
-    // TODO: Implementare logica preferiti
   }
 
   shareRestaurant() {
     console.log('📤 Condividi ristorante:', this.restaurantId);
-    // TODO: Implementare condivisione
   }
 
-  // ✅ AGGIORNATO - Visualizza tutte le review
   viewAllReviews() {
     console.log('⭐ Visualizza tutte le recensioni');
-    // TODO: Implementare modal o pagina lista review complete
-    // Per ora logga le review caricate
     console.log('📋 Review caricate:', this.reviews);
+  }
+
+  selectDate(date: any) {
+    console.log('📅 Data selezionata:', date);
+    this.openBookingModal(date);
   }
 
   getStars(rating: number): string {
@@ -353,155 +585,10 @@ export class RestaurantDetailComponent implements OnInit {
       const avgPrice = prices.reduce((a, b) => a + b, 0) * 3 / prices.length;
       return `${Math.round(avgPrice)} €`;
     }
-    return '25 €'; // fallback
+    return '25 €';
   }
 
-  // Booking modal methods
-  bookTable() {
-  if (!this.canBook) {
-    this.promptLoginForBooking();
-    return;
-  }
-  this.isBookingModalOpen = true;
-}
-
-  openBookingModal(selectedDate?: any) {
-  if (!this.canBook) {
-    this.promptLoginForBooking();
-    return;
-  }
-
-  console.log('📅 Apri modal prenotazione:', selectedDate ?? 'tutte le date');
-  this.isBookingModalOpen = true;
-}
-
-  closeBookingModal() {
-    this.isBookingModalOpen = false;
-  }
-
-  onBookingConfirmed(bookingData: any) {
-    console.log('✅ Prenotazione confermata:', bookingData);
-    this.closeBookingModal();
-  }
-
-  selectDate(date: any) {
-    console.log('📅 Data selezionata:', date);
-    this.openBookingModal(date);
-  }
-
-  // Apre il modal foto
-  openPhotoModal() {
-    console.log('📸 Apri modal foto');
-    this.isPhotoModalOpen = true;
-    document.body.classList.add('modal-open');
-  }
-
-  // Chiude il modal foto
-  closePhotoModal() {
-    console.log('❌ Chiudi modal foto');
-    this.isPhotoModalOpen = false;
-    document.body.classList.remove('modal-open');
-  }
-
-  // Foto successiva nel modal
-  nextPhotoModal() {
-    this.nextPhoto();
-  }
-
-  // Foto precedente nel modal
-  previousPhotoModal() {
-    this.previousPhoto();
-  }
-
-  // Gestisce il caricamento della foto
-  onPhotoLoaded() {
-    console.log('✅ Foto caricata nel modal');
-  }
-
-  // Gestisce errori foto
-  onPhotoError() {
-    console.error('❌ Errore caricamento foto nel modal');
-  }
-
-  // Aggiorna il metodo loadMenuItems()
-  private loadMenuItems() {
-    if (!this.restaurantId) return;
-
-    this.menuLoading = true;
-    this.menuError = null;
-
-    this.menuItemService.getMenuItemsByRestaurant(this.restaurantId).subscribe({
-      next: (menuItems) => {
-        console.log('🍽️ Menu items caricati:', menuItems);
-        this.menuItems = menuItems;
-
-        // Organizza per categoria
-        this.organizeMenuByCategory();
-
-        // Crea highlights (2 per categoria)
-        this.createMenuHighlights();
-
-        this.menuLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ Errore caricamento menu:', err);
-        this.menuError = 'Errore nel caricamento del menu.';
-        this.menuLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  // Organizza menu per categoria
-  private organizeMenuByCategory() {
-    const categoriesMap = new Map<string, IMenuItem[]>();
-
-    this.menuItems.forEach(item => {
-      const category = item.category || 'Altri piatti';
-      if (!categoriesMap.has(category)) {
-        categoriesMap.set(category, []);
-      }
-      categoriesMap.get(category)!.push(item);
-    });
-
-    // Converti in array e ordina
-    this.menuByCategory = Array.from(categoriesMap.entries())
-      .map(([category, items]) => ({
-        category,
-        items: items.sort((a, b) => a.name.localeCompare(b.name))
-      }))
-      .sort((a, b) => a.category.localeCompare(b.category));
-  }
-
-  // Crea highlights (2 per categoria)
-  private createMenuHighlights() {
-    this.menuHighlightsByCategory = this.menuByCategory.map(categoryGroup => ({
-      category: categoryGroup.category,
-      items: categoryGroup.items.slice(0, 2) // Prendi solo i primi 2
-    })).filter(group => group.items.length > 0);
-  }
-
-  // Metodi per Menu Modal
-  openMenuModal() {
-    console.log('📋 Apri modal menu');
-    this.isMenuModalOpen = true;
-    document.body.classList.add('menu-modal-open');
-  }
-
-  closeMenuModal() {
-    console.log('❌ Chiudi modal menu');
-    this.isMenuModalOpen = false;
-    document.body.classList.remove('menu-modal-open');
-  }
-
-  // Aggiorna il metodo viewFullMenu()
-  viewFullMenu() {
-    console.log('📋 Visualizza menù completo');
-    this.openMenuModal();
-  }
-
-  // ✅ AGGIORNATO - Listener keyboard con review modal
+  // ✅ KEYBOARD LISTENER
   @HostListener('document:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if (this.isPhotoModalOpen) {
@@ -530,7 +617,6 @@ export class RestaurantDetailComponent implements OnInit {
       }
     }
 
-    // ✅ NUOVO - Gestione ESC per review modal
     if (this.isReviewModalOpen) {
       switch (event.key) {
         case 'Escape':
@@ -538,24 +624,81 @@ export class RestaurantDetailComponent implements OnInit {
           break;
       }
     }
+
+    if (this.isAuthModalOpen) {
+      switch (event.key) {
+        case 'Escape':
+          this.closeAuthModal();
+          break;
+      }
+    }
   }
 
-  // Getter per verificare se ci sono highlights
+  // ✅ GETTERS
+  get hasPhotos(): boolean {
+    return this.photos.length > 0;
+  }
+
+  get photoCount(): number {
+    return this.photos.length;
+  }
+
+  get hasMenuItems(): boolean {
+    return this.menuHighlights.length > 0;
+  }
+
+  get currentPhotoUrl(): string {
+    return this.heroImageUrl || '';
+  }
+
   get hasMenuHighlights(): boolean {
     return this.menuHighlightsByCategory.length > 0;
   }
 
+  // ✅ GETTER canBook CON DEBUG
+  get canBook(): boolean {
+    const user = this.authService.currentUser();
+    const isCustomer = user ? this.authService.isCustomer() : false;
+    const result = !!user && isCustomer;
 
-  /** ritorna true se l’utente è loggato e può prenotare */
-get canBook(): boolean {
-  const user = this.authService.currentUser();
-  return !!user && this.authService.isCustomer();
-}
+    console.log('🔍 canBook check:', {
+      hasUser: !!user,
+      isCustomer: isCustomer,
+      result: result
+    });
 
-/** chiamato quando l’utente prova a prenotare ma non è autenticato */
-private promptLoginForBooking(): void {
-  // qui puoi aprire un modal di login, oppure fare un redirect a /login
-  alert('Devi effettuare il login come customer per prenotare.');
-  this.router.navigate(['/login']);
-}
+    return result;
+  }
+
+  get canWriteReview(): boolean {
+    const currentUser = this.authService.currentUser();
+    return !!(currentUser && this.authService.isCustomer());
+  }
+
+  get reviewButtonText(): string {
+    if (!this.canWriteReview) {
+      return 'Accedi per Recensire';
+    }
+    return this.userReview ? 'Modifica la tua Recensione' : 'Scrivi una Recensione';
+  }
+
+  get reviewButtonIcon(): string {
+    return this.userReview ? 'fas fa-edit' : 'fas fa-star';
+  }
+
+  get shouldShowTooltip(): boolean {
+    return !this.canBook;
+  }
+
+  get tooltipMessage(): string {
+    return 'Devi essere loggato per effettuare una prenotazione';
+  }
+
+  get shouldShowFixedBottom(): boolean {
+    return !this.isBookingModalOpen &&
+           !this.isPhotoModalOpen &&
+           !this.isMenuModalOpen &&
+           !this.isReviewModalOpen &&
+           !this.isAuthModalOpen;
+  }
 }

@@ -1164,3 +1164,368 @@
 .menu-modal-open {
   overflow: hidden;
 }
+
+/* =================================================================
+   TOOLTIP E OVERLAY PER DATE BOOKING - NUOVI STILI
+================================================================= */
+
+/* Container per date con tooltip */
+.date-button-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.date-button-container.date-disabled {
+  cursor: not-allowed;
+}
+
+/* Overlay per date disabilitate */
+.date-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0.375rem;
+  z-index: 5;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.date-button-container:hover .date-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.date-overlay .fas.fa-ban {
+  color: #dc3545 !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  animation: pulse-ban 2s infinite;
+}
+
+@keyframes pulse-ban {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* Bottoni date disabilitati */
+.date-btn.disabled-date {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(50%);
+}
+
+.date-button-container.date-disabled .date-btn {
+  cursor: not-allowed;
+}
+
+/* Container per link "Altre date" */
+.link-disabled {
+  cursor: not-allowed;
+  position: relative;
+}
+
+/* Overlay per link disabilitato */
+.link-overlay {
+  position: absolute;
+  top: 50%;
+  left: -10px;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 50%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.link-overlay .fas.fa-ban {
+  color: #dc3545 !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Link disabilitato */
+.disabled-link {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(50%);
+}
+
+/* =================================================================
+   TOOLTIP BOOTSTRAP PERSONALIZZATI
+================================================================= */
+
+/* Tooltip custom styling */
+.tooltip {
+  --bs-tooltip-bg: var(--bg-color);
+  --bs-tooltip-color: var(--text-color);
+  --bs-tooltip-border-color: var(--primary-color);
+}
+
+.tooltip .tooltip-inner {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border: 2px solid var(--primary-color) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  max-width: 250px !important;
+}
+
+.tooltip .tooltip-arrow::before {
+  border-top-color: var(--primary-color) !important;
+  border-bottom-color: var(--primary-color) !important;
+}
+
+/* Animazione tooltip */
+.tooltip {
+  animation: tooltipFadeIn 0.3s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =================================================================
+   HOVER EFFECTS PER DATE ABILITATE
+================================================================= */
+
+.date-button-container:not(.date-disabled) .date-btn {
+  transition: all 0.3s ease;
+}
+
+.date-button-container:not(.date-disabled) .date-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.date-button-container:not(.date-disabled) .date-btn:active {
+  transform: translateY(0);
+}
+
+/* =================================================================
+   RESPONSIVE PER TOOLTIP E OVERLAY
+================================================================= */
+
+@media (max-width: 768px) {
+  .date-overlay .fas.fa-ban {
+    font-size: 1.5rem !important;
+  }
+
+  .link-overlay {
+    width: 20px;
+    height: 20px;
+    left: -8px;
+  }
+
+  .link-overlay .fas.fa-ban {
+    font-size: 0.8rem !important;
+  }
+
+  .tooltip .tooltip-inner {
+    font-size: 0.8rem !important;
+    padding: 0.5rem 0.75rem !important;
+    max-width: 200px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .date-overlay .fas.fa-ban {
+    font-size: 1.2rem !important;
+  }
+
+  .link-overlay {
+    width: 18px;
+    height: 18px;
+    left: -6px;
+  }
+
+  .tooltip .tooltip-inner {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.6rem !important;
+    max-width: 180px !important;
+  }
+}
+
+/* =================================================================
+   MIGLIORAMENTI PER ACCESSIBILITÀ
+================================================================= */
+
+/* Focus states per elementi disabilitati */
+.date-button-container.date-disabled:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+.link-disabled:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =================================================================
+   STATI DI CARICAMENTO E TRANSIZIONI
+================================================================= */
+
+.date-button-container {
+  transition: all 0.3s ease;
+}
+
+.date-button-container.date-disabled {
+  animation: disabledState 0.5s ease-in-out;
+}
+
+@keyframes disabledState {
+  from {
+    opacity: 1;
+    filter: grayscale(0%);
+  }
+  to {
+    opacity: 0.6;
+    filter: grayscale(50%);
+  }
+}
+
+/* Preloader per overlay */
+.date-overlay.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+/* =================================================================
+   STILI CUSTOM PER SWEETALERT2 MODAL - Da aggiungere al CSS globale
+================================================================= */
+
+/* SweetAlert2 Booking Modal Custom Styles */
+.swal-booking-modal {
+  border-radius: 1rem !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.swal-booking-title {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 1rem !important;
+}
+
+.swal-booking-content {
+  padding: 0 1rem !important;
+}
+
+.swal-booking-content .text-primary {
+  color: var(--primary-color) !important;
+}
+
+.swal-booking-confirm {
+  background-color: var(--primary-color) !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal-booking-confirm:hover {
+  background-color: var(--primary-dark) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+}
+
+.swal-booking-cancel {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal-booking-cancel:hover {
+  background-color: var(--bg-color) !important;
+  border-color: var(--text-color) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Dark theme support */
+.swal2-popup {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.swal2-title {
+  color: var(--text-color) !important;
+}
+
+.swal2-html-container {
+  color: var(--text-color) !important;
+}
+
+/* Responsive per modal */
+@media (max-width: 768px) {
+  .swal-booking-modal {
+    margin: 1rem !important;
+    max-width: calc(100vw - 2rem) !important;
+  }
+
+  .swal-booking-title {
+    font-size: 1.3rem !important;
+  }
+
+  .swal-booking-confirm,
+  .swal-booking-cancel {
+    padding: 0.6rem 1.2rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Animazioni custom */
+.animate__fadeInUp {
+  animation-duration: 0.4s !important;
+}
+
+.animate__fadeOutDown {
+  animation-duration: 0.3s !important;
+}
