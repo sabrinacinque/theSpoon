@@ -1,1 +1,110 @@
-<p>delete-account-section works!</p>
+<!-- Delete Account Section -->
+<div class="container-xl py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+
+
+
+      <!-- Info Card -->
+      <div class="card shadow-lg border-0 rounded-4 delete-card mb-4">
+        <div class="card-body p-4 p-md-5">
+
+          <!-- Warning -->
+          <div class="alert alert-warning rounded-3 mb-4 warning-alert" role="alert">
+            <div class="d-flex align-items-center">
+              <span class="me-3 fs-4">⚠️</span>
+              <div>
+                <strong>Attenzione!</strong><br>
+                La cancellazione dell'account è irreversibile.
+              </div>
+            </div>
+          </div>
+
+          <!-- Steps -->
+          <h4 class="fw-bold mb-4 step-title">
+            📋 Procedura di Cancellazione
+          </h4>
+
+          <div class="steps-container">
+            <!-- Step 1 -->
+            <div class="step-item mb-4">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h5 class="fw-semibold mb-2 step-heading">Scarica il Modulo</h5>
+                <p class="step-description mb-3">
+                  Scarica e compila il modulo di richiesta cancellazione account.
+                </p>
+                <button
+                  class="btn btn-lg download-btn"
+                  (click)="downloadForm()"
+                >
+                  <span class="me-2">📥</span>
+                  Scarica Modulo PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-item mb-4">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h5 class="fw-semibold mb-2 step-heading">Compila il Modulo</h5>
+                <p class="step-description">
+                  Compila tutti i campi richiesti nel modulo PDF scaricato.
+                </p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h5 class="fw-semibold mb-2 step-heading">Invia via Email</h5>
+                <p class="step-description mb-3">
+                  Invia il modulo compilato al nostro servizio clienti.
+                </p>
+                <div class="email-container">
+                  <div class="email-box p-3 rounded-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <div>
+                        <small class="email-label">📧 Email di destinazione:</small>
+                        <div class="email-address fw-bold">
+                          servizioclienti&#64;thespoon.com
+                        </div>
+                      </div>
+                      <button
+                        class="btn btn-sm copy-btn"
+                        (click)="copyEmail()"
+                        [title]="copyButtonText"
+                      >
+                        <span class="copy-icon">📋</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Important Note -->
+          <div class="important-note mt-5 p-4 rounded-3">
+            <h6 class="fw-bold mb-2">
+              <span class="me-2">ℹ️</span>
+              Informazioni Importanti
+            </h6>
+            <ul class="mb-0 note-list">
+              <li>La cancellazione verrà elaborata entro 5-7 giorni lavorativi</li>
+              <li>Tutti i dati del ristorante verranno eliminati definitivamente</li>
+              <li>Le prenotazioni attive verranno automaticamente cancellate</li>
+              <li>Riceverai una conferma via email una volta completata la procedura</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+</div>

@@ -47,11 +47,11 @@ export class HomepageComponent implements OnInit {
 
   // Categories
   categories = [
-    { name: 'Napoletana', icon: '🍕' },
-    { name: 'Lombarda', icon: '🧀' },
-    { name: 'Romana', icon: '🍝' },
-    { name: 'Toscana', icon: '🥩' },
-    { name: 'Siciliana', icon: '🍋' }
+    { name: 'Pizza', icon: '🍕' },
+    { name: 'Cinese', icon: '🥢' },
+    { name: 'Italiana', icon: '🍝' },
+    { name: 'Pub&Steakhouse', icon: '🥩' },
+    { name: 'Vegetariana', icon: '🥗' }
   ];
 
   // Quick Filters

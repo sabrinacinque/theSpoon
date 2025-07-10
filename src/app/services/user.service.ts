@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../enviroments/enviroment.development';
+import { environment } from '../../environments/environment';
 import { IUser } from '../models/iuser';
 
 @Injectable({
@@ -46,25 +46,25 @@ export class UserService {
 
   // ✏️ PUT - Aggiorna profilo utente
   updateProfile(userId: number, firstName: string, lastName: string): Observable<IUser> {
-    const updateData = { 
+    const updateData = {
       firstName: firstName.trim(),
       lastName: lastName.trim()
     };
-    
+
     console.log('🔄 UserService: Aggiornamento profilo per ID', userId, ':', updateData);
-    
+
     return this.http.put<IUser>(`${this.API_URL}/${userId}/profile`, updateData);
   }
 
   // 🔑 PUT - Cambia password
   changePassword(userId: number, currentPassword: string, newPassword: string): Observable<any> {
-    const passwordData = { 
+    const passwordData = {
       currentPassword,
       newPassword
     };
-    
+
     console.log('🔑 UserService: Cambio password per ID', userId);
-    
+
     return this.http.put(`${this.API_URL}/${userId}/password`, passwordData);
   }
 
@@ -76,9 +76,9 @@ export class UserService {
       }),
       body: { password }
     };
-    
+
     console.log('🗑️ UserService: Eliminazione account per ID', userId);
-    
+
     return this.http.delete(`${this.API_URL}/${userId}`, options);
   }
 
@@ -90,7 +90,7 @@ export class UserService {
     lastName: string;
   }): Observable<IUser> {
     console.log('📝 UserService: Registrazione business:', userData.email);
-    
+
     return this.http.post<IUser>(`${this.API_URL}/register/business`, userData);
   }
 
@@ -105,19 +105,19 @@ export class UserService {
   // 📝 Valida password
   validatePassword(password: string): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
-    
+
     if (password.length < 6) {
       errors.push('La password deve essere di almeno 6 caratteri');
     }
-    
+
     if (!/[A-Za-z]/.test(password)) {
       errors.push('La password deve contenere almeno una lettera');
     }
-    
+
     if (!/[0-9]/.test(password)) {
       errors.push('La password deve contenere almeno un numero');
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors
@@ -216,7 +216,7 @@ export class UserService {
       'BUSINESS': ['firstName', 'lastName'],
       'ADMIN': ['firstName', 'lastName', 'email', 'role']
     };
-    
+
     return editableFields[userRole]?.includes(fieldName) || false;
   }
 

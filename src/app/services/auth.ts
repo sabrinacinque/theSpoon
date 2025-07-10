@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, catchError, of, map } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../enviroments/enviroment.development';
+import { environment } from '../../environments/environment';
 
 // Import delle interfacce
 import { ILoginRequest } from '../models/ilogin-request';

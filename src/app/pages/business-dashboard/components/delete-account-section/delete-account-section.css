@@ -1,0 +1,292 @@
+.container-xl {
+    background: transparent;
+    color: var(--text-color);
+}
+
+/* =================================================================
+   HEADER SECTION
+================================================================= */
+.delete-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.2));
+    border-radius: 50%;
+    border: 3px solid rgba(220, 53, 69, 0.3);
+}
+
+.delete-subtitle {
+    color: var(--text-light) !important;
+}
+
+/* =================================================================
+   CARD STYLES
+================================================================= */
+.delete-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-hover) !important;
+}
+
+/* =================================================================
+   WARNING ALERT
+================================================================= */
+.warning-alert {
+    background: var(--warning-bg) !important;
+    border: 1px solid var(--warning-border) !important;
+    color: var(--warning-text) !important;
+}
+
+.warning-alert strong {
+    color: var(--warning-text) !important;
+}
+
+/* =================================================================
+   STEPS SECTION
+================================================================= */
+.step-title {
+    color: var(--text-color) !important;
+}
+
+.steps-container {
+    position: relative;
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+}
+
+.step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 60px;
+    bottom: -20px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary-color), transparent);
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow);
+    z-index: 2;
+    position: relative;
+}
+
+.step-content {
+    flex: 1;
+    padding-top: 0.5rem;
+}
+
+.step-heading {
+    color: var(--text-color) !important;
+}
+
+.step-description {
+    color: var(--text-light) !important;
+    line-height: 1.6;
+}
+
+/* =================================================================
+   BUTTONS
+================================================================= */
+.download-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-radius: 0.5rem !important;
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.download-btn:active {
+    transform: translateY(0);
+}
+
+.back-btn {
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+}
+
+/* =================================================================
+   EMAIL SECTION
+================================================================= */
+.email-container {
+    margin-top: 1rem;
+}
+
+.email-box {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.email-label {
+    color: var(--text-muted) !important;
+    font-size: 0.85rem;
+}
+
+.email-address {
+    color: var(--primary-color) !important;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+}
+
+.copy-btn {
+    background: var(--primary-color) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0.75rem;
+}
+
+.copy-btn:hover {
+    background: var(--primary-dark) !important;
+    transform: scale(1.05);
+}
+
+.copy-btn.copied {
+    background: var(--success-color) !important;
+    transform: scale(1.1);
+}
+
+.copy-icon {
+    font-size: 1rem;
+}
+
+/* =================================================================
+   IMPORTANT NOTE
+================================================================= */
+.important-note {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.important-note h6 {
+    color: var(--text-color) !important;
+}
+
+.note-list {
+    color: var(--text-light) !important;
+    padding-left: 1.2rem;
+}
+
+.note-list li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.note-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* =================================================================
+   ANIMATIONS
+================================================================= */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.delete-card {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.copy-btn.copied {
+    animation: pulse 0.6s ease-in-out;
+}
+
+/* =================================================================
+   RESPONSIVE
+================================================================= */
+@media (max-width: 768px) {
+    .delete-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .display-6 {
+        font-size: 1.75rem !important;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        margin-right: 1rem;
+    }
+
+    .step-item:not(:last-child)::after {
+        left: 20px;
+        top: 50px;
+    }
+
+    .download-btn,
+    .back-btn {
+        font-size: 0.9rem;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .email-address {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .email-box .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .copy-btn {
+        align-self: flex-start;
+    }
+
+    .step-content {
+        padding-top: 0.25rem;
+    }
+}
