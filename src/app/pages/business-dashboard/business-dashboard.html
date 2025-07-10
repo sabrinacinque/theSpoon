@@ -1,24 +1,16 @@
 <!-- Business Dashboard -->
 <div class="dashboard-container">
-
   <!-- Header Dashboard -->
   <div class="dashboard-header">
     <div class="container-xl">
       <div class="row align-items-center py-3">
-
         <!-- Welcome Message -->
         <div class="col-md-8">
           <div class="welcome-section">
-            <h1 class="welcome-title mb-1">
-              Ciao, {{ userFullName }}! 👋
-            </h1>
-            <p class="welcome-subtitle mb-0">
-              Gestisci il tuo business da qui
-            </p>
+            <h1 class="welcome-title mb-1">Ciao, {{ userFullName }}! 👋</h1>
+            <p class="welcome-subtitle mb-0">Gestisci il tuo business da qui</p>
           </div>
         </div>
-
-
       </div>
     </div>
   </div>
@@ -29,15 +21,14 @@
       <div class="row">
         <div class="col-12">
           <div class="tab-list">
-
             <!-- Tab Item -->
             <div
               *ngFor="let tab of tabs"
               class="tab-item"
               [class.active]="isTabActive(tab.id)"
               (click)="setActiveTab(tab.id)"
-              [title]="tab.description">
-
+              [title]="tab.description"
+            >
               <div class="tab-content">
                 <span class="tab-icon">{{ tab.icon }}</span>
                 <span class="tab-label">{{ tab.label }}</span>
@@ -46,11 +37,18 @@
               <!-- Active Indicator -->
               <div class="tab-indicator" *ngIf="isTabActive(tab.id)"></div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="text-center d-md-none">
+    <p>
+      <span class="arrow-left">←</span>
+      Scorri
+      <span class="arrow-right">→</span>
+    </p>
   </div>
 
   <!-- Content Area -->
@@ -58,7 +56,6 @@
     <div class="container-xl">
       <div class="row">
         <div class="col-12'">
-
           <!-- Dashboard Overview -->
           <div class="content-section" *ngIf="activeTab === 'dashboard'">
             <div class="section-header mb-4">
@@ -72,7 +69,9 @@
           <div class="content-section" *ngIf="activeTab === 'profilo'">
             <div class="section-header mb-4">
               <h2 class="section-title">👤 Gestione Profilo</h2>
-              <p class="section-description">Aggiorna i dati del tuo business e ristorante</p>
+              <p class="section-description">
+                Aggiorna i dati del tuo business e ristorante
+              </p>
             </div>
 
             <!-- Profilo Business -->
@@ -91,7 +90,9 @@
           <div class="content-section" *ngIf="activeTab === 'abbonamento'">
             <div class="section-header mb-4">
               <h2 class="section-title">💎 Gestione Abbonamento</h2>
-              <p class="section-description">Piano attuale e opzioni di upgrade</p>
+              <p class="section-description">
+                Piano attuale e opzioni di upgrade
+              </p>
             </div>
             <app-subscription-section></app-subscription-section>
           </div>
@@ -109,12 +110,14 @@
           <div class="content-section" *ngIf="activeTab === 'elimina'">
             <div class="section-header mb-4">
               <h2 class="section-title text-danger">⚠️ Elimina Account</h2>
-              <p class="section-description">Cancellazione definitiva dell'account</p>
+              <p class="section-description">
+                Cancellazione definitiva dell'account
+              </p>
             </div>
             <app-delete-account-section></app-delete-account-section>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
 </div>

@@ -66,7 +66,7 @@
 
 .tab-list {
   display: flex;
-  overflow-x: auto;
+  overflow-x:auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }

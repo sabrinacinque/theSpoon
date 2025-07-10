@@ -23,15 +23,22 @@
 <div *ngIf="restaurant && !loading" class="restaurant-detail">
   <!-- Hero Section -->
   <section class="hero-section position-relative">
-    <div class="hero-image d-flex align-items-center justify-content-center text-white position-relative">
+    <div
+      class="hero-image d-flex align-items-center justify-content-center text-white position-relative"
+    >
       <!-- Foto reale o placeholder -->
-      <div *ngIf="hasPhotos" class="hero-photo-container w-100 h-100 position-relative">
+      <div
+        *ngIf="hasPhotos"
+        class="hero-photo-container w-100 h-100 position-relative"
+      >
         <img
           [src]="currentPhotoUrl"
           [alt]="restaurant.name"
           class="hero-photo w-100 h-100 object-fit-cover"
           (click)="openPhotoModal()"
-          style="cursor: pointer"
+          (touchstart)="onTouchStart($event)"
+          (touchend)="onTouchEnd($event)"
+          style="cursor: pointer; touch-action: pan-y"
         />
 
         <!-- Controlli gallery -->
@@ -52,7 +59,9 @@
         </button>
 
         <!-- Indicatore foto -->
-        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
+        <div
+          class="position-absolute bottom-0 start-50 translate-middle-x mb-3"
+        >
           <small class="badge bg-opacity-75 px-3 py-2">
             {{ currentPhotoIndex + 1 }} / {{ photoCount }} foto
           </small>
@@ -62,7 +71,9 @@
       <!-- Placeholder quando non ci sono foto -->
       <div *ngIf="!hasPhotos" class="text-center">
         <div class="fs-1 mb-2">📸</div>
-        <small class="badge bg-dark bg-opacity-75 px-3 py-2">Nessuna foto disponibile</small>
+        <small class="badge bg-dark bg-opacity-75 px-3 py-2"
+          >Nessuna foto disponibile</small
+        >
       </div>
     </div>
 
@@ -73,10 +84,16 @@
           <i class="fas fa-arrow-left"></i>
         </button>
         <div class="d-flex gap-2">
-          <button class="btn btn-dark btn-lg rounded-circle" (click)="toggleFavorite()">
+          <button
+            class="btn btn-dark btn-lg rounded-circle"
+            (click)="toggleFavorite()"
+          >
             <i class="fas fa-heart"></i>
           </button>
-          <button class="btn btn-dark btn-lg rounded-circle" (click)="shareRestaurant()">
+          <button
+            class="btn btn-dark btn-lg rounded-circle"
+            (click)="shareRestaurant()"
+          >
             <i class="fas fa-share-alt"></i>
           </button>
         </div>
@@ -94,11 +111,19 @@
       </div>
 
       <div class="d-flex flex-wrap gap-2 mb-4">
-        <span class="badge bg-secondary px-3 py-2 rounded-pill">{{ restaurant.cuisineType }}</span>
-        <span class="badge bg-secondary px-3 py-2 rounded-pill" *ngIf="restaurant.phoneNumber">
+        <span class="badge bg-secondary px-3 py-2 rounded-pill"
+          >{{ restaurant.cuisineType }}</span
+        >
+        <span
+          class="badge bg-secondary px-3 py-2 rounded-pill"
+          *ngIf="restaurant.phoneNumber"
+        >
           📞 {{ restaurant.phoneNumber }}
         </span>
-        <span class="badge bg-secondary px-3 py-2 rounded-pill" *ngIf="restaurant.businessEmail">
+        <span
+          class="badge bg-secondary px-3 py-2 rounded-pill"
+          *ngIf="restaurant.businessEmail"
+        >
           ✉️ {{ restaurant.businessEmail }}
         </span>
       </div>
@@ -129,11 +154,12 @@
   </section>
 
   <!-- Strengths Section -->
-  <section class="strengths-section bg-dark text-white py-4" *ngIf="strengthsFromReviews.length > 0">
+  <section
+    class="strengths-section bg-dark text-white py-4"
+    *ngIf="strengthsFromReviews.length > 0"
+  >
     <div class="container-xl">
-      <h3 class="h5 mb-3">
-        Punti di forza del ristorante
-      </h3>
+      <h3 class="h5 mb-3">Punti di forza del ristorante</h3>
       <div class="row">
         <div class="col-12" *ngFor="let strength of strengthsFromReviews">
           <div class="d-flex align-items-center mb-2">
@@ -154,7 +180,9 @@
         </div>
         <div>
           <div class="fw-semibold">Ricevi fino al 20% di sconto</div>
-          <small class="text-muted">Potrebbero essere applicate condizioni</small>
+          <small class="text-muted"
+            >Potrebbero essere applicate condizioni</small
+          >
         </div>
       </div>
     </div>
@@ -179,7 +207,10 @@
             [attr.title]="!canBook ? 'Devi essere loggato per effettuare una prenotazione' : null"
           >
             <!-- Overlay vietato per utenti non loggati -->
-            <div *ngIf="!canBook" class="date-overlay d-flex align-items-center justify-content-center">
+            <div
+              *ngIf="!canBook"
+              class="date-overlay d-flex align-items-center justify-content-center"
+            >
               <i class="fas fa-ban text-danger fs-3"></i>
             </div>
 
@@ -190,7 +221,9 @@
               (click)="canBook ? openBookingModal(date) : null"
             >
               <div>{{ date.label }}</div>
-              <small class="badge bg-success position-absolute top-0 end-0 translate-middle">
+              <small
+                class="badge bg-success position-absolute top-0 end-0 translate-middle"
+              >
                 {{ date.discount }}
               </small>
             </button>
@@ -207,7 +240,10 @@
           [attr.data-bs-placement]="'top'"
           [attr.title]="!canBook ? 'Devi essere loggato per effettuare una prenotazione' : null"
         >
-          <div *ngIf="!canBook" class="link-overlay d-flex align-items-center justify-content-center">
+          <div
+            *ngIf="!canBook"
+            class="link-overlay d-flex align-items-center justify-content-center"
+          >
             <i class="fas fa-ban text-danger fs-5"></i>
           </div>
 
@@ -245,7 +281,9 @@
       </div>
 
       <!-- Price Info -->
-      <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary">
+      <div
+        class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary"
+      >
         <i class="fas fa-euro-sign me-3"></i>
         <span class="fw-semibold">PREZZO MEDIO {{ getPriceRange() }}</span>
       </div>
@@ -253,7 +291,10 @@
       <!-- Menu Highlights -->
       <div *ngIf="menuHighlightsByCategory.length > 0 && !menuLoading">
         <h4 class="h5 mb-3">PIATTI HIGHLIGHTS</h4>
-        <div *ngFor="let categoryGroup of menuHighlightsByCategory" class="mb-4">
+        <div
+          *ngFor="let categoryGroup of menuHighlightsByCategory"
+          class="mb-4"
+        >
           <h5 class="h6 text-success mb-2">{{ categoryGroup.category }}</h5>
           <div class="menu-items">
             <div
@@ -270,7 +311,9 @@
       </div>
 
       <!-- Menu placeholder -->
-      <div *ngIf="menuHighlightsByCategory.length === 0 && !menuLoading && !menuError">
+      <div
+        *ngIf="menuHighlightsByCategory.length === 0 && !menuLoading && !menuError"
+      >
         <div class="text-center py-4">
           <div class="fs-1 mb-2">🍽️</div>
           <p class="text-muted">Menu non ancora disponibile</p>
@@ -279,7 +322,10 @@
 
       <!-- View Full Menu -->
       <div class="text-center mt-4">
-        <button class="btn btn-outline-success btn-lg w-100" (click)="openMenuModal()">
+        <button
+          class="btn btn-outline-success btn-lg w-100"
+          (click)="openMenuModal()"
+        >
           VEDI IL MENÙ COMPLETO <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -299,7 +345,9 @@
           <div class="text-warning mb-1">
             {{ getStars(restaurant.rating || 0) }}
           </div>
-          <small class="text-muted">{{ restaurant.reviewCount || 0 }} recensioni</small>
+          <small class="text-muted"
+            >{{ restaurant.reviewCount || 0 }} recensioni</small
+          >
         </div>
       </div>
 
@@ -310,7 +358,8 @@
           <div>
             <div class="fw-semibold">Esperienze reali di clienti reali</div>
             <small class="text-muted">
-              Lascia una recensione e condividi la tua esperienza con altri clienti.
+              Lascia una recensione e condividi la tua esperienza con altri
+              clienti.
             </small>
           </div>
         </div>
@@ -329,7 +378,10 @@
           </button>
         </div>
         <div class="col-md-6">
-          <button class="btn btn-outline-success btn-lg w-100" (click)="viewAllReviews()">
+          <button
+            class="btn btn-outline-success btn-lg w-100"
+            (click)="viewAllReviews()"
+          >
             <i class="fas fa-list me-2"></i>
             LEGGI LE RECENSIONI
           </button>
@@ -343,7 +395,8 @@
           <div>
             <div class="fw-semibold">Hai già recensito questo ristorante</div>
             <small class="text-muted">
-              Rating: {{ userReview.ratingGeneral }}/10 • {{ userReview.createdAt | date:'dd/MM/yyyy' }}
+              Rating: {{ userReview.ratingGeneral }}/10 • {{
+              userReview.createdAt | date:'dd/MM/yyyy' }}
             </small>
           </div>
         </div>
@@ -374,16 +427,22 @@
                 </div>
                 <div>
                   <div class="fw-semibold">
-                    {{ review.customer.firstName }} {{ review.customer.lastName.charAt(0) }}.
+                    {{ review.customer.firstName }} {{
+                    review.customer.lastName.charAt(0) }}.
                   </div>
-                  <small class="text-muted">{{ review.createdAt | date:'dd/MM/yyyy' }}</small>
+                  <small class="text-muted"
+                    >{{ review.createdAt | date:'dd/MM/yyyy' }}</small
+                  >
                 </div>
                 <div class="ms-auto">
-                  <span class="badge bg-success">{{ review.ratingGeneral }}/10</span>
+                  <span class="badge bg-success"
+                    >{{ review.ratingGeneral }}/10</span
+                  >
                 </div>
               </div>
               <p class="mb-0 small" *ngIf="review.comment">
-                "{{ review.comment.length > 100 ? (review.comment | slice:0:100) + '...' : review.comment }}"
+                "{{ review.comment.length > 100 ? (review.comment | slice:0:100)
+                + '...' : review.comment }}"
               </p>
               <div class="text-muted small mt-2" *ngIf="!review.comment">
                 <em>Nessun commento</em>
@@ -391,16 +450,31 @@
             </div>
           </div>
         </div>
+
+        <!-- ✅ Bottone "Vedi tutte" se ci sono più di 2 recensioni -->
+        <div class="text-center mt-4" *ngIf="reviews.length > 2">
+          <button class="btn btn-outline-primary" (click)="viewAllReviews()">
+            <i class="fas fa-list me-2"></i>
+            Vedi tutte le {{ reviews.length }} recensioni
+          </button>
+        </div>
       </div>
 
       <!-- No Reviews Message -->
-      <div *ngIf="reviews.length === 0 && !reviewsLoading && !reviewsError" class="text-center py-4">
+      <div
+        *ngIf="reviews.length === 0 && !reviewsLoading && !reviewsError"
+        class="text-center py-4"
+      >
         <div class="fs-1 mb-2">⭐</div>
         <h5 class="mb-3">Nessuna recensione ancora</h5>
         <p class="text-muted mb-4">
           Sii il primo a lasciare una recensione per questo ristorante!
         </p>
-        <button class="btn btn-success btn-lg" (click)="openReviewModal()" [disabled]="!canWriteReview">
+        <button
+          class="btn btn-success btn-lg"
+          (click)="openReviewModal()"
+          [disabled]="!canWriteReview"
+        >
           <i class="fas fa-star me-2"></i>
           Scrivi la Prima Recensione
         </button>
@@ -408,8 +482,11 @@
     </div>
   </section>
 
-  <!-- ✅ FIXED BOTTOM CTA - UNICO E CORRETTO -->
-  <div class="fixed-bottom p-3 bg-dark border-top border-secondary" *ngIf="shouldShowFixedBottom">
+  <!-- ✅ FIXED BOTTOM CTA -->
+  <div
+    class="fixed-bottom p-3 bg-dark border-top border-secondary"
+    *ngIf="shouldShowFixedBottom"
+  >
     <div class="container-xl">
       <button
         class="btn btn-lg w-100 fw-bold"
@@ -422,8 +499,12 @@
     </div>
   </div>
 
-  <!-- ✅ PHOTO MODAL - RIAGGIUNTO -->
-  <div class="photo-modal-overlay" *ngIf="isPhotoModalOpen" (click)="closePhotoModal()">
+  <!-- ✅ PHOTO MODAL -->
+  <div
+    class="photo-modal-overlay"
+    *ngIf="isPhotoModalOpen"
+    (click)="closePhotoModal()"
+  >
     <div class="photo-modal-container" (click)="$event.stopPropagation()">
       <button class="photo-modal-close" (click)="closePhotoModal()">
         <i class="fas fa-times"></i>
@@ -435,6 +516,9 @@
         class="photo-modal-image"
         (load)="onPhotoLoaded()"
         (error)="onPhotoError()"
+        (touchstart)="onModalTouchStart($event)"
+        (touchend)="onModalTouchEnd($event)"
+        style="touch-action: pan-y"
       />
 
       <div class="photo-modal-nav" *ngIf="photoCount > 1">
@@ -452,13 +536,19 @@
 
       <div class="photo-modal-info">
         <h3 class="photo-modal-title">{{ restaurant.name }}</h3>
-        <p class="photo-modal-subtitle">{{ restaurant.address }}, {{ restaurant.city }}</p>
+        <p class="photo-modal-subtitle">
+          {{ restaurant.address }}, {{ restaurant.city }}
+        </p>
       </div>
     </div>
   </div>
 
   <!-- ✅ MENU MODAL -->
-  <div class="menu-modal-overlay" *ngIf="isMenuModalOpen" (click)="closeMenuModal()">
+  <div
+    class="menu-modal-overlay"
+    *ngIf="isMenuModalOpen"
+    (click)="closeMenuModal()"
+  >
     <div class="menu-modal-container" (click)="$event.stopPropagation()">
       <button class="menu-modal-close" (click)="closeMenuModal()">
         <i class="fas fa-times"></i>
@@ -478,7 +568,10 @@
         </div>
 
         <div *ngIf="menuByCategory.length > 0 && !menuLoading">
-          <div *ngFor="let categoryGroup of menuByCategory" class="menu-category-group">
+          <div
+            *ngFor="let categoryGroup of menuByCategory"
+            class="menu-category-group"
+          >
             <h4 class="menu-category-title">{{ categoryGroup.category }}</h4>
             <ul class="menu-items-list">
               <li *ngFor="let item of categoryGroup.items" class="menu-item">
@@ -491,9 +584,72 @@
           </div>
         </div>
 
-        <div *ngIf="menuByCategory.length === 0 && !menuLoading" class="text-center py-4">
+        <div
+          *ngIf="menuByCategory.length === 0 && !menuLoading"
+          class="text-center py-4"
+        >
           <div class="fs-1 mb-2">🍽️</div>
           <p class="text-muted">Menu non disponibile</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ REVIEWS MODAL -->
+  <div
+    class="reviews-modal-overlay"
+    *ngIf="isReviewsModalOpen"
+    (click)="closeReviewsModal()"
+  >
+    <div class="reviews-modal-container" (click)="$event.stopPropagation()">
+      <button class="reviews-modal-close" (click)="closeReviewsModal()">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="reviews-modal-header">
+        <h3 class="reviews-modal-title">Tutte le Recensioni</h3>
+        <p class="reviews-modal-subtitle">{{ restaurant.name }}</p>
+      </div>
+
+      <div class="reviews-modal-content">
+        <div *ngIf="reviews.length > 0" class="reviews-list">
+          <div *ngFor="let review of reviews" class="review-item">
+            <!-- Usa gli stessi dati che già funzionano -->
+            <div class="review-header">
+              <div class="review-user-info">
+                <div class="review-avatar">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="review-user-details">
+                  <div class="review-user-name">
+                    {{ review.customer.firstName }} {{
+                    review.customer.lastName.charAt(0) }}.
+                  </div>
+                  <div class="review-date">
+                    {{ review.createdAt | date:'dd/MM/yyyy' }}
+                  </div>
+                </div>
+              </div>
+              <div class="review-rating-badge">
+                <span class="review-rating-value"
+                  >{{ review.ratingGeneral }}/10</span
+                >
+              </div>
+            </div>
+
+            <div class="review-content" *ngIf="review.comment">
+              <p class="review-text">{{ review.comment }}</p>
+            </div>
+
+            <div class="review-no-comment" *ngIf="!review.comment">
+              <em class="text-muted">Nessun commento aggiuntivo</em>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="reviews.length === 0" class="text-center py-5">
+          <div class="empty-reviews-icon">⭐</div>
+          <h5 class="empty-reviews-title">Nessuna recensione disponibile</h5>
         </div>
       </div>
     </div>

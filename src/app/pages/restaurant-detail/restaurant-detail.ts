@@ -30,12 +30,16 @@ interface MenuHighlight {
 @Component({
   selector: 'app-restaurant-detail',
   standalone: true,
-  imports: [CommonModule, BookingModalComponent, ReviewModalComponent, AuthModalComponent],
+  imports: [
+    CommonModule,
+    BookingModalComponent,
+    ReviewModalComponent,
+    AuthModalComponent,
+  ],
   templateUrl: './restaurant-detail.html',
-  styleUrls: ['./restaurant-detail.css']
+  styleUrls: ['./restaurant-detail.css'],
 })
 export class RestaurantDetailComponent implements OnInit, OnDestroy {
-
   restaurant: IRestaurant | null = null;
   photos: IPhoto[] = [];
   menuItems: IMenuItem[] = [];
@@ -55,6 +59,11 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
   isReviewModalOpen = false;
   isBookingModalOpen = false;
   isPhotoModalOpen = false;
+  isReviewsModalOpen = false;
+
+    private touchStartX: number = 0;
+    private touchEndX: number = 0;
+    private minSwipeDistance: number = 50;
 
   menuByCategory: { category: string; items: IMenuItem[] }[] = [];
   menuHighlightsByCategory: { category: string; items: IMenuItem[] }[] = [];
@@ -75,9 +84,21 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
   // Dati mock per demo
   availableDates = [
     { label: 'Oggi', date: new Date(), discount: '-20%' },
-    { label: 'Domani', date: new Date(Date.now() + 86400000), discount: '-20%' },
-    { label: 'Sab 06 Lug', date: new Date(Date.now() + 2 * 86400000), discount: '-20%' },
-    { label: 'Dom 07 Lug', date: new Date(Date.now() + 3 * 86400000), discount: '-20%' }
+    {
+      label: 'Domani',
+      date: new Date(Date.now() + 86400000),
+      discount: '-20%',
+    },
+    {
+      label: 'Sab 06 Lug',
+      date: new Date(Date.now() + 2 * 86400000),
+      discount: '-20%',
+    },
+    {
+      label: 'Dom 07 Lug',
+      date: new Date(Date.now() + 3 * 86400000),
+      discount: '-20%',
+    },
   ];
 
   // Strengths placeholder
@@ -85,7 +106,7 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
     'Qualità degli ingredienti',
     'Servizio attento',
     'Atmosfera accogliente',
-    'Ottimo rapporto qualità-prezzo'
+    'Ottimo rapporto qualità-prezzo',
   ];
 
   constructor(
@@ -97,11 +118,12 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
     private uploadService: UploadService,
     private reviewService: ReviewService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+
   ) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       this.restaurantId = +params['id'];
       if (this.restaurantId) {
         this.loadRestaurantDetail();
@@ -139,7 +161,12 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
         this.loadMenuItems();
         this.loadReviews();
 
-        console.log('🔧 DEBUG - loading:', this.loading, 'restaurant:', this.restaurant);
+        console.log(
+          '🔧 DEBUG - loading:',
+          this.loading,
+          'restaurant:',
+          this.restaurant
+        );
         this.cdr.detectChanges();
 
         // Re-inizializza tooltip dopo il caricamento
@@ -150,7 +177,7 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
         this.error = 'Errore nel caricamento del ristorante.';
         this.loading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -173,17 +200,21 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
         this.reviewsError = 'Errore nel caricamento delle recensioni.';
         this.reviewsLoading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
   private checkUserReview() {
     const currentUser = this.authService.currentUser();
     if (currentUser && this.reviews.length > 0) {
-      this.userReview = this.reviews.find(review =>
-        review.customer.id === currentUser.userId
-      ) || null;
-      console.log('👤 Review utente corrente:', this.userReview ? 'Trovata' : 'Non trovata');
+      this.userReview =
+        this.reviews.find(
+          (review) => review.customer.id === currentUser.userId
+        ) || null;
+      console.log(
+        '👤 Review utente corrente:',
+        this.userReview ? 'Trovata' : 'Non trovata'
+      );
     }
   }
 
@@ -207,7 +238,7 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
 
     console.log('📝 Apertura modal review:', {
       mode: this.userReview ? 'modifica' : 'nuova',
-      restaurant: this.restaurant?.name
+      restaurant: this.restaurant?.name,
     });
   }
 
@@ -225,9 +256,12 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
       this.restaurantService.getRestaurantById(this.restaurantId).subscribe({
         next: (updatedRestaurant) => {
           this.restaurant = updatedRestaurant;
-          console.log('🔄 Ristorante aggiornato con nuovo rating:', updatedRestaurant.rating);
+          console.log(
+            '🔄 Ristorante aggiornato con nuovo rating:',
+            updatedRestaurant.rating
+          );
           this.cdr.detectChanges();
-        }
+        },
       });
     }
   }
@@ -303,13 +337,13 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
       cancelButtonColor: '#6c757d',
       buttonsStyling: false,
       allowOutsideClick: true,
-      allowEscapeKey: true
+      allowEscapeKey: true,
     }).then((result) => {
       if (result.isConfirmed) {
         console.log('🔄 Utente ha confermato - apro modal auth...');
         this.openAuthModal();
       } else {
-        console.log('❌ Login annullato dall\'utente');
+        console.log("❌ Login annullato dall'utente");
       }
     });
   }
@@ -359,7 +393,7 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
           document.querySelectorAll('[data-bs-toggle="tooltip"]')
         );
 
-        tooltipTriggerList.forEach(tooltipTriggerEl => {
+        tooltipTriggerList.forEach((tooltipTriggerEl) => {
           try {
             new (window as any).bootstrap.Tooltip(tooltipTriggerEl, {
               trigger: 'hover focus',
@@ -367,7 +401,7 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
               animation: true,
               html: false,
               placement: 'top',
-              customClass: 'custom-booking-tooltip'
+              customClass: 'custom-booking-tooltip',
             });
             console.log('✅ Tooltip inizializzato per:', tooltipTriggerEl);
           } catch (error) {
@@ -380,9 +414,13 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
 
   private destroyTooltips(): void {
     try {
-      const tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-      tooltipElements.forEach(element => {
-        const tooltip = (window as any).bootstrap?.Tooltip?.getInstance(element);
+      const tooltipElements = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+      );
+      tooltipElements.forEach((element) => {
+        const tooltip = (window as any).bootstrap?.Tooltip?.getInstance(
+          element
+        );
         if (tooltip) {
           tooltip.dispose();
         }
@@ -393,8 +431,10 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
   }
 
   private checkBootstrapAvailability(): boolean {
-    return typeof (window as any).bootstrap !== 'undefined' &&
-           typeof (window as any).bootstrap.Tooltip !== 'undefined';
+    return (
+      typeof (window as any).bootstrap !== 'undefined' &&
+      typeof (window as any).bootstrap.Tooltip !== 'undefined'
+    );
   }
 
   refreshTooltips(): void {
@@ -417,7 +457,9 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
         this.photos = photos;
 
         if (photos.length > 0) {
-          this.heroImageUrl = this.uploadService.getImageUrl(photos[0].fileName);
+          this.heroImageUrl = this.uploadService.getImageUrl(
+            photos[0].fileName
+          );
         }
 
         this.photosLoading = false;
@@ -428,21 +470,29 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
         this.photosError = 'Errore nel caricamento delle foto.';
         this.photosLoading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
   nextPhoto() {
     if (this.photos.length > 0) {
-      this.currentPhotoIndex = (this.currentPhotoIndex + 1) % this.photos.length;
-      this.heroImageUrl = this.uploadService.getImageUrl(this.photos[this.currentPhotoIndex].fileName);
+      this.currentPhotoIndex =
+        (this.currentPhotoIndex + 1) % this.photos.length;
+      this.heroImageUrl = this.uploadService.getImageUrl(
+        this.photos[this.currentPhotoIndex].fileName
+      );
     }
   }
 
   previousPhoto() {
     if (this.photos.length > 0) {
-      this.currentPhotoIndex = this.currentPhotoIndex === 0 ? this.photos.length - 1 : this.currentPhotoIndex - 1;
-      this.heroImageUrl = this.uploadService.getImageUrl(this.photos[this.currentPhotoIndex].fileName);
+      this.currentPhotoIndex =
+        this.currentPhotoIndex === 0
+          ? this.photos.length - 1
+          : this.currentPhotoIndex - 1;
+      this.heroImageUrl = this.uploadService.getImageUrl(
+        this.photos[this.currentPhotoIndex].fileName
+      );
     }
   }
 
@@ -495,14 +545,14 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
         this.menuError = 'Errore nel caricamento del menu.';
         this.menuLoading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
   private organizeMenuByCategory() {
     const categoriesMap = new Map<string, IMenuItem[]>();
 
-    this.menuItems.forEach(item => {
+    this.menuItems.forEach((item) => {
       const category = item.category || 'Altri piatti';
       if (!categoriesMap.has(category)) {
         categoriesMap.set(category, []);
@@ -513,16 +563,18 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
     this.menuByCategory = Array.from(categoriesMap.entries())
       .map(([category, items]) => ({
         category,
-        items: items.sort((a, b) => a.name.localeCompare(b.name))
+        items: items.sort((a, b) => a.name.localeCompare(b.name)),
       }))
       .sort((a, b) => a.category.localeCompare(b.category));
   }
 
   private createMenuHighlights() {
-    this.menuHighlightsByCategory = this.menuByCategory.map(categoryGroup => ({
-      category: categoryGroup.category,
-      items: categoryGroup.items.slice(0, 2)
-    })).filter(group => group.items.length > 0);
+    this.menuHighlightsByCategory = this.menuByCategory
+      .map((categoryGroup) => ({
+        category: categoryGroup.category,
+        items: categoryGroup.items.slice(0, 2),
+      }))
+      .filter((group) => group.items.length > 0);
   }
 
   openMenuModal() {
@@ -555,11 +607,6 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
     console.log('📤 Condividi ristorante:', this.restaurantId);
   }
 
-  viewAllReviews() {
-    console.log('⭐ Visualizza tutte le recensioni');
-    console.log('📋 Review caricate:', this.reviews);
-  }
-
   selectDate(date: any) {
     console.log('📅 Data selezionata:', date);
     this.openBookingModal(date);
@@ -581,8 +628,8 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
 
   getPriceRange(): string {
     if (this.menuItems.length > 0) {
-      const prices = this.menuItems.map(item => item.price);
-      const avgPrice = prices.reduce((a, b) => a + b, 0) * 3 / prices.length;
+      const prices = this.menuItems.map((item) => item.price);
+      const avgPrice = (prices.reduce((a, b) => a + b, 0) * 3) / prices.length;
       return `${Math.round(avgPrice)} €`;
     }
     return '25 €';
@@ -632,6 +679,15 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
           break;
       }
     }
+
+    // Aggiungi al tuo @HostListener esistente il caso per reviews modal
+    if (this.isReviewsModalOpen) {
+      switch (event.key) {
+        case 'Escape':
+          this.closeReviewsModal();
+          break;
+      }
+    }
   }
 
   // ✅ GETTERS
@@ -664,7 +720,7 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
     console.log('🔍 canBook check:', {
       hasUser: !!user,
       isCustomer: isCustomer,
-      result: result
+      result: result,
     });
 
     return result;
@@ -679,7 +735,9 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
     if (!this.canWriteReview) {
       return 'Accedi per Recensire';
     }
-    return this.userReview ? 'Modifica la tua Recensione' : 'Scrivi una Recensione';
+    return this.userReview
+      ? 'Modifica la tua Recensione'
+      : 'Scrivi una Recensione';
   }
 
   get reviewButtonIcon(): string {
@@ -695,10 +753,83 @@ export class RestaurantDetailComponent implements OnInit, OnDestroy {
   }
 
   get shouldShowFixedBottom(): boolean {
-    return !this.isBookingModalOpen &&
-           !this.isPhotoModalOpen &&
-           !this.isMenuModalOpen &&
-           !this.isReviewModalOpen &&
-           !this.isAuthModalOpen;
+    return (
+      !this.isBookingModalOpen &&
+      !this.isPhotoModalOpen &&
+      !this.isMenuModalOpen &&
+      !this.isReviewModalOpen &&
+      !this.isAuthModalOpen &&
+      !this.isReviewsModalOpen
+    ); // Aggiungi questa riga
   }
+
+  // Aggiungi questi metodi
+  openReviewsModal() {
+    console.log('⭐ Apri modal recensioni complete');
+    this.isReviewsModalOpen = true;
+    document.body.classList.add('reviews-modal-open');
+  }
+
+  closeReviewsModal() {
+    console.log('❌ Chiudi modal recensioni');
+    this.isReviewsModalOpen = false;
+    document.body.classList.remove('reviews-modal-open');
+  }
+
+  // Modifica il metodo viewAllReviews esistente
+  viewAllReviews() {
+    console.log('⭐ Visualizza tutte le recensioni');
+    this.openReviewsModal(); // Aggiungi questa riga
+  }
+
+
+  // ✅ TOUCH EVENT HANDLERS - Aggiungi questi metodi
+onTouchStart(event: TouchEvent) {
+  this.touchStartX = event.touches[0].clientX;
+}
+
+onTouchEnd(event: TouchEvent) {
+  this.touchEndX = event.changedTouches[0].clientX;
+  this.handleSwipe();
+}
+
+private handleSwipe() {
+  const swipeDistance = this.touchStartX - this.touchEndX;
+
+  if (Math.abs(swipeDistance) > this.minSwipeDistance) {
+    if (swipeDistance > 0) {
+      // Swipe left - foto successiva
+      this.nextPhoto();
+    } else {
+      // Swipe right - foto precedente
+      this.previousPhoto();
+    }
+  }
+}
+
+// ✅ MODAL SWIPE HANDLERS - Per il modal foto
+onModalTouchStart(event: TouchEvent) {
+  this.touchStartX = event.touches[0].clientX;
+}
+
+onModalTouchEnd(event: TouchEvent) {
+  this.touchEndX = event.changedTouches[0].clientX;
+  this.handleModalSwipe();
+}
+
+private handleModalSwipe() {
+  const swipeDistance = this.touchStartX - this.touchEndX;
+
+  if (Math.abs(swipeDistance) > this.minSwipeDistance) {
+    if (swipeDistance > 0) {
+      // Swipe left - foto successiva
+      this.nextPhotoModal();
+    } else {
+      // Swipe right - foto precedente
+      this.previousPhotoModal();
+    }
+  }
+}
+
+
 }
